@@ -13,9 +13,6 @@ PImage images[] = new PImage[imgcount];
 Minim minim;
 AudioOutput out;
 
-// the Oscil we use for modulating frequency.
-Oscil fm;
-
 void setup() {
   size(displayWidth, displayHeight); //Use entire screen size.
   smooth(); // draws all shapes with smooth edges.
@@ -28,22 +25,6 @@ void setup() {
   minim = new Minim( this );
   out   = minim.getLineOut();
   
-  // make the Oscil we will hear.
-  // arguments are frequency, amplitude, and waveform
-  Oscil wave = new Oscil( 200, 0.8, Waves.TRIANGLE );
-  // make the Oscil we will use to modulate the frequency of wave.
-  // the frequency of this Oscil will determine how quickly the
-  // frequency of wave changes and the amplitude determines how much.
-  // since we are using the output of fm directly to set the frequency 
-  // of wave, you can think of the amplitude as being expressed in Hz.
-  fm   = new Oscil( 10, 2, Waves.SINE );
-  // set the offset of fm so that it generates values centered around 200 Hz
-  fm.offset.setLastValue( 50 );
-  // patch it to the frequency of wave so it controls it
-  fm.patch( wave.frequency );
-  // and patch wave to the output
-  wave.patch( out );
-
   myPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
   myPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
 }
@@ -62,12 +43,6 @@ void draw() {
   long now = millis();
   long n = now - previousMillis;
   if (n > 200) {
-    float modulateFrequency = map( distance, 0, max, 0.1, 100 );
-    fm.setFrequency( modulateFrequency );
-
-//    float modulateAmount = map( distance, 0, max, 220, 1 );
-//    fm.setAmplitude( modulateAmount );
-    
     int newFrame = frame;
     if (distance > 0) {
       period = max / float(imgcount);

@@ -5,12 +5,28 @@ import ddf.minim.analysis.*;
 import ddf.minim.effects.*;
 import ddf.minim.ugens.*;
 
+// Configuration
 int imgcount = 20;
 boolean usePort = false;
 boolean fullScreen = false;
+int keyboardStep = 10;
 
+// Serial port, for reading distance from ultrasonic sensor.
+// Optional.
 Serial serialPort;
+
+// Images that make up the animation sequence
 PImage images[] = new PImage[imgcount];
+
+// HUD
+PFont f;
+
+// Animation draw state
+int distance = 0;
+long previousMillis = 0;
+int frame = 16;
+int max = 1;
+float period = 1;
 
 void setup() {
   size(displayWidth, displayHeight); //Use entire screen size.
@@ -24,13 +40,13 @@ void setup() {
     serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
     serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
   }
+  
+  if (!usePort) {
+    distance = 400; // fake initial distance for simulation
+  }
+  
+  f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
 }
-
-int distance = 0;
-long previousMillis = 0;
-int frame = 16;
-int max = 1;
-float period = 1;
 
 void draw() {
   if (distance > max) {
@@ -77,14 +93,24 @@ void draw() {
     
     previousMillis = now;
   }
+  
+  // Update HUD
+  textFont(f,36);
+  fill(255);
+  text("Distance" + nfs(distance, 2), 10, 100);
 }
 
 void keyPressed() {
+  int newDistance = 0;
   if (UP == keyCode) {
-    distance++;
+    newDistance = distance + keyboardStep;
   } else if (DOWN == keyCode) {
-    distance--;
+    newDistance = distance - keyboardStep;
   }
+  if (newDistance < 0) {
+    newDistance = 0;
+  }
+  distance = newDistance;
 }
 
 void serialEvent(Serial cPort) {

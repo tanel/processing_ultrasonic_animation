@@ -79,6 +79,14 @@ void draw() {
   }
 }
 
+void keyPressed() {
+  if (UP == keyCode) {
+    distance++;
+  } else if (DOWN == keyCode) {
+    distance--;
+  }
+}
+
 void serialEvent(Serial cPort) {
   String s = cPort.readStringUntil('\n');
   if (s != null) {

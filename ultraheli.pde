@@ -5,9 +5,11 @@ import ddf.minim.analysis.*;
 import ddf.minim.effects.*;
 import ddf.minim.ugens.*;
 
-Serial myPort;
-
 int imgcount = 20;
+boolean usePort = false;
+boolean fullScreen = false;
+
+Serial serialPort;
 PImage images[] = new PImage[imgcount];
 
 void setup() {
@@ -18,8 +20,10 @@ void setup() {
     images[i] = loadImage(str(i) + ".jpg");
   }
 
-  myPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
-  myPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
+  if (usePort) {
+    serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
+    serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
+  }
 }
 
 int distance = 0;
@@ -88,6 +92,6 @@ void serialEvent(Serial cPort) {
 }
 
 boolean sketchFullScreen() {
-  return true;
+  return fullScreen;
 }
 

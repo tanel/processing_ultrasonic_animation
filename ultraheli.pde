@@ -6,10 +6,11 @@ import ddf.minim.effects.*;
 import ddf.minim.ugens.*;
 
 // Configuration
-int imgcount = 20;
+int imgcount = 326;
 boolean usePort = false;
 boolean fullScreen = false;
 int keyboardStep = 10;
+boolean hud = true;
 
 // Serial port, for reading distance from ultrasonic sensor.
 // Optional.
@@ -23,6 +24,7 @@ PFont f;
 
 // Animation draw state
 int distance = 0;
+int lastDistance = distance;
 long previousMillis = 0;
 int frame = 16;
 int max = 1;
@@ -53,17 +55,17 @@ void draw() {
     max = distance;
   }
   
+  
   long now = millis();
-  long n = now - previousMillis;
-  if (n > 200) {
-    int newFrame = frame;
-    if (distance > 0) {
+  long timePassed = now - previousMillis;
+  int newFrame = frame;
+  if (timePassed > 200) {
+    if (distance > 0 && distance != lastDistance) {
       period = max / float(imgcount);
       newFrame = int(distance / period);
+      lastDistance = distance;
     }
 
-    println(millis(), "period", period, "distance", distance, "frame", frame, "newframe", newFrame, "max", max);
-   
     int change = 0; 
     // animation direction
     if (newFrame > frame) {
@@ -95,9 +97,17 @@ void draw() {
   }
   
   // Update HUD
-  textFont(f,36);
-  fill(255);
-  text("Distance" + nfs(distance, 2), 10, 100);
+  String debugInfo = 
+      " distance=" + nf(distance, 0)
+    + " frame=" + nf(frame, 0) + "/" + nf(imgcount, 0)
+    +  " max=" + nf(max, 0);  
+  if (hud) {
+    textFont(f,36);
+    fill(0);
+    text(debugInfo, 10, 100);
+  } else {
+    println(debugInfo);
+  }
 }
 
 void keyPressed() {
@@ -117,7 +127,6 @@ void serialEvent(Serial cPort) {
   String s = cPort.readStringUntil('\n');
   if (s != null) {
     s = trim(s);
-    println("distance", s);
     distance = int(Integer.parseInt(s));
     if (distance < 0) {
       distance = 0;

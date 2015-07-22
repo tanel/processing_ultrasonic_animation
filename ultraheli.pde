@@ -31,11 +31,14 @@ int max = 1;
 float period = 1;
 
 void setup() {
+  long now = millis();
+  
   size(displayWidth, displayHeight); //Use entire screen size.
   smooth(); // draws all shapes with smooth edges.
 
   for (int i = 0; i < imgcount; i++) {
     images[i] = loadImage(str(i) + ".jpg");
+    println("loading image " + nf(i, 0) + "/" + nf(imgcount, 0));
   }
 
   if (usePort) {
@@ -48,6 +51,10 @@ void setup() {
   }
   
   f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
+  
+  int spent = int(millis() - now);
+  
+  println("setup took " + nf(spent, 0) + " seconds");
 }
 
 void draw() {
@@ -55,8 +62,8 @@ void draw() {
     max = distance;
   }
   
-  
   long now = millis();
+
   long timePassed = now - previousMillis;
   int newFrame = frame;
   if (timePassed > 200) {

@@ -10,9 +10,6 @@ Serial myPort;
 int imgcount = 20;
 PImage images[] = new PImage[imgcount];
 
-Minim minim;
-AudioOutput out;
-
 void setup() {
   size(displayWidth, displayHeight); //Use entire screen size.
   smooth(); // draws all shapes with smooth edges.
@@ -21,10 +18,6 @@ void setup() {
     images[i] = loadImage(str(i) + ".jpg");
   }
 
-  // initialize the minim and out objects
-  minim = new Minim( this );
-  out   = minim.getLineOut();
-  
   myPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
   myPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
 }

@@ -9,8 +9,9 @@ import ddf.minim.ugens.*;
 int imgcount = 326;
 boolean usePort = false;
 boolean fullScreen = false;
-int keyboardStep = 10;
+int keyboardStep = 1;
 boolean hud = true;
+int max = imgcount;
 
 // Serial port, for reading distance from ultrasonic sensor.
 // Optional.
@@ -27,8 +28,7 @@ PFont f;
 int distance = 0;
 int lastDistance = distance;
 long previousMillis = 0;
-int frame = 16;
-int max = 1;
+int frame = 0;
 float period = 1;
 
 void setup() {
@@ -55,7 +55,7 @@ void setup() {
 
 void draw() {
   if (distance > max) {
-    max = distance;
+    distance = max;
   }
   
   long now = millis();
@@ -102,8 +102,7 @@ void draw() {
   // Update HUD
   String debugInfo = 
       " distance=" + nf(distance, 0)
-    + " frame=" + nf(frame, 0) + "/" + nf(imgcount, 0)
-    +  " max=" + nf(max, 0);  
+    + " frame=" + nf(frame, 0) + "/" + nf(imgcount, 0);
   if (hud) {
     textFont(f,36);
     fill(0);

@@ -18,6 +18,7 @@ Serial serialPort;
 
 // Images that make up the animation sequence
 PImage images[] = new PImage[imgcount];
+boolean loadedImages[] = new boolean[imgcount];
 
 // HUD
 PFont f;
@@ -35,11 +36,6 @@ void setup() {
   
   size(displayWidth, displayHeight); //Use entire screen size.
   smooth(); // draws all shapes with smooth edges.
-
-  for (int i = 0; i < imgcount; i++) {
-    images[i] = loadImage(str(i) + ".jpg");
-    println("loading image " + nf(i, 0) + "/" + nf(imgcount, 0));
-  }
 
   if (usePort) {
     serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
@@ -93,7 +89,7 @@ void draw() {
       frame = imgcount-1;
     }
     
-    PImage img = images[frame];
+    PImage img = getImage(frame);
     image(img, 0, 0, displayWidth, displayHeight);
     
     tint(255, 127);  // Display at half opacity
@@ -115,6 +111,15 @@ void draw() {
   } else {
     println(debugInfo);
   }
+}
+
+PImage getImage(int i) {
+  if (!loadedImages[i]) {
+    println("loading image " + nf(i, 0) + "/" + nf(imgcount, 0));
+    images[i] = loadImage(str(i) + ".jpg");
+    loadedImages[i] = true;
+  }
+  return images[i];
 }
 
 void keyPressed() {

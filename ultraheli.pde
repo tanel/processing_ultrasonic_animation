@@ -9,9 +9,10 @@ import ddf.minim.ugens.*;
 int imgcount = 326;
 boolean usePort = false;
 boolean fullScreen = false;
-int keyboardStep = 1;
+int keyboardStep = 10;
 boolean hud = true;
-int max = imgcount;
+int maxDistance = 1000;
+int sleepMillis = 200;
 
 // Serial port, for reading distance from ultrasonic sensor.
 // Optional.
@@ -30,10 +31,9 @@ int lastDistance = distance;
 long previousMillis = 0;
 int frame = 0;
 float period = 1;
+float distanceOfFrame = maxDistance / imgcount;
 
 void setup() {
-  long now = millis();
-  
   size(displayWidth, displayHeight); //Use entire screen size.
   smooth(); // draws all shapes with smooth edges.
 
@@ -43,73 +43,91 @@ void setup() {
   }
   
   if (!usePort) {
-    distance = 400; // fake initial distance for simulation
+    distance = maxDistance; // fake initial distance for simulation
   }
-  
-  f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
-  
-  int spent = int(millis() - now);
-  
-  println("setup took " + nf(spent, 0) + " seconds");
+
+  if (hud) {
+    f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
+  }
 }
 
 void draw() {
-  if (distance > max) {
-    distance = max;
+  // distance is read somewhere else. here we just make sure
+  // it does not overstep the bounds.
+  if (distance > maxDistance) {
+    distance = maxDistance;
+  } else if (distance < 0) {
+    distance = 0;
   }
-  
+
+  // Dont do anything unless n millis have passed.  
   long now = millis();
-
   long timePassed = now - previousMillis;
-  int newFrame = frame;
-  if (timePassed > 200) {
-    if (distance > 0 && distance != lastDistance) {
-      period = max / float(imgcount);
-      newFrame = int(distance / period);
-      lastDistance = distance;
-    }
-
-    int change = 0; 
-    // animation direction
-    if (newFrame > frame) {
-      // moving away
-      change = 1;
-    } else if (newFrame < frame) {
-      // moving closer
-      change = -1;
-    }
-    
-    frame = frame + change;
-
-    // stay within bounds    
-    if (frame < 0) {
-      frame = 0;
-    }
-    if (frame >= imgcount) {
-      frame = imgcount-1;
-    }
-    
-    PImage img = getImage(frame);
-    image(img, 0, 0, displayWidth, displayHeight);
-    
-    tint(255, 127);  // Display at half opacity
-
-    image(img, 0, 0, displayWidth, displayHeight);
-    
-    previousMillis = now;
+  if (timePassed < sleepMillis) {
+    return;
   }
   
-  // Update HUD
+  // Draw the current animation frame
+  PImage img = getImage(frame);
+  image(img, 0, 0, displayWidth, displayHeight);
+  tint(255, 127);  // Display at half opacity
+  image(img, 0, 0, displayWidth, displayHeight);
+
+  // If distance has not changed, we're done
+  if (lastDistance == distance) {
+    return;
+  }
+
+  calculateFrame();
+
+  previousMillis = now;
+
+  updateHUD();
+}
+
+void calculateFrame() {
+  int destination = frameForDistance();
+  
+  // are we already there?
+  if (destination == frame) {
+    return;
+  }
+  
+  // move back to destination
+  if (destination < frame) {
+    frame = frame - 1;
+    return;
+  }
+  
+  // move towards destination
+  frame = frame + 1;
+}
+
+// Frame for current distance
+// Note that this is not the actual frame that will be animated.
+// Instead will start to animate towards this frame.
+int frameForDistance() {
+  int result = imgcount - int(distance / distanceOfFrame);
+  if (result < 0) {
+    result = 0;
+  }
+  if (result >= imgcount - 1) {
+    result = imgcount - 1;
+  }
+  return result;
+}
+
+void updateHUD() {
   String debugInfo = 
       " distance=" + nf(distance, 0)
     + " frame=" + nf(frame, 0) + "/" + nf(imgcount, 0);
-  if (hud) {
-    textFont(f,36);
-    fill(0);
-    text(debugInfo, 10, 100);
-  } else {
+  if (!hud) {
     println(debugInfo);
+    return;
   }
+  textFont(f,36);
+  fill(0);
+  text(debugInfo, 10, 100);
 }
 
 PImage getImage(int i) {
@@ -124,9 +142,11 @@ PImage getImage(int i) {
 void keyPressed() {
   int newDistance = 0;
   if (UP == keyCode) {
-    newDistance = distance + keyboardStep;
-  } else if (DOWN == keyCode) {
+    // distance decreases as viewer approaches
     newDistance = distance - keyboardStep;
+  } else if (DOWN == keyCode) {
+    // distance incrases as viewer steps back
+    newDistance = distance + keyboardStep;
   }
   if (newDistance < 0) {
     newDistance = 0;

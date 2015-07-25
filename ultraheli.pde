@@ -29,7 +29,6 @@ PFont f;
 
 // Animation draw state
 int distance = 0;
-int lastDistance = distance;
 long previousMillis = 0;
 int frame = 0;
 float period = 1;
@@ -61,59 +60,60 @@ void draw() {
   } else if (distance < 0) {
     distance = 0;
   }
-
-  // Dont do anything unless n millis have passed.  
-  long now = millis();
-  long timePassed = now - previousMillis;
-  if (timePassed < sleepMillis) {
-    return;
-  }
   
   drawFrame();
-
-  // If distance has not changed, we're done
-  if (lastDistance == distance) {
-    return;
-  }
-
   calculateFrame();
-
-  previousMillis = now;
-
-  updateHUD();
 }
 
-int lastDrawnFrame = -1;
-
 void drawFrame() {
-  if (lastDrawnFrame == frame) {
-    return;
-  }
   // Draw the current animation frame
   PImage img = getImage(frame);
   image(img, 0, 0, displayWidth, displayHeight);
   tint(255, 127);  // Display at half opacity
   image(img, 0, 0, displayWidth, displayHeight);
-  
-  lastDrawnFrame = frame;
 }
 
+void introduceRandomness() {
+  return;
+ /*
+    int r = int(random(5));
+    if (r == 0) {
+      r = int(random(2));
+      if (0 == r) {
+        frame = frame - 1;
+      } else {
+        frame = frame + 1;
+      }
+    }
+*/
+}  
+
 void calculateFrame() {
-  int destination = frameForDistance();
+  long now = millis();
   
-  // are we already there?
-  if (destination == frame) {
-    return;
+  long timePassed = now - previousMillis;
+  
+  int destinationFrame = frameForDistance();
+  
+  if (timePassed > sleepMillis) {
+    // move towards destination
+    if (destinationFrame > frame) {
+      frame = frame + 1;
+    } else if (destinationFrame > frame) {
+      frame = frame + 1;
+    }
+
+    previousMillis = now;
   }
   
-  // move back to destination
-  if (destination < frame) {
-    frame = frame - 1;
-    return;
+  if (hud) {
+    textFont(f,36);
+    fill(0);
+    text("distance=" + nf(distance, 0), 10, 100);
+    text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 140);
+    text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 180);
+    text("destination frame=" + nf(destinationFrame, 0), 10, 220);
   }
-  
-  // move towards destination
-  frame = frame + 1;
 }
 
 // Frame for current distance
@@ -128,19 +128,6 @@ int frameForDistance() {
     result = imgcount - 1;
   }
   return result;
-}
-
-void updateHUD() {
-  String debugInfo = 
-      " distance=" + nf(distance, 0)
-    + " frame=" + nf(frame, 0) + "/" + nf(imgcount, 0);
-  if (!hud) {
-    println(debugInfo);
-    return;
-  }
-  textFont(f,36);
-  fill(0);
-  text(debugInfo, 10, 100);
 }
 
 PImage getImage(int i) {

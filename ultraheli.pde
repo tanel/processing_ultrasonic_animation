@@ -69,21 +69,6 @@ void drawFrame() {
   image(img, 0, 0, displayWidth, displayHeight);
 }
 
-void introduceRandomness() {
-  return;
- /*
-    int r = int(random(5));
-    if (r == 0) {
-      r = int(random(2));
-      if (0 == r) {
-        frame = frame - 1;
-      } else {
-        frame = frame + 1;
-      }
-    }
-*/
-}  
-
 void calculateFrame() {
   long now = millis();
   
@@ -97,9 +82,26 @@ void calculateFrame() {
       frame = frame + 1;
     } else if (destinationFrame > frame) {
       frame = frame + 1;
+    } else {
+      // User is not moving, attempt some random stuff
+      int r = int(random(3));
+      if (r == 0) {
+        r = int(random(2));
+        if (0 == r) {
+          frame = frame + 1;
+        } else {
+          frame = frame - 1;
+        }
+      }
     }
 
     previousMillis = now;
+  }
+  
+  if (frame < 0) {
+    frame = 0;
+  } else if (frame >= imgcount) {
+    frame = imgcount - 1;
   }
 
   // Update HUD  

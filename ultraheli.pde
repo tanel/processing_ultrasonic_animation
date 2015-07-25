@@ -106,9 +106,10 @@ void calculateFrame() {
   textFont(f,36);
   fill(0);
   text("distance=" + nf(distance, 0), 10, 100);
-  text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 140);
-  text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 180);
-  text("destination frame=" + nf(destinationFrame, 0), 10, 220);
+  text("max distance=" + nf(int(maxDistance), 0), 10, 140);
+  text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 180);
+  text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 220);
+  text("destination frame=" + nf(destinationFrame, 0), 10, 260);
 }
 
 // Frame for current distance

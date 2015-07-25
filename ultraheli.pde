@@ -1,3 +1,5 @@
+import gab.opencv.*;
+
 import processing.serial.*;
 import ddf.minim.*;
 import ddf.minim.signals.*;
@@ -12,7 +14,7 @@ boolean fullScreen = false;
 int keyboardStep = 10;
 boolean hud = true;
 int maxDistance = 1000;
-int sleepMillis = 200;
+int sleepMillis = 100;
 
 // Serial port, for reading distance from ultrasonic sensor.
 // Optional.
@@ -67,11 +69,7 @@ void draw() {
     return;
   }
   
-  // Draw the current animation frame
-  PImage img = getImage(frame);
-  image(img, 0, 0, displayWidth, displayHeight);
-  tint(255, 127);  // Display at half opacity
-  image(img, 0, 0, displayWidth, displayHeight);
+  drawFrame();
 
   // If distance has not changed, we're done
   if (lastDistance == distance) {
@@ -83,6 +81,21 @@ void draw() {
   previousMillis = now;
 
   updateHUD();
+}
+
+int lastDrawnFrame = -1;
+
+void drawFrame() {
+  if (lastDrawnFrame == frame) {
+    return;
+  }
+  // Draw the current animation frame
+  PImage img = getImage(frame);
+  image(img, 0, 0, displayWidth, displayHeight);
+  tint(255, 127);  // Display at half opacity
+  image(img, 0, 0, displayWidth, displayHeight);
+  
+  lastDrawnFrame = frame;
 }
 
 void calculateFrame() {

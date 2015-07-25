@@ -11,8 +11,6 @@ import ddf.minim.ugens.*;
 int imgcount = 326;
 boolean usePort = false;
 boolean fullScreen = false;
-int keyboardStep = 10;
-boolean hud = true;
 int maxDistance = 1000;
 int sleepMillis = 100;
 
@@ -47,9 +45,7 @@ void setup() {
     distance = maxDistance; // fake initial distance for simulation
   }
 
-  if (hud) {
-    f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
-  }
+  f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
 }
 
 void draw() {
@@ -105,15 +101,14 @@ void calculateFrame() {
 
     previousMillis = now;
   }
-  
-  if (hud) {
-    textFont(f,36);
-    fill(0);
-    text("distance=" + nf(distance, 0), 10, 100);
-    text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 140);
-    text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 180);
-    text("destination frame=" + nf(destinationFrame, 0), 10, 220);
-  }
+
+  // Update HUD  
+  textFont(f,36);
+  fill(0);
+  text("distance=" + nf(distance, 0), 10, 100);
+  text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 140);
+  text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 180);
+  text("destination frame=" + nf(destinationFrame, 0), 10, 220);
 }
 
 // Frame for current distance
@@ -140,6 +135,8 @@ PImage getImage(int i) {
 }
 
 void keyPressed() {
+  int keyboardStep = 10 + int(random(50));
+
   int newDistance = 0;
   if (UP == keyCode) {
     // distance decreases as viewer approaches

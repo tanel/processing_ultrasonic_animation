@@ -112,6 +112,10 @@ void calculateFrame() {
   text("distance of frame=" + nf(int(distanceOfFrame), 0), 10, 180);
   text("frame=" + nf(frame, 0) + "/" + nf(imgcount, 0), 10, 220);
   text("destination frame=" + nf(destinationFrame, 0), 10, 260);
+  int totalMem = int(Runtime.getRuntime().totalMemory() / 1024 / 1024);
+  int freeMem = int(Runtime.getRuntime().freeMemory() / 1024 / 1024);
+  int spentMem = totalMem - freeMem;
+  text("spent mem=" + nf(spentMem, 0), 10, 300);
 }
 
 // Frame for current distance

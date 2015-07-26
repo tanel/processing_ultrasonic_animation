@@ -67,6 +67,7 @@ void drawFrame() {
   image(img, 0, 0, displayWidth, displayHeight);
   tint(255, 127);  // Display at half opacity
   image(img, 0, 0, displayWidth, displayHeight);
+  clearImage(frame);
 }
 
 void calculateFrame() {
@@ -115,7 +116,7 @@ void calculateFrame() {
   int totalMem = int(Runtime.getRuntime().totalMemory() / 1024 / 1024);
   int freeMem = int(Runtime.getRuntime().freeMemory() / 1024 / 1024);
   int spentMem = totalMem - freeMem;
-  text("spent mem=" + nf(spentMem, 0), 10, 300);
+  text("spent mem=" + nf(spentMem, 0) + " mb", 10, 300);
 }
 
 // Frame for current distance
@@ -139,6 +140,13 @@ PImage getImage(int i) {
     loadedImages[i] = true;
   }
   return images[i];
+}
+
+void clearImage(int i) {
+  if (loadedImages[i]) {
+    images[i] = null;
+    loadedImages[i] = false;
+  }
 }
 
 void keyPressed() {

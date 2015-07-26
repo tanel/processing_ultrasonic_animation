@@ -31,6 +31,7 @@ long previousMillis = 0;
 int frame = 0;
 float period = 1;
 float distanceOfFrame = maxDistance / imgcount;
+int loadTime = -1;
 
 void setup() {
   size(displayWidth, displayHeight); //Use entire screen size.
@@ -117,6 +118,7 @@ void calculateFrame() {
   int freeMem = int(Runtime.getRuntime().freeMemory() / 1024 / 1024);
   int spentMem = totalMem - freeMem;
   text("spent mem=" + nf(spentMem, 0) + " mb", 10, 300);
+  text("load time=" + nf(loadTime, 0) + " ms", 10, 340);
 }
 
 // Frame for current distance
@@ -135,10 +137,22 @@ int frameForDistance() {
 
 PImage getImage(int i) {
   if (!loadedImages[i]) {
-    println("loading image " + nf(i, 0) + "/" + nf(imgcount, 0));
+    long now = millis();
+
     images[i] = loadImage(str(i) + ".jpg");
     loadedImages[i] = true;
+
+    int timePassed = int(now - previousMillis);
+
+    println("loaded image " + nf(i, 0) + "/" + nf(imgcount, 0) + " in " + nf(timePassed, 0) + "ms");
+    
+    if (loadTime < 0) {
+      loadTime = timePassed;
+    } else {
+      loadTime = (loadTime + timePassed) / 2; 
+    }
   }
+  
   return images[i];
 }
 

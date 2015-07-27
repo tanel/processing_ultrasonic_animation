@@ -4,6 +4,7 @@
 int imgcount = 326;
 bool usePort = false;
 bool fullscreen = false;
+int minDistance = 0;
 int maxDistance = 1000;
 int sleepMillis = 100;
 
@@ -28,7 +29,6 @@ ofTrueTypeFont f;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    //Set screen frame rate
     ofSetFrameRate( 60 );
     
     ofSetFullscreen(fullscreen);
@@ -43,7 +43,8 @@ void ofApp::setup(){
     }
     
     if (!usePort) {
-        currentDistance = maxDistance; // fake initial distance for simulation
+         // fake initial distance for simulation
+        setDistance(maxDistance);
     }
     
     assert(f.loadFont("verdana.ttf", 16, true, true));
@@ -53,9 +54,11 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    currentDistance = ofClamp(currentDistance, 0, maxDistance);
-    
     calculateFrame();
+}
+
+void ofApp::clearImage(const int i) {
+    images.erase(images.find(i));
 }
 
 ofImage *ofApp::getImage(const int i) {
@@ -72,13 +75,7 @@ ofImage *ofApp::getImage(const int i) {
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() const {
     int result = imgcount - int(currentDistance / distanceOfFrame);
-    if (result < 0) {
-        result = 0;
-    }
-    if (result >= imgcount - 1) {
-        result = imgcount - 1;
-    }
-    return result;
+    return ofClamp(result, 0, imgcount - 1);
 }
 
 void ofApp::calculateFrame() {
@@ -92,8 +89,8 @@ void ofApp::calculateFrame() {
             // move towards destination
             if (destinationFrame > frame) {
                 frame = frame + 1;
-            } else if (destinationFrame > frame) {
-                frame = frame + 1;
+            } else if (destinationFrame < frame) {
+                frame = frame - 1;
             } else {
                 // User is not moving, attempt some random stuff
                 int r = int(ofRandom(4));
@@ -131,11 +128,27 @@ void ofApp::draw(){
     ofImage *img = getImage(frame);
     assert(img);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
+    clearImage(frame);
 }
+
+#define UP 357
+#define DOWN 359
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    cout << "keyPressed key=" << key << std::endl;
     
+    if (UP == key) {
+        // distance decreases as viewer approaches
+        setDistance(currentDistance - 10 - ofRandom(50));
+    } else if (DOWN == key) {
+        // distance incrases as viewer steps back
+        setDistance(currentDistance + 10 + ofRandom(50));
+    }
+}
+
+void ofApp::setDistance(const int value) {
+    currentDistance = ofClamp(value, minDistance, maxDistance);
 }
 
 //--------------------------------------------------------------

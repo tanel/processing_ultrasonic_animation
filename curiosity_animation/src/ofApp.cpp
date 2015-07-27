@@ -21,6 +21,10 @@ int frame = 0;
 float period = 1;
 float distanceOfFrame = maxDistance / imgcount;
 int loadTime = -1;
+int destinationFrame = frame;
+
+// HUD
+ofTrueTypeFont f;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -42,12 +46,16 @@ void ofApp::setup(){
         currentDistance = maxDistance; // fake initial distance for simulation
     }
     
-    // FIXME: f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
+    assert(f.loadFont("verdana.ttf", 16, true, true));
+    f.setLineHeight(18.0f);
+    f.setLetterSpacing(1.037);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     currentDistance = ofClamp(currentDistance, 0, maxDistance);
+    
+    calculateFrame();
 }
 
 ofImage *ofApp::getImage(const int i) {
@@ -59,12 +67,70 @@ ofImage *ofApp::getImage(const int i) {
     return &images[i];
 }
 
+// Frame for current distance
+// Note that this is not the actual frame that will be animated.
+// Instead will start to animate towards this frame.
+int ofApp::frameForDistance() const {
+    int result = imgcount - int(currentDistance / distanceOfFrame);
+    if (result < 0) {
+        result = 0;
+    }
+    if (result >= imgcount - 1) {
+        result = imgcount - 1;
+    }
+    return result;
+}
+
+void ofApp::calculateFrame() {
+        long now = ofGetElapsedTimef();
+        
+        long timePassed = now - previousMillis;
+        
+        destinationFrame = frameForDistance();
+        
+        if (timePassed > sleepMillis) {
+            // move towards destination
+            if (destinationFrame > frame) {
+                frame = frame + 1;
+            } else if (destinationFrame > frame) {
+                frame = frame + 1;
+            } else {
+                // User is not moving, attempt some random stuff
+                int r = int(ofRandom(4));
+                if (r == 0) {
+                    r = int(ofRandom(3));
+                    if (0 == r) {
+                        frame = frame + 1;
+                    } else {
+                        frame = frame - 1;
+                    }
+                }
+            }
+            
+            previousMillis = now;
+        }
+        
+        if (frame < 0) {
+            frame = 0;
+        } else if (frame >= imgcount) {
+            frame = imgcount - 1;
+        }
+        
+}
+
 //--------------------------------------------------------------
 void ofApp::draw(){
+    // Update HUD
+    f.drawString("distance=" + ofToString(currentDistance), 10, 40);
+    f.drawString("max=" + ofToString(maxDistance), 210, 40);
+    f.drawString("framelen=" + ofToString(distanceOfFrame), 410, 40);
+    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 610, 40);
+    f.drawString("destination=" + ofToString(destinationFrame), 810, 40);
+
     // Draw the current animation frame
     ofImage *img = getImage(frame);
     assert(img);
-    img->draw( 0, 0, ofGetWidth(), ofGetHeight() );
+    img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
 }
 
 //--------------------------------------------------------------

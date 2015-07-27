@@ -21,5 +21,7 @@ class ofApp : public ofBaseApp{
     
 private:
     ofImage *getImage(const int i);
+    int frameForDistance() const;
+    void calculateFrame();
 		
 };

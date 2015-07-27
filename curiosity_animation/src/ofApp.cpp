@@ -82,7 +82,7 @@ int ofApp::frameForDistance() const {
 }
 
 void ofApp::calculateFrame() {
-        long now = ofGetElapsedTimef();
+        long now = ofGetElapsedTimeMillis();
         
         long timePassed = now - previousMillis;
         

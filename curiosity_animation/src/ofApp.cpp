@@ -64,7 +64,7 @@ void ofApp::draw(){
     // Draw the current animation frame
     ofImage *img = getImage(frame);
     assert(img);
-    img->draw( 100, 50 );
+    img->draw( 0, 0, ofGetWidth(), ofGetHeight() );
 }
 
 //--------------------------------------------------------------

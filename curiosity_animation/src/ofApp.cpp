@@ -44,7 +44,7 @@ void ofApp::setup(){
     
     if (!usePort) {
          // fake initial distance for simulation
-        setDistance(maxDistance);
+        currentDistance = maxDistance;
     }
     
     assert(f.loadFont("verdana.ttf", 16, true, true));
@@ -74,16 +74,17 @@ ofImage *ofApp::getImage(const int i) {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() const {
-    int result = imgcount - int(currentDistance / distanceOfFrame);
+    int i = int(currentDistance / distanceOfFrame);
+    int result = imgcount - i;
     return ofClamp(result, 0, imgcount - 1);
 }
 
 void ofApp::setFrame(const int i) {
-    frame = ofClamp(i, 0, imgcount);
+    frame = ofClamp(i, 0, imgcount - 1);
 }
 
 void ofApp::setDestinationFrame(const int i) {
-    destinationFrame = ofClamp(i, 0, imgcount);
+    destinationFrame = ofClamp(i, 0, imgcount - 1);
 }
 
 void ofApp::calculateFrame() {
@@ -97,16 +98,14 @@ void ofApp::calculateFrame() {
 
     if (destinationFrame == frame) {
         // User is not moving, attempt some random stuff
-        switch (int(ofRandom(4))) {
+        switch (int(ofRandom(10))) {
             case 0:
-                setDestinationFrame(frame + int(ofRandom(imgcount/10)));
+                setDestinationFrame(frameForDistance() + int(ofRandom(10)));
                 break;
             case 1:
-                setDestinationFrame(frame - int(ofRandom(imgcount/10)));
+                setDestinationFrame(frameForDistance() - int(ofRandom(10)));
                 break;
             }
-    } else {
-        setDestinationFrame(frameForDistance());
     }
 
     // move towards destination
@@ -153,6 +152,7 @@ void ofApp::keyPressed(int key){
 
 void ofApp::setDistance(const int value) {
     currentDistance = ofClamp(value, minDistance, maxDistance);
+    setDestinationFrame(frameForDistance());
 }
 
 //--------------------------------------------------------------

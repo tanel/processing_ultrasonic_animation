@@ -78,41 +78,45 @@ int ofApp::frameForDistance() const {
     return ofClamp(result, 0, imgcount - 1);
 }
 
+void ofApp::setFrame(const int i) {
+    frame = ofClamp(i, 0, imgcount);
+}
+
+void ofApp::setDestinationFrame(const int i) {
+    destinationFrame = ofClamp(i, 0, imgcount);
+}
+
 void ofApp::calculateFrame() {
-        long now = ofGetElapsedTimeMillis();
-        
-        long timePassed = now - previousMillis;
-        
-        destinationFrame = frameForDistance();
-        
-        if (timePassed > sleepMillis) {
-            // move towards destination
-            if (destinationFrame > frame) {
-                frame = frame + 1;
-            } else if (destinationFrame < frame) {
-                frame = frame - 1;
-            } else {
-                // User is not moving, attempt some random stuff
-                int r = int(ofRandom(4));
-                if (r == 0) {
-                    r = int(ofRandom(3));
-                    if (0 == r) {
-                        frame = frame + 1;
-                    } else {
-                        frame = frame - 1;
-                    }
-                }
+    long now = ofGetElapsedTimeMillis();
+
+    long timePassed = now - previousMillis;
+
+    if (timePassed < sleepMillis) {
+        return;
+    }
+
+    if (destinationFrame == frame) {
+        // User is not moving, attempt some random stuff
+        switch (int(ofRandom(4))) {
+            case 0:
+                setDestinationFrame(frame + int(ofRandom(imgcount/10)));
+                break;
+            case 1:
+                setDestinationFrame(frame - int(ofRandom(imgcount/10)));
+                break;
             }
-            
-            previousMillis = now;
-        }
-        
-        if (frame < 0) {
-            frame = 0;
-        } else if (frame >= imgcount) {
-            frame = imgcount - 1;
-        }
-        
+    } else {
+        setDestinationFrame(frameForDistance());
+    }
+
+    // move towards destination
+    if (destinationFrame > frame) {
+        setFrame(frame + 1);
+    } else if (destinationFrame < frame) {
+        setFrame(frame -  1);
+    }
+
+    previousMillis = now;
 }
 
 //--------------------------------------------------------------
@@ -140,10 +144,10 @@ void ofApp::keyPressed(int key){
     
     if (UP == key) {
         // distance decreases as viewer approaches
-        setDistance(currentDistance - 10 - ofRandom(50));
+        setDistance(currentDistance - 10 - int(ofRandom(50)));
     } else if (DOWN == key) {
         // distance incrases as viewer steps back
-        setDistance(currentDistance + 10 + ofRandom(50));
+        setDistance(currentDistance + 10 + int(ofRandom(50)));
     }
 }
 

@@ -25,5 +25,7 @@ private:
     int frameForDistance() const;
     void calculateFrame();
     void setDistance(const int value);
-		
+	void setFrame(const int i);
+    void setDestinationFrame(const int i);
+
 };

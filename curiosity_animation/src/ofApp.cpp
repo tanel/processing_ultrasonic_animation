@@ -1,12 +1,11 @@
 #include "ofApp.h"
 
 // Configuration
-int imgcount = 326;
-bool usePort = false;
-bool fullscreen = false;
-int minDistance = 0;
-int maxDistance = 1000;
-int sleepMillis = 100;
+const int imgcount = 326;
+const bool usePort = false;
+const bool fullscreen = false;
+const int minDistance = 0;
+const int maxDistance = 1000;
 
 // Serial port, for reading distance from ultrasonic sensor.
 // Optional.
@@ -17,12 +16,13 @@ std::map<int, ofImage> images;
 
 // App state, you should not touch these;
 int currentDistance = 0;
-long previousMillis = 0;
+int previousDistance = currentDistance;
+long previousFrameDrawnAt = 0;
+long previousDistanceChangeAt = 0;
 int frame = 0;
-float period = 1;
-float distanceOfFrame = maxDistance / imgcount;
-int loadTime = -1;
+const float distanceOfFrame = maxDistance / imgcount;
 int destinationFrame = frame;
+int animationDurationMillis = 100;
 
 // HUD
 ofTrueTypeFont f;
@@ -50,11 +50,33 @@ void ofApp::setup(){
     assert(f.loadFont("verdana.ttf", 16, true, true));
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
+    
+    previousDistanceChangeAt = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    calculateFrame();
+    long now = ofGetElapsedTimeMillis();
+    
+    long timePassed = now - previousFrameDrawnAt;
+    
+    if (timePassed < animationDurationMillis) {
+        return;
+    }
+    
+    if (destinationFrame == frame) {
+        // User is not moving, attempt some random stuff
+        randomMovement();
+    }
+    
+    // move towards destination
+    if (destinationFrame > frame) {
+        setFrame(frame + 1);
+    } else if (destinationFrame < frame) {
+        setFrame(frame -  1);
+    }
+    
+    previousFrameDrawnAt = now;
 }
 
 void ofApp::clearImage(const int i) {
@@ -87,45 +109,24 @@ void ofApp::setDestinationFrame(const int i) {
     destinationFrame = ofClamp(i, 0, imgcount - 1);
 }
 
-void ofApp::calculateFrame() {
-    long now = ofGetElapsedTimeMillis();
-
-    long timePassed = now - previousMillis;
-
-    if (timePassed < sleepMillis) {
-        return;
+void ofApp::randomMovement() {
+    switch (int(ofRandom(10))) {
+        case 0:
+            setDestinationFrame(frameForDistance() + int(ofRandom(10)));
+            break;
+        case 1:
+            setDestinationFrame(frameForDistance() - int(ofRandom(10)));
+            break;
     }
-
-    if (destinationFrame == frame) {
-        // User is not moving, attempt some random stuff
-        switch (int(ofRandom(10))) {
-            case 0:
-                setDestinationFrame(frameForDistance() + int(ofRandom(10)));
-                break;
-            case 1:
-                setDestinationFrame(frameForDistance() - int(ofRandom(10)));
-                break;
-            }
-    }
-
-    // move towards destination
-    if (destinationFrame > frame) {
-        setFrame(frame + 1);
-    } else if (destinationFrame < frame) {
-        setFrame(frame -  1);
-    }
-
-    previousMillis = now;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     // Update HUD
     f.drawString("distance=" + ofToString(currentDistance), 10, 40);
-    f.drawString("max=" + ofToString(maxDistance), 210, 40);
-    f.drawString("framelen=" + ofToString(distanceOfFrame), 410, 40);
-    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 610, 40);
-    f.drawString("destination=" + ofToString(destinationFrame), 810, 40);
+    f.drawString("framelen=" + ofToString(distanceOfFrame), 210, 40);
+    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 410, 40);
+    f.drawString("destination=" + ofToString(destinationFrame), 610, 40);
 
     // Draw the current animation frame
     ofImage *img = getImage(frame);
@@ -143,15 +144,17 @@ void ofApp::keyPressed(int key){
     
     if (UP == key) {
         // distance decreases as viewer approaches
-        setDistance(currentDistance - 10 - int(ofRandom(50)));
+        setDistance("keyboard up", currentDistance - 10 - int(ofRandom(50)));
     } else if (DOWN == key) {
         // distance incrases as viewer steps back
-        setDistance(currentDistance + 10 + int(ofRandom(50)));
+        setDistance("keyboar down", currentDistance + 10 + int(ofRandom(50)));
     }
 }
 
-void ofApp::setDistance(const int value) {
+void ofApp::setDistance(const std::string reason, const int value) {
     currentDistance = ofClamp(value, minDistance, maxDistance);
+    
+    // Start animating towards this new distance
     setDestinationFrame(frameForDistance());
 }
 

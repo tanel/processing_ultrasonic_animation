@@ -24,8 +24,9 @@ private:
     void clearImage(const int i);
     int frameForDistance() const;
     void calculateFrame();
-    void setDistance(const int value);
+    void setDistance(const std::string readson, const int value);
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
+    void randomMovement();
 
 };

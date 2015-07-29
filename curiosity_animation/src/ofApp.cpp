@@ -20,7 +20,6 @@ int previousDistance = currentDistance;
 long previousFrameDrawnAt = 0;
 long previousDistanceChangeAt = 0;
 int frame = 0;
-const float distanceOfFrame = maxDistance / imgcount;
 int destinationFrame = frame;
 int animationDurationMillis = 100;
 
@@ -96,9 +95,7 @@ ofImage *ofApp::getImage(const int i) {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() const {
-    int i = int(currentDistance / distanceOfFrame);
-    int result = imgcount - i;
-    return ofClamp(result, 0, imgcount - 1);
+    return ofMap(currentDistance, 0, maxDistance, imgcount, 0);
 }
 
 void ofApp::setFrame(const int i) {
@@ -124,9 +121,8 @@ void ofApp::randomMovement() {
 void ofApp::draw(){
     // Update HUD
     f.drawString("distance=" + ofToString(currentDistance), 10, 40);
-    f.drawString("framelen=" + ofToString(distanceOfFrame), 210, 40);
-    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 410, 40);
-    f.drawString("destination=" + ofToString(destinationFrame), 610, 40);
+    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 210, 40);
+    f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
 
     // Draw the current animation frame
     ofImage *img = getImage(frame);

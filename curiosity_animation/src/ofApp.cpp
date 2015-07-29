@@ -135,17 +135,14 @@ void ofApp::draw(){
     clearImage(frame);
 }
 
-#define UP 357
-#define DOWN 359
-
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     cout << "keyPressed key=" << key << std::endl;
     
-    if (UP == key) {
+    if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
         setDistance("keyboard up", currentDistance - 10 - int(ofRandom(50)));
-    } else if (DOWN == key) {
+    } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
         setDistance("keyboar down", currentDistance + 10 + int(ofRandom(50)));
     }

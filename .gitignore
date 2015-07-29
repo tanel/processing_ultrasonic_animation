@@ -18,3 +18,9 @@ data/*.jpg
 # codeblocks
 codeblocks-*.exe
 codeblocks_additions/
+
+# windows codeblocks artifacts
+**/bin/*.exe
+**/bin/data/*.jpg
+obj/
+**/bin/*.zip

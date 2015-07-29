@@ -29,52 +29,57 @@ ofTrueTypeFont f;
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetFrameRate( 60 );
-    
+
     ofSetFullscreen(fullscreen);
-    
+
+#ifdef TARGET_OSX
     ofSetDataPathRoot("../Resources/data/");
-    
+#endif
+
     // FIXME: draws all shapes with smooth edges.
-    
+
     if (usePort) {
         // FIXME: serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
         // FIXME: serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
     }
-    
+
     if (!usePort) {
          // fake initial distance for simulation
         currentDistance = maxDistance;
     }
-    
-    assert(f.loadFont("verdana.ttf", 16, true, true));
+
+    if (!f.loadFont("verdana.ttf", 16, true, true)) {
+        std::cerr << "Error loading font" << std::endl;
+        return;
+    }
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
-    
+
     previousDistanceChangeAt = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
-    
+
     long timePassed = now - previousFrameDrawnAt;
-    
+
     if (timePassed < animationDurationMillis) {
         return;
     }
-    
+
     if (destinationFrame == frame) {
         // User is not moving, attempt some random stuff
         randomMovement();
     }
-    
+
     // move towards destination
     if (destinationFrame > frame) {
         setFrame(frame + 1);
     } else if (destinationFrame < frame) {
         setFrame(frame -  1);
     }
-    
+
     previousFrameDrawnAt = now;
 }
 
@@ -85,7 +90,10 @@ void ofApp::clearImage(const int i) {
 ofImage *ofApp::getImage(const int i) {
     if (images.end() == images.find(i)) {
         ofImage img;
-        assert(img.loadImage(ofToString(i) + ".jpg"));
+        if (!img.loadImage(ofToString(i) + ".jpg")) {
+            std::cerr << "Error loading image" << std::endl;
+            return 0;
+        }
         images[i] = img;
     }
     return &images[i];
@@ -126,7 +134,6 @@ void ofApp::draw(){
 
     // Draw the current animation frame
     ofImage *img = getImage(frame);
-    assert(img);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
     clearImage(frame);
 }
@@ -134,7 +141,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     cout << "keyPressed key=" << key << std::endl;
-    
+
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
         setDistance("keyboard up", currentDistance - 10 - int(ofRandom(50)));
@@ -146,19 +153,19 @@ void ofApp::keyPressed(int key){
 
 void ofApp::setDistance(const std::string reason, const int value) {
     currentDistance = ofClamp(value, minDistance, maxDistance);
-    
+
     // Start animating towards this new distance
     setDestinationFrame(frameForDistance());
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-    
+
 }
 
 //--------------------------------------------------------------
@@ -187,6 +194,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }

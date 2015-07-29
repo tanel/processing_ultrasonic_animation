@@ -20,7 +20,5 @@ codeblocks-*.exe
 codeblocks_additions/
 
 # windows codeblocks artifacts
-**/bin/*.exe
-**/bin/data/*.jpg
+**/bin/*
 obj/
-**/bin/*.zip

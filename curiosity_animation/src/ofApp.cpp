@@ -36,6 +36,7 @@ void ofApp::setup(){
         return;
     }
     backgroundSound.setLoop(true);
+
     if (!heartbeatSound.loadSound("2.mp3")) {
         std::cerr << "Error loading heartbeat sound" << std::endl;
         return;
@@ -44,37 +45,50 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    // Update visual
     long now = ofGetElapsedTimeMillis();
 
+    // Update visual
     long timePassed = now - previousFrameDrawnAt;
+    if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 12, 1000 / 24)) {
+        if (isAlive()) {
+            if (destinationFrame == frame) {
+                // User is not moving, attempt some random stuff
+                randomMovement();
+            }
+        }
 
-    if (timePassed < ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 12, 1000 / 24)) {
-        return;
+        // move towards destination
+        if (destinationFrame > frame) {
+            setFrame(frame + 1);
+        } else if (destinationFrame < frame) {
+            setFrame(frame -  1);
+        }
+
+        previousFrameDrawnAt = now;
     }
-
-    if (destinationFrame == frame) {
-        // User is not moving, attempt some random stuff
-        randomMovement();
-    }
-
-    // move towards destination
-    if (destinationFrame > frame) {
-        setFrame(frame + 1);
-    } else if (destinationFrame < frame) {
-        setFrame(frame -  1);
-    }
-
-    previousFrameDrawnAt = now;
     
     // Update audio
+    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
     if (!backgroundSound.getIsPlaying()) {
         backgroundSound.play();
     }
     
-    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 20, 100));
+    if (isAlive()) {
+        timePassed = now - previousHeartbeatAt;
+        if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 500, 100)) {
+            if (!heartbeatSound.getIsPlaying()) {
+                std::cout << now << " playing heartbeat" << std::endl;
+                heartbeatSound.play();
+            }
+            previousHeartbeatAt = now;
+        }
+    }
 
     ofSoundUpdate();
+}
+
+bool ofApp::isAlive() const {
+    return currentDistance > kMinDistance;
 }
 
 void ofApp::clearImage(const int i) {

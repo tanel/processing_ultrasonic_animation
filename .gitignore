@@ -6,6 +6,7 @@
 **/build/
 project.xcworkspace/
 xcuserdata/
+*.xcscheme
 
 # openframeworks release itself. its quite big
 of_v0.8.4_osx_release/

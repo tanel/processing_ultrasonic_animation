@@ -27,8 +27,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
 private:
-    ofImage *getImage(const int i);
-    void clearImage(const int i);
+    ofTexture *getImage(const int i);
     int frameForDistance() const;
     void calculateFrame();
     void setDistance(const std::string readson, const int value);
@@ -42,7 +41,7 @@ private:
     ofSerial serialPort;
     
     // Images that make up the animation sequence
-    std::map<int, ofImage> images;
+    std::map<int, ofTexture> images;
     
     // App state, you should not touch these;
     int currentDistance = 0;

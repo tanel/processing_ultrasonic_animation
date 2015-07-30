@@ -75,14 +75,10 @@ bool ofApp::isAlive() const {
     return currentDistance > kMinDistance;
 }
 
-void ofApp::clearImage(const int i) {
-    images.erase(images.find(i));
-}
-
-ofImage *ofApp::getImage(const int i) {
+ofTexture *ofApp::getImage(const int i) {
     if (images.end() == images.find(i)) {
-        ofImage img;
-        if (!img.loadImage(ofToString(i) + ".jpg")) {
+        ofTexture img;
+        if (!ofLoadImage(img, ofToString(i) + ".jpg")) {
             std::cerr << "Error loading image" << std::endl;
             return 0;
         }
@@ -125,9 +121,8 @@ void ofApp::draw(){
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
 
     // Draw the current animation frame
-    ofImage *img = getImage(frame);
+    ofTexture *img = getImage(frame);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
-    clearImage(frame);
     
     // Update audio
     if (!backgroundSound.getIsPlaying()) {

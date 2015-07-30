@@ -49,7 +49,7 @@ void ofApp::update(){
 
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
-    if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 12, 1000 / 24)) {
+    if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 30)) {
         if (isAlive()) {
             if (destinationFrame == frame) {
                 // User is not moving, attempt some random stuff

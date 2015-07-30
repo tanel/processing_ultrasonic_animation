@@ -21,7 +21,6 @@ long previousFrameDrawnAt = 0;
 long previousDistanceChangeAt = 0;
 int frame = 0;
 int destinationFrame = frame;
-int animationDurationMillis = 100;
 
 // HUD
 ofTrueTypeFont f;
@@ -64,7 +63,7 @@ void ofApp::update(){
 
     long timePassed = now - previousFrameDrawnAt;
 
-    if (timePassed < animationDurationMillis) {
+    if (timePassed < ofMap(currentDistance, maxDistance, 0, 1000 / 12, 1000 / 24)) {
         return;
     }
 

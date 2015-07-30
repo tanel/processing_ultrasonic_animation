@@ -1,35 +1,10 @@
 #include "ofApp.h"
 
-// Configuration
-const int imgcount = 326;
-const bool usePort = false;
-const bool fullscreen = false;
-const int minDistance = 0;
-const int maxDistance = 1000;
-
-// Serial port, for reading distance from ultrasonic sensor.
-// Optional.
-ofSerial serialPort;
-
-// Images that make up the animation sequence
-std::map<int, ofImage> images;
-
-// App state, you should not touch these;
-int currentDistance = 0;
-int previousDistance = currentDistance;
-long previousFrameDrawnAt = 0;
-long previousDistanceChangeAt = 0;
-int frame = 0;
-int destinationFrame = frame;
-
-// HUD
-ofTrueTypeFont f;
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetFrameRate( 60 );
 
-    ofSetFullscreen(fullscreen);
+    ofSetFullscreen(kFullscreen);
 
 #ifdef TARGET_OSX
     ofSetDataPathRoot("../Resources/data/");
@@ -37,16 +12,17 @@ void ofApp::setup(){
 
     // FIXME: draws all shapes with smooth edges.
 
-    if (usePort) {
+    // Distance reading
+    if (kUsePort) {
         // FIXME: serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
         // FIXME: serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
-    }
-
-    if (!usePort) {
+    } else {
          // fake initial distance for simulation
-        currentDistance = maxDistance;
+        currentDistance = kMaxDistance;
     }
+    previousDistanceChangeAt = ofGetElapsedTimeMillis();
 
+    // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
         std::cerr << "Error loading font" << std::endl;
         return;
@@ -54,16 +30,26 @@ void ofApp::setup(){
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
 
-    previousDistanceChangeAt = ofGetElapsedTimeMillis();
+    // Audio
+    if (!backgroundSound.loadSound("1.mp3")) {
+        std::cerr << "Error loading background sound" << std::endl;
+        return;
+    }
+    backgroundSound.setLoop(true);
+    if (!heartbeatSound.loadSound("2.mp3")) {
+        std::cerr << "Error loading heartbeat sound" << std::endl;
+        return;
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    // Update visual
     long now = ofGetElapsedTimeMillis();
 
     long timePassed = now - previousFrameDrawnAt;
 
-    if (timePassed < ofMap(currentDistance, maxDistance, 0, 1000 / 12, 1000 / 24)) {
+    if (timePassed < ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 12, 1000 / 24)) {
         return;
     }
 
@@ -80,6 +66,15 @@ void ofApp::update(){
     }
 
     previousFrameDrawnAt = now;
+    
+    // Update audio
+    if (!backgroundSound.getIsPlaying()) {
+        backgroundSound.play();
+    }
+    
+    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 20, 100));
+
+    ofSoundUpdate();
 }
 
 void ofApp::clearImage(const int i) {
@@ -102,15 +97,15 @@ ofImage *ofApp::getImage(const int i) {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() const {
-    return ofMap(currentDistance, 0, maxDistance, imgcount, 0);
+    return ofMap(currentDistance, kMinDistance, kMaxDistance, kImageCount, 0);
 }
 
 void ofApp::setFrame(const int i) {
-    frame = ofClamp(i, 0, imgcount - 1);
+    frame = ofClamp(i, 0, kImageCount - 1);
 }
 
 void ofApp::setDestinationFrame(const int i) {
-    destinationFrame = ofClamp(i, 0, imgcount - 1);
+    destinationFrame = ofClamp(i, 0, kImageCount - 1);
 }
 
 void ofApp::randomMovement() {
@@ -128,7 +123,7 @@ void ofApp::randomMovement() {
 void ofApp::draw(){
     // Update HUD
     f.drawString("distance=" + ofToString(currentDistance), 10, 40);
-    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(imgcount), 210, 40);
+    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(kImageCount), 210, 40);
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
 
     // Draw the current animation frame
@@ -151,7 +146,7 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
-    currentDistance = ofClamp(value, minDistance, maxDistance);
+    currentDistance = ofClamp(value, kMinDistance, kMaxDistance);
 
     // Start animating towards this new distance
     setDestinationFrame(frameForDistance());

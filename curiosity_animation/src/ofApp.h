@@ -2,6 +2,13 @@
 
 #include "ofMain.h"
 
+// Configuration
+const int kImageCount = 326;
+const bool kUsePort = false;
+const bool kFullscreen = false;
+const int kMinDistance = 0;
+const int kMaxDistance = 1000;
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -28,5 +35,25 @@ private:
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
     void randomMovement();
-
+    
+    // Serial port, for reading distance from ultrasonic sensor.
+    // Optional.
+    ofSerial serialPort;
+    
+    // Images that make up the animation sequence
+    std::map<int, ofImage> images;
+    
+    // App state, you should not touch these;
+    int currentDistance = 0;
+    int previousDistance = currentDistance;
+    long previousFrameDrawnAt = 0;
+    long previousDistanceChangeAt = 0;
+    int frame = 0;
+    int destinationFrame = frame;
+    
+    // HUD
+    ofTrueTypeFont f;
+    
+    ofSoundPlayer backgroundSound;
+    ofSoundPlayer heartbeatSound;
 };

@@ -48,7 +48,6 @@ private:
     int currentDistance = 0;
     int previousDistance = currentDistance;
     long previousFrameDrawnAt = 0;
-    long previousHeartbeatAt = 0;
     long previousDistanceChangeAt = 0;
     int frame = 0;
     int destinationFrame = frame;

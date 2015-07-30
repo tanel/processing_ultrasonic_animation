@@ -41,6 +41,7 @@ void ofApp::setup(){
         std::cerr << "Error loading heartbeat sound" << std::endl;
         return;
     }
+    heartbeatSound.setLoop(true);
 }
 
 //--------------------------------------------------------------
@@ -67,23 +68,6 @@ void ofApp::update(){
         previousFrameDrawnAt = now;
     }
     
-    // Update audio
-    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
-    if (!backgroundSound.getIsPlaying()) {
-        backgroundSound.play();
-    }
-    
-    if (isAlive()) {
-        timePassed = now - previousHeartbeatAt;
-        if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 500, 100)) {
-            if (!heartbeatSound.getIsPlaying()) {
-                std::cout << now << " playing heartbeat" << std::endl;
-                heartbeatSound.play();
-            }
-            previousHeartbeatAt = now;
-        }
-    }
-
     ofSoundUpdate();
 }
 
@@ -144,6 +128,23 @@ void ofApp::draw(){
     ofImage *img = getImage(frame);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
     clearImage(frame);
+    
+    // Update audio
+    if (!backgroundSound.getIsPlaying()) {
+        backgroundSound.play();
+    }
+    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
+    
+    if (isAlive()) {
+        if (!heartbeatSound.getIsPlaying()) {
+            heartbeatSound.play();
+        }
+        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 1.0));
+    } else {
+        if (heartbeatSound.getIsPlaying()) {
+            heartbeatSound.stop();
+        }
+    }
 }
 
 //--------------------------------------------------------------

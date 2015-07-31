@@ -50,7 +50,9 @@ void ofApp::update(){
 
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
-    if (timePassed >= ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 30)) {
+    int millis = ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 30);
+    fps = 1000 / millis;
+    if (timePassed >= millis) {
         if (isAlive()) {
             if (destinationFrame == frame) {
                 // User is not moving, attempt some random stuff
@@ -119,6 +121,7 @@ void ofApp::draw(){
     f.drawString("distance=" + ofToString(currentDistance), 10, 40);
     f.drawString("frame=" + ofToString(frame) + "/" + ofToString(kImageCount), 210, 40);
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
+    f.drawString("fps=" + ofToString(fps), 610, 40);
 
     // Draw the current animation frame
     ofTexture *img = getImage(frame);

@@ -53,6 +53,7 @@ private:
     
     // HUD
     ofTrueTypeFont f;
+    int fps = 0;
     
     ofSoundPlayer backgroundSound;
     ofSoundPlayer heartbeatSound;

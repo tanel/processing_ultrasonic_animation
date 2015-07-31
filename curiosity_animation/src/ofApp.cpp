@@ -134,7 +134,7 @@ void ofApp::draw(){
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
-        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 1.0));
+        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 2.0));
     } else {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();

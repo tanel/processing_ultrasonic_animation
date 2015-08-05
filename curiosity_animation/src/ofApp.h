@@ -34,6 +34,7 @@ private:
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
     bool isAlive() const;
+    void clearImage(const int i);
     
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.

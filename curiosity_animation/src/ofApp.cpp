@@ -97,6 +97,11 @@ void ofApp::setDestinationFrame(const int i) {
     destinationFrame = ofClamp(i, 0, kImageCount - 1);
 }
 
+void ofApp::clearImage(const int i) {
+    images.erase(images.find(i));
+}
+
+
 //--------------------------------------------------------------
 void ofApp::draw(){
     // Update HUD
@@ -108,6 +113,7 @@ void ofApp::draw(){
     // Draw the current animation frame
     ofTexture *img = getImage(frame);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
+    clearImage(frame);
     
     // Update audio
     if (!backgroundSound.getIsPlaying()) {

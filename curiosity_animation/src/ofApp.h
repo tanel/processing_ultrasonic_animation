@@ -33,7 +33,6 @@ private:
     void setDistance(const std::string readson, const int value);
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
-    void randomMovement();
     bool isAlive() const;
     
     // Serial port, for reading distance from ultrasonic sensor.

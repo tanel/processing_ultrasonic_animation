@@ -53,13 +53,6 @@ void ofApp::update(){
     int millis = ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 30);
     fps = 1000 / millis;
     if (timePassed >= millis) {
-        if (isAlive()) {
-            if (destinationFrame == frame) {
-                // User is not moving, attempt some random stuff
-                randomMovement();
-            }
-        }
-
         // move towards destination
         if (destinationFrame > frame) {
             setFrame(frame + 1);
@@ -102,17 +95,6 @@ void ofApp::setFrame(const int i) {
 
 void ofApp::setDestinationFrame(const int i) {
     destinationFrame = ofClamp(i, 0, kImageCount - 1);
-}
-
-void ofApp::randomMovement() {
-    switch (int(ofRandom(10))) {
-        case 0:
-            setDestinationFrame(frameForDistance() + int(ofRandom(10)));
-            break;
-        case 1:
-            setDestinationFrame(frameForDistance() - int(ofRandom(10)));
-            break;
-    }
 }
 
 //--------------------------------------------------------------

@@ -10,8 +10,6 @@ void ofApp::setup(){
     ofSetDataPathRoot("../Resources/data/");
 #endif
 
-    // FIXME: draws all shapes with smooth edges.
-
     // Distance reading
     serialPort.listDevices();
     vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
@@ -29,6 +27,7 @@ void ofApp::setup(){
             return;
         }
     }
+
 /*
     serialPort = new ofSerial(this, "/dev/tty.usbmodem1411", 9600);
     serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
@@ -63,10 +62,15 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
+    
+    // Determine if user is now in the death zone
+    if (currentDistance < kMinDistance + kDeathZone) {
+        finished = true;
+    }
 
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
-    int millis = ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 30);
+    int millis = ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 100);
     fps = 1000 / millis;
     if (timePassed >= millis) {
         // move towards destination
@@ -85,7 +89,7 @@ void ofApp::update(){
     }
     backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
     
-    if (isAlive()) {
+    if (!finished) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
@@ -97,10 +101,6 @@ void ofApp::update(){
     }
     
     ofSoundUpdate();
-}
-
-bool ofApp::isAlive() const {
-    return currentDistance > kMinDistance;
 }
 
 ofTexture *ofApp::getImage(const int i) {
@@ -142,6 +142,7 @@ void ofApp::draw(){
     f.drawString("frame=" + ofToString(frame) + "/" + ofToString(kImageCount), 210, 40);
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
     f.drawString("fps=" + ofToString(fps), 610, 40);
+    f.drawString("finished=" + ofToString(finished), 810, 40);
 
     // Draw the current animation frame
     ofTexture *img = getImage(frame);
@@ -153,12 +154,16 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     cout << "keyPressed key=" << key << std::endl;
 
+    if (finished) {
+        return;
+    }
+
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
-        setDistance("keyboard up", currentDistance - 10 - int(ofRandom(50)));
+        setDistance("keyboard up", currentDistance - 50 - int(ofRandom(100)));
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
-        setDistance("keyboar down", currentDistance + 10 + int(ofRandom(50)));
+        setDistance("keyboar down", currentDistance + 50 + int(ofRandom(100)));
     }
 }
 

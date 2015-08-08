@@ -7,6 +7,7 @@ const int kImageCount = 326;
 const bool kFullscreen = false;
 const int kMinDistance = 0;
 const int kMaxDistance = 1000;
+const int kDeathZone = 50;
 
 class ofApp : public ofBaseApp{
 
@@ -32,8 +33,9 @@ private:
     void setDistance(const std::string readson, const int value);
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
-    bool isAlive() const;
     void clearImage(const int i);
+    
+    bool finished = false;
     
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.

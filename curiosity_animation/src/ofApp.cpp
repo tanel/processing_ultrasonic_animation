@@ -54,30 +54,32 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
-    
+
     // Determine if user is now in the death zone
     if (!finishedAt && (currentDistance < kMinDistance + kDeathZone)) {
         finishedAt = now;
         setFrame(kImageCount-1);
         setDistance("death zone", kMinDistance);
     }
-    
+
     // Restart if needed
     if (finishedAt && (finishedAt < now - (kRestartIntervalSeconds*1000))) {
         finishedAt = 0;
         setFrame(0);
         setDistance("restart", kMaxDistance);
     }
-    
+
     // Read serial
-    if (serialPort.available()) {
-        char c = serialPort.readByte();
-        if ('\n' == c) {
-            std::string input = serialbuf.str();
-            serialbuf.str("");
-            std::cout << "Serial input: " << input << std::endl;
-        } else {
-            serialbuf << c;
+    if (serialPort.isInitialized()) {
+        if (serialPort.available()) {
+            char c = serialPort.readByte();
+            if ('\n' == c) {
+                std::string input = serialbuf.str();
+                serialbuf.str("");
+                std::cout << "Serial input: " << input << std::endl;
+            } else {
+                serialbuf << c;
+            }
         }
     }
 
@@ -95,13 +97,13 @@ void ofApp::update(){
 
         previousFrameDrawnAt = now;
     }
-    
+
     // Update audio
     if (!backgroundSound.getIsPlaying()) {
         backgroundSound.play();
     }
     backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
-    
+
     if (!finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
@@ -112,7 +114,7 @@ void ofApp::update(){
             heartbeatSound.stop();
         }
     }
-    
+
     ofSoundUpdate();
 }
 

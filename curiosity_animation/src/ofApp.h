@@ -9,7 +9,7 @@ const int kMinDistance = 0;
 const int kMaxDistance = 1000;
 const int kDeathZone = 50;
 const int kRestartIntervalSeconds = 5;
-const int kActiveSerialPort = 1;
+const int kActiveSerialPort = 0;
 
 class ofApp : public ofBaseApp{
 
@@ -27,7 +27,7 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-    
+
 private:
     ofTexture *getImage(const int i);
     int frameForDistance() const;
@@ -36,17 +36,17 @@ private:
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
     void clearImage(const int i);
-    
+
     long finishedAt = 0;
-    
+
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.
     ofSerial serialPort;
     std::stringstream serialbuf;
-    
+
     // Images that make up the animation sequence
     std::map<int, ofTexture> images;
-    
+
     // App state, you should not touch these;
     int currentDistance = 0;
     int previousDistance = currentDistance;
@@ -54,11 +54,11 @@ private:
     long previousDistanceChangeAt = 0;
     int frame = 0;
     int destinationFrame = frame;
-    
+
     // HUD
     ofTrueTypeFont f;
     int fps = 0;
-    
+
     ofSoundPlayer backgroundSound;
     ofSoundPlayer heartbeatSound;
 };

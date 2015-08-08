@@ -4,7 +4,6 @@
 
 // Configuration
 const int kImageCount = 326;
-const bool kUsePort = false;
 const bool kFullscreen = false;
 const int kMinDistance = 0;
 const int kMaxDistance = 1000;

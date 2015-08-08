@@ -13,13 +13,29 @@ void ofApp::setup(){
     // FIXME: draws all shapes with smooth edges.
 
     // Distance reading
-    if (kUsePort) {
-        // FIXME: serialPort = new Serial(this, "/dev/tty.usbmodem1411", 9600);
-        // FIXME: serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
-    } else {
-         // fake initial distance for simulation
-        currentDistance = kMaxDistance;
+    serialPort.listDevices();
+    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
+    
+    // Print out available devices
+    std::cout << "Available serial devices:" << std::endl;
+    for (int i = 0; i < deviceList.size(); i++) {
+        std::cout << i << ") " << deviceList[i].getDeviceName() << std::endl;
     }
+    
+    // Attempt to connect to first available device
+    if (deviceList.size()) {
+        if (!serialPort.setup(0, 9600)) {
+            std::cerr << "Failed to connect to serial device!" << std::endl;
+            return;
+        }
+    }
+/*
+    serialPort = new ofSerial(this, "/dev/tty.usbmodem1411", 9600);
+    serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
+*/
+    
+    currentDistance = kMaxDistance;
+
     previousDistanceChangeAt = ofGetElapsedTimeMillis();
 
     // HUD
@@ -61,6 +77,23 @@ void ofApp::update(){
         }
 
         previousFrameDrawnAt = now;
+    }
+    
+    // Update audio
+    if (!backgroundSound.getIsPlaying()) {
+        backgroundSound.play();
+    }
+    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
+    
+    if (isAlive()) {
+        if (!heartbeatSound.getIsPlaying()) {
+            heartbeatSound.play();
+        }
+        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 2.0));
+    } else {
+        if (heartbeatSound.getIsPlaying()) {
+            heartbeatSound.stop();
+        }
     }
     
     ofSoundUpdate();
@@ -114,23 +147,6 @@ void ofApp::draw(){
     ofTexture *img = getImage(frame);
     img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
     clearImage(frame);
-    
-    // Update audio
-    if (!backgroundSound.getIsPlaying()) {
-        backgroundSound.play();
-    }
-    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
-    
-    if (isAlive()) {
-        if (!heartbeatSound.getIsPlaying()) {
-            heartbeatSound.play();
-        }
-        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 2.0));
-    } else {
-        if (heartbeatSound.getIsPlaying()) {
-            heartbeatSound.stop();
-        }
-    }
 }
 
 //--------------------------------------------------------------

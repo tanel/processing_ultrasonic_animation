@@ -28,11 +28,6 @@ void ofApp::setup(){
         }
     }
 
-/*
-    serialPort = new ofSerial(this, "/dev/tty.usbmodem1411", 9600);
-    serialPort.bufferUntil('\n'); // Trigger a SerialEvent on new line
-*/
-    
     currentDistance = kMaxDistance;
 
     previousDistanceChangeAt = ofGetElapsedTimeMillis();
@@ -75,6 +70,19 @@ void ofApp::update(){
         finishedAt = 0;
         setFrame(0);
         setDistance("restart", kMaxDistance);
+    }
+    
+    // Read serial
+    if (serialPort.available()) {
+        char c = serialPort.readByte();
+        // FIXME: if feedline detected, clear bu
+        if ('\n' == c) {
+            std::string input = serialbuf.str();
+            serialbuf.str("");
+            std::cout << "Serial input: " << input << std::endl;
+        } else {
+            serialbuf << c;
+        }
     }
 
     // Update visual

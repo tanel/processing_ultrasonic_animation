@@ -41,6 +41,7 @@ private:
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.
     ofSerial serialPort;
+    std::stringstream serialbuf;
     
     // Images that make up the animation sequence
     std::map<int, ofTexture> images;

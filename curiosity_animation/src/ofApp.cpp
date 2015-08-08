@@ -13,17 +13,14 @@ void ofApp::setup(){
     // Distance reading
     serialPort.listDevices();
     vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    
-    // Print out available devices
     std::cout << "Available serial devices:" << std::endl;
     for (int i = 0; i < deviceList.size(); i++) {
         std::cout << i << ") " << deviceList[i].getDeviceName() << std::endl;
     }
-    
-    // Attempt to connect to first available device
-    if (deviceList.size()) {
-        if (!serialPort.setup(0, 9600)) {
-            std::cerr << "Failed to connect to serial device!" << std::endl;
+    if (kActiveSerialPort < deviceList.size()) {
+        if (!serialPort.setup(kActiveSerialPort, 9600)) {
+            std::cerr << "Failed to connect to serial device! "
+                << deviceList[kActiveSerialPort].getDeviceName() << std::endl;
             return;
         }
     }
@@ -75,7 +72,6 @@ void ofApp::update(){
     // Read serial
     if (serialPort.available()) {
         char c = serialPort.readByte();
-        // FIXME: if feedline detected, clear bu
         if ('\n' == c) {
             std::string input = serialbuf.str();
             serialbuf.str("");

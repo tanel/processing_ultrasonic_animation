@@ -9,6 +9,7 @@ const int kMinDistance = 0;
 const int kMaxDistance = 1000;
 const int kDeathZone = 50;
 const int kRestartIntervalSeconds = 5;
+const int kActiveSerialPort = 1;
 
 class ofApp : public ofBaseApp{
 

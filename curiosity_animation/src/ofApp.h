@@ -8,6 +8,7 @@ const bool kFullscreen = false;
 const int kMinDistance = 0;
 const int kMaxDistance = 1000;
 const int kDeathZone = 50;
+const int kRestartIntervalSeconds = 5;
 
 class ofApp : public ofBaseApp{
 
@@ -35,7 +36,7 @@ private:
     void setDestinationFrame(const int i);
     void clearImage(const int i);
     
-    bool finished = false;
+    long finishedAt = 0;
     
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.

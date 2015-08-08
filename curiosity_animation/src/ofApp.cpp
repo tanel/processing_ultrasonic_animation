@@ -64,8 +64,17 @@ void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
     
     // Determine if user is now in the death zone
-    if (currentDistance < kMinDistance + kDeathZone) {
-        finished = true;
+    if (!finishedAt && (currentDistance < kMinDistance + kDeathZone)) {
+        finishedAt = now;
+        setFrame(kImageCount-1);
+        setDistance("death zone", kMinDistance);
+    }
+    
+    // Restart if needed
+    if (finishedAt && (finishedAt < now - (kRestartIntervalSeconds*1000))) {
+        finishedAt = 0;
+        setFrame(0);
+        setDistance("restart", kMaxDistance);
     }
 
     // Update visual
@@ -89,7 +98,7 @@ void ofApp::update(){
     }
     backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
     
-    if (!finished) {
+    if (!finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
@@ -142,7 +151,7 @@ void ofApp::draw(){
     f.drawString("frame=" + ofToString(frame) + "/" + ofToString(kImageCount), 210, 40);
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
     f.drawString("fps=" + ofToString(fps), 610, 40);
-    f.drawString("finished=" + ofToString(finished), 810, 40);
+    f.drawString("finished=" + ofToString(finishedAt), 810, 40);
 
     // Draw the current animation frame
     ofTexture *img = getImage(frame);
@@ -154,7 +163,7 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     cout << "keyPressed key=" << key << std::endl;
 
-    if (finished) {
+    if (finishedAt) {
         return;
     }
 

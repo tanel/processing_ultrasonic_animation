@@ -1,10 +1,34 @@
 #include "ofApp.h"
+#include "ofxXmlSettings.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    // Read configuration or create default
+    ofxXmlSettings xml;
+    if (!xml.loadFile("configuration.xml")) {
+        xml.setValue("configuration:ImageCount", configuration.ImageCount);
+        xml.setValue("configuration:Fullscreen", configuration.Fullscreen);
+        xml.setValue("configuration:MinDistance", configuration.MinDistance);
+        xml.setValue("configuration:MaxDistance", configuration.MaxDistance);
+        xml.setValue("configuration:DeathZone", configuration.DeathZone);
+        xml.setValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
+        xml.setValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
+        if (!xml.saveFile("configuration.xml")) {
+            std::cerr << "Error saving configuration file" << std::endl;
+        }
+    } else {
+        configuration.ImageCount = xml.getValue("configuration:ImageCount", configuration.ImageCount);
+        configuration.Fullscreen = xml.getValue("configuration:Fullscreen", configuration.Fullscreen);
+        configuration.MinDistance = xml.getValue("configuration:MinDistance", configuration.MinDistance);
+        configuration.MaxDistance = xml.getValue("configuration:MaxDistance", configuration.MaxDistance);
+        configuration.DeathZone = xml.getValue("configuration:DeathZone", configuration.DeathZone);
+        configuration.RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
+        configuration.ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
+    }
+    
     ofSetFrameRate( 60 );
 
-    ofSetFullscreen(kFullscreen);
+    ofSetFullscreen(configuration.Fullscreen);
 
 #ifdef TARGET_OSX
     ofSetDataPathRoot("../Resources/data/");
@@ -17,14 +41,14 @@ void ofApp::setup(){
     for (int i = 0; i < deviceList.size(); i++) {
         std::cout << i << ") " << deviceList[i].getDeviceName() << std::endl;
     }
-    if (kActiveSerialPort < deviceList.size()) {
-        if (!serialPort.setup(kActiveSerialPort, 9600)) {
+    if (configuration.ActiveSerialPort < deviceList.size()) {
+        if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
             std::cerr << "Failed to connect to serial device! "
-                << deviceList[kActiveSerialPort].getDeviceName() << std::endl;
+                << deviceList[configuration.ActiveSerialPort].getDeviceName() << std::endl;
         }
     }
 
-    currentDistance = kMaxDistance;
+    currentDistance = configuration.MaxDistance;
 
     previousDistanceChangeAt = ofGetElapsedTimeMillis();
 
@@ -52,15 +76,15 @@ void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
 
     // Determine if user is now in the death zone
-    if (!finishedAt && (currentDistance < kMinDistance + kDeathZone)) {
+    if (!finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         finishedAt = now;
     }
 
     // Restart if needed
-    if (finishedAt && (finishedAt < now - (kRestartIntervalSeconds*1000))) {
+    if (finishedAt && (finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         finishedAt = 0;
         setFrame(0);
-        setDistance("restart", kMaxDistance);
+        setDistance("restart", configuration.MaxDistance);
     }
 
     // Read serial
@@ -79,7 +103,7 @@ void ofApp::update(){
 
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
-    int millis = ofMap(currentDistance, kMaxDistance, kMinDistance, 1000 / 6, 1000 / 100);
+    int millis = ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 1000 / 6, 1000 / 100);
     fps = 1000 / millis;
     if (timePassed >= millis) {
         // move towards destination
@@ -96,13 +120,13 @@ void ofApp::update(){
     if (!backgroundSound.getIsPlaying()) {
         backgroundSound.play();
     }
-    backgroundSound.setVolume(ofMap(currentDistance, kMaxDistance, kMinDistance, 0.2, 1.0));
+    backgroundSound.setVolume(ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 0.2, 1.0));
 
     if (!finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
-        heartbeatSound.setSpeed(ofMap(currentDistance, kMaxDistance, kMinDistance, 1.0, 2.0));
+        heartbeatSound.setSpeed(ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 1.0, 2.0));
     } else {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();
@@ -128,15 +152,15 @@ ofTexture *ofApp::getImage(const int i) {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() const {
-    return ofMap(currentDistance, kMinDistance, kMaxDistance, kImageCount, 0);
+    return ofMap(currentDistance, configuration.MinDistance, configuration.MaxDistance, configuration.ImageCount, 0);
 }
 
 void ofApp::setFrame(const int i) {
-    frame = ofClamp(i, 0, kImageCount - 1);
+    frame = ofClamp(i, 0, configuration.ImageCount - 1);
 }
 
 void ofApp::setDestinationFrame(const int i) {
-    destinationFrame = ofClamp(i, 0, kImageCount - 1);
+    destinationFrame = ofClamp(i, 0, configuration.ImageCount - 1);
 }
 
 void ofApp::clearImage(const int i) {
@@ -148,7 +172,7 @@ void ofApp::clearImage(const int i) {
 void ofApp::draw(){
     // Update HUD
     f.drawString("distance=" + ofToString(currentDistance), 10, 40);
-    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(kImageCount), 210, 40);
+    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(configuration.ImageCount), 210, 40);
     f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
     f.drawString("fps=" + ofToString(fps), 610, 40);
     f.drawString("finished=" + ofToString(finishedAt), 810, 40);
@@ -177,7 +201,7 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
-    currentDistance = ofClamp(value, kMinDistance, kMaxDistance);
+    currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
 
     // Start animating towards this new distance
     setDestinationFrame(frameForDistance());

@@ -2,14 +2,25 @@
 
 #include "ofMain.h"
 
-// Configuration
-const int kImageCount = 326;
-const bool kFullscreen = false;
-const int kMinDistance = 0;
-const int kMaxDistance = 1000;
-const int kDeathZone = 50;
-const int kRestartIntervalSeconds = 30;
-const int kActiveSerialPort = 0;
+class Configuration {
+public:
+    Configuration()
+        : ImageCount(326)
+        , Fullscreen(false)
+        , MinDistance(0)
+        , MaxDistance(1000)
+        , DeathZone(50)
+        , RestartIntervalSeconds(30)
+        , ActiveSerialPort(0) {}
+    
+    int ImageCount;
+    bool Fullscreen;
+    int MinDistance;
+    int MaxDistance;
+    int DeathZone;
+    int RestartIntervalSeconds;
+    int ActiveSerialPort;
+};
 
 class ofApp : public ofBaseApp{
 
@@ -38,6 +49,8 @@ private:
     void clearImage(const int i);
 
     long finishedAt = 0;
+    
+    Configuration configuration;
 
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.

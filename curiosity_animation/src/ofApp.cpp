@@ -21,7 +21,6 @@ void ofApp::setup(){
         if (!serialPort.setup(kActiveSerialPort, 9600)) {
             std::cerr << "Failed to connect to serial device! "
                 << deviceList[kActiveSerialPort].getDeviceName() << std::endl;
-            return;
         }
     }
 
@@ -32,7 +31,6 @@ void ofApp::setup(){
     // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
         std::cerr << "Error loading font" << std::endl;
-        return;
     }
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
@@ -40,13 +38,11 @@ void ofApp::setup(){
     // Audio
     if (!backgroundSound.loadSound("1.mp3")) {
         std::cerr << "Error loading background sound" << std::endl;
-        return;
     }
     backgroundSound.setLoop(true);
 
     if (!heartbeatSound.loadSound("2.mp3")) {
         std::cerr << "Error loading heartbeat sound" << std::endl;
-        return;
     }
     heartbeatSound.setLoop(true);
 }
@@ -58,8 +54,6 @@ void ofApp::update(){
     // Determine if user is now in the death zone
     if (!finishedAt && (currentDistance < kMinDistance + kDeathZone)) {
         finishedAt = now;
-        setFrame(kImageCount-1);
-        setDistance("death zone", kMinDistance);
     }
 
     // Restart if needed

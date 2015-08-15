@@ -4,7 +4,12 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     // start logging
-    ofLogToFile("events.log");
+    ofLogToFile("app.log");
+    
+    // start recoding events
+    if (!eventLog.open(ofToDataPath("events.txt"), ofFile::WriteOnly)) {
+        ofLogError() << "Error opening events.txt - !!!DATA WILL BE LOST!!!";
+    }
 
     configuration.Read();
     
@@ -97,6 +102,7 @@ void ofApp::update(){
     if (!finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         finishedAt = now;
         ofLogNotice() << "Game finished at " << now;
+        eventLog << "finished=" << now << std::endl;
     }
 
     // Restart if needed
@@ -105,6 +111,7 @@ void ofApp::update(){
         setFrame(0);
         setDistance("restart", configuration.MaxDistance);
         ofLogNotice() << "Game restarted";
+        eventLog << "started=" << now << std::endl;
     }
 
     // Read serial

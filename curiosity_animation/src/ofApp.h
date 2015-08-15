@@ -90,4 +90,6 @@ private:
 
     ofSoundPlayer backgroundSound;
     ofSoundPlayer heartbeatSound;
+    
+    ofFile eventLog;
 };

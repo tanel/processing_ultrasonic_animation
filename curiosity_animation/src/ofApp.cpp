@@ -19,10 +19,6 @@ void ofApp::setup(){
     // Distance reading
     serialPort.listDevices();
     vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    ofLogNotice() << "Available serial devices:";
-    for (int i = 0; i < deviceList.size(); i++) {
-        ofLogNotice() << i << ") " << deviceList[i].getDeviceName();
-    }
     if (configuration.ActiveSerialPort < deviceList.size()) {
         if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
             ofLogError() << "Failed to connect to serial device! "

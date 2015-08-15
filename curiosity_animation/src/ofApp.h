@@ -17,7 +17,10 @@ public:
         , StartingVolume(0.2)
         , FinishingVolume(1.0)
         , StartingHeartBeatSpeed(1.0)
-        , FinishingHeartBeatSpeed(2.0) {}
+        , FinishingHeartBeatSpeed(2.0)
+        , FrameRate(60) {}
+    
+    void Read();
     
     int ImageCount;
     bool Fullscreen;
@@ -32,6 +35,7 @@ public:
     float FinishingVolume;
     float StartingHeartBeatSpeed;
     float FinishingHeartBeatSpeed;
+    int FrameRate;
 };
 
 class ofApp : public ofBaseApp{

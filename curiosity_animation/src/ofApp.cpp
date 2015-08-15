@@ -3,43 +3,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    // Read configuration or create default
-    ofxXmlSettings xml;
-    if (!xml.loadFile("configuration.xml")) {
-        xml.setValue("configuration:ImageCount", configuration.ImageCount);
-        xml.setValue("configuration:Fullscreen", configuration.Fullscreen);
-        xml.setValue("configuration:MinDistance", configuration.MinDistance);
-        xml.setValue("configuration:MaxDistance", configuration.MaxDistance);
-        xml.setValue("configuration:DeathZone", configuration.DeathZone);
-        xml.setValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
-        xml.setValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
-        xml.setValue("configuration:StartingFramesPerSecond", configuration.StartingFramesPerSecond);
-        xml.setValue("configuration:FinishingFramesPerSecond", configuration.FinishingFramesPerSecond);
-        xml.setValue("configuration:StartingVolume", configuration.StartingVolume);
-        xml.setValue("configuration:FinishingVolume", configuration.FinishingVolume);
-        xml.setValue("configuration:StartingHeartBeatSpeed", configuration.StartingHeartBeatSpeed);
-        xml.setValue("configuration:FinishingHeartBeatSpeed", configuration.FinishingHeartBeatSpeed);
-
-        if (!xml.saveFile("configuration.xml")) {
-            std::cerr << "Error saving configuration file" << std::endl;
-        }
-    } else {
-        configuration.ImageCount = xml.getValue("configuration:ImageCount", configuration.ImageCount);
-        configuration.Fullscreen = xml.getValue("configuration:Fullscreen", configuration.Fullscreen);
-        configuration.MinDistance = xml.getValue("configuration:MinDistance", configuration.MinDistance);
-        configuration.MaxDistance = xml.getValue("configuration:MaxDistance", configuration.MaxDistance);
-        configuration.DeathZone = xml.getValue("configuration:DeathZone", configuration.DeathZone);
-        configuration.RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
-        configuration.ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
-        configuration.StartingFramesPerSecond = xml.getValue("configuration:StartingFramesPerSecond", configuration.StartingFramesPerSecond);
-        configuration.FinishingFramesPerSecond = xml.getValue("configuration:FinishingFramesPerSecond", configuration.FinishingFramesPerSecond);
-        configuration.StartingVolume = xml.getValue("configuration:StartingVolume", configuration.StartingVolume);
-        configuration.FinishingVolume = xml.getValue("configuration:FinishingVolume", configuration.FinishingVolume);
-        configuration.StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", configuration.StartingHeartBeatSpeed);
-        configuration.FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", configuration.FinishingHeartBeatSpeed);
-    }
+    configuration.Read();
     
-    ofSetFrameRate( 60 );
+    ofSetFrameRate(configuration.FrameRate);
 
     ofSetFullscreen(configuration.Fullscreen);
 
@@ -82,6 +48,46 @@ void ofApp::setup(){
         std::cerr << "Error loading heartbeat sound" << std::endl;
     }
     heartbeatSound.setLoop(true);
+}
+
+void Configuration::Read() {
+    // Read configuration or create default
+    ofxXmlSettings xml;
+    if (!xml.loadFile("configuration.xml")) {
+        xml.setValue("configuration:ImageCount", ImageCount);
+        xml.setValue("configuration:Fullscreen", Fullscreen);
+        xml.setValue("configuration:MinDistance", MinDistance);
+        xml.setValue("configuration:MaxDistance", MaxDistance);
+        xml.setValue("configuration:DeathZone", DeathZone);
+        xml.setValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
+        xml.setValue("configuration:ActiveSerialPort", ActiveSerialPort);
+        xml.setValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
+        xml.setValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
+        xml.setValue("configuration:StartingVolume", StartingVolume);
+        xml.setValue("configuration:FinishingVolume", FinishingVolume);
+        xml.setValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
+        xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
+        xml.setValue("configuration:FrameRate", FrameRate);
+        
+        if (!xml.saveFile("configuration.xml")) {
+            std::cerr << "Error saving configuration file" << std::endl;
+        }
+    } else {
+        ImageCount = xml.getValue("configuration:ImageCount", ImageCount);
+        Fullscreen = xml.getValue("configuration:Fullscreen", Fullscreen);
+        MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
+        MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
+        DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
+        RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
+        ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
+        StartingFramesPerSecond = xml.getValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
+        FinishingFramesPerSecond = xml.getValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
+        StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);
+        FinishingVolume = xml.getValue("configuration:FinishingVolume", FinishingVolume);
+        StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
+        FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
+        FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
+    }
 }
 
 //--------------------------------------------------------------

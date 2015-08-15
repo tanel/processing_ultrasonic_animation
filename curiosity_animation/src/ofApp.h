@@ -11,7 +11,13 @@ public:
         , MaxDistance(1000)
         , DeathZone(50)
         , RestartIntervalSeconds(30)
-        , ActiveSerialPort(0) {}
+        , ActiveSerialPort(0)
+        , StartingFramesPerSecond(6)
+        , FinishingFramesPerSecond(100)
+        , StartingVolume(0.2)
+        , FinishingVolume(1.0)
+        , StartingHeartBeatSpeed(1.0)
+        , FinishingHeartBeatSpeed(2.0) {}
     
     int ImageCount;
     bool Fullscreen;
@@ -20,6 +26,12 @@ public:
     int DeathZone;
     int RestartIntervalSeconds;
     int ActiveSerialPort;
+    int StartingFramesPerSecond;
+    int FinishingFramesPerSecond;
+    float StartingVolume;
+    float FinishingVolume;
+    float StartingHeartBeatSpeed;
+    float FinishingHeartBeatSpeed;
 };
 
 class ofApp : public ofBaseApp{

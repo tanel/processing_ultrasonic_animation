@@ -13,6 +13,13 @@ void ofApp::setup(){
         xml.setValue("configuration:DeathZone", configuration.DeathZone);
         xml.setValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
         xml.setValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
+        xml.setValue("configuration:StartingFramesPerSecond", configuration.StartingFramesPerSecond);
+        xml.setValue("configuration:FinishingFramesPerSecond", configuration.FinishingFramesPerSecond);
+        xml.setValue("configuration:StartingVolume", configuration.StartingVolume);
+        xml.setValue("configuration:FinishingVolume", configuration.FinishingVolume);
+        xml.setValue("configuration:StartingHeartBeatSpeed", configuration.StartingHeartBeatSpeed);
+        xml.setValue("configuration:FinishingHeartBeatSpeed", configuration.FinishingHeartBeatSpeed);
+
         if (!xml.saveFile("configuration.xml")) {
             std::cerr << "Error saving configuration file" << std::endl;
         }
@@ -24,6 +31,12 @@ void ofApp::setup(){
         configuration.DeathZone = xml.getValue("configuration:DeathZone", configuration.DeathZone);
         configuration.RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", configuration.RestartIntervalSeconds);
         configuration.ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", configuration.ActiveSerialPort);
+        configuration.StartingFramesPerSecond = xml.getValue("configuration:StartingFramesPerSecond", configuration.StartingFramesPerSecond);
+        configuration.FinishingFramesPerSecond = xml.getValue("configuration:FinishingFramesPerSecond", configuration.FinishingFramesPerSecond);
+        configuration.StartingVolume = xml.getValue("configuration:StartingVolume", configuration.StartingVolume);
+        configuration.FinishingVolume = xml.getValue("configuration:FinishingVolume", configuration.FinishingVolume);
+        configuration.StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", configuration.StartingHeartBeatSpeed);
+        configuration.FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", configuration.FinishingHeartBeatSpeed);
     }
     
     ofSetFrameRate( 60 );
@@ -103,7 +116,9 @@ void ofApp::update(){
 
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
-    int millis = ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 1000 / 6, 1000 / 100);
+    int millis = ofMap(currentDistance,
+                       configuration.MaxDistance, configuration.MinDistance,
+                       1000 / configuration.StartingFramesPerSecond, 1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
     if (timePassed >= millis) {
         // move towards destination
@@ -120,13 +135,18 @@ void ofApp::update(){
     if (!backgroundSound.getIsPlaying()) {
         backgroundSound.play();
     }
-    backgroundSound.setVolume(ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 0.2, 1.0));
+    
+    backgroundSound.setVolume(ofMap(currentDistance,
+                                    configuration.MaxDistance, configuration.MinDistance,
+                                    configuration.StartingVolume, configuration.FinishingVolume));
 
     if (!finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
-        heartbeatSound.setSpeed(ofMap(currentDistance, configuration.MaxDistance, configuration.MinDistance, 1.0, 2.0));
+        heartbeatSound.setSpeed(ofMap(currentDistance,
+                                      configuration.MaxDistance, configuration.MinDistance,
+                                      configuration.StartingHeartBeatSpeed, configuration.FinishingHeartBeatSpeed));
     } else {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();

@@ -3,6 +3,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    // start logging
+    ofLogToFile("events.log");
+
     configuration.Read();
     
     ofSetFrameRate(configuration.FrameRate);
@@ -12,18 +15,18 @@ void ofApp::setup(){
 #ifdef TARGET_OSX
     ofSetDataPathRoot("../Resources/data/");
 #endif
-
+    
     // Distance reading
     serialPort.listDevices();
     vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    std::cout << "Available serial devices:" << std::endl;
+    ofLogNotice() << "Available serial devices:";
     for (int i = 0; i < deviceList.size(); i++) {
-        std::cout << i << ") " << deviceList[i].getDeviceName() << std::endl;
+        ofLogNotice() << i << ") " << deviceList[i].getDeviceName();
     }
     if (configuration.ActiveSerialPort < deviceList.size()) {
         if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
-            std::cerr << "Failed to connect to serial device! "
-                << deviceList[configuration.ActiveSerialPort].getDeviceName() << std::endl;
+            ofLogError() << "Failed to connect to serial device! "
+                << deviceList[configuration.ActiveSerialPort].getDeviceName();
         }
     }
 
@@ -33,19 +36,19 @@ void ofApp::setup(){
 
     // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
-        std::cerr << "Error loading font" << std::endl;
+        ofLogError() << "Error loading font";
     }
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
 
     // Audio
     if (!backgroundSound.loadSound("1.mp3")) {
-        std::cerr << "Error loading background sound" << std::endl;
+        ofLogError() << "Error loading background sound";
     }
     backgroundSound.setLoop(true);
 
     if (!heartbeatSound.loadSound("2.mp3")) {
-        std::cerr << "Error loading heartbeat sound" << std::endl;
+        ofLogError() << "Error loading heartbeat sound";
     }
     heartbeatSound.setLoop(true);
 }
@@ -70,7 +73,7 @@ void Configuration::Read() {
         xml.setValue("configuration:FrameRate", FrameRate);
         
         if (!xml.saveFile("configuration.xml")) {
-            std::cerr << "Error saving configuration file" << std::endl;
+            ofLogError() << "Error saving configuration file";
         }
     } else {
         ImageCount = xml.getValue("configuration:ImageCount", ImageCount);
@@ -97,6 +100,7 @@ void ofApp::update(){
     // Determine if user is now in the death zone
     if (!finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         finishedAt = now;
+        ofLogNotice() << "Game finished at " << now;
     }
 
     // Restart if needed
@@ -104,6 +108,7 @@ void ofApp::update(){
         finishedAt = 0;
         setFrame(0);
         setDistance("restart", configuration.MaxDistance);
+        ofLogNotice() << "Game restarted";
     }
 
     // Read serial
@@ -113,7 +118,7 @@ void ofApp::update(){
             if ('\n' == c) {
                 std::string input = serialbuf.str();
                 serialbuf.str("");
-                std::cout << "Serial input: " << input << std::endl;
+                ofLogNotice() << "Serial input: " << input << std::endl;
             } else {
                 serialbuf << c;
             }
@@ -166,7 +171,7 @@ ofTexture *ofApp::getImage(const int i) {
     if (images.end() == images.find(i)) {
         ofTexture img;
         if (!ofLoadImage(img, ofToString(i) + ".jpg")) {
-            std::cerr << "Error loading image" << std::endl;
+            ofLogError() << "Error loading image";
             return 0;
         }
         images[i] = img;
@@ -211,7 +216,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    cout << "keyPressed key=" << key << std::endl;
+    ofLogNotice() << "keyPressed key=" << key;
 
     if (finishedAt) {
         return;

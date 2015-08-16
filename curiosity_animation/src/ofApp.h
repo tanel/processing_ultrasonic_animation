@@ -2,6 +2,19 @@
 
 #include "ofMain.h"
 
+class GameStats {
+public:
+    GameStats()
+    : Saves(0)
+    , Kills(0) {}
+    
+    bool Read();
+    bool Write() const;
+    
+    int Saves;
+    int Kills;
+};
+
 class Configuration {
 public:
     Configuration()
@@ -20,7 +33,7 @@ public:
         , FinishingHeartBeatSpeed(2.0)
         , FrameRate(60) {}
     
-    void Read();
+    bool Read();
     
     int ImageCount;
     bool Fullscreen;
@@ -92,4 +105,5 @@ private:
     ofSoundPlayer heartbeatSound;
     
     ofFile eventLog;
+    GameStats gameStats;
 };

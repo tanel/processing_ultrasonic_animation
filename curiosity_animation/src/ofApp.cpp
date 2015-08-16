@@ -11,7 +11,13 @@ void ofApp::setup(){
         ofLogError() << "Error opening events.txt - !!!DATA WILL BE LOST!!!";
     }
 
-    configuration.Read();
+    if (!configuration.Read()) {
+        ofLogError() << "Error reading configuration";
+    }
+    
+    if (!gameStats.Read()) {
+        ofLogError() << "Error reading game stats.";
+    }
     
     ofSetFrameRate(configuration.FrameRate);
 
@@ -54,7 +60,7 @@ void ofApp::setup(){
     heartbeatSound.setLoop(true);
 }
 
-void Configuration::Read() {
+bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
     if (!xml.loadFile("configuration.xml")) {
@@ -75,6 +81,7 @@ void Configuration::Read() {
         
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
+            return false;
         }
     } else {
         ImageCount = xml.getValue("configuration:ImageCount", ImageCount);
@@ -92,6 +99,30 @@ void Configuration::Read() {
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
     }
+    
+    return true;
+}
+
+bool GameStats::Read() {
+    // Read game stats or create default
+    ofxXmlSettings xml;
+    if (!xml.loadFile("gamestats.xml")) {
+        if (!Write()) {
+            return false;
+        }
+    } else {
+        Saves = xml.getValue("gamestats:Saves", Saves);
+        Kills = xml.getValue("gamestats:Kills", Kills);
+    }
+    
+    return true;
+}
+
+bool GameStats::Write() const {
+    ofxXmlSettings xml;
+    xml.setValue("gamestats:Saves", Saves);
+    xml.setValue("gamestats:Kills", Kills);
+    return xml.saveFile();
 }
 
 //--------------------------------------------------------------
@@ -103,6 +134,10 @@ void ofApp::update(){
         finishedAt = now;
         ofLogNotice() << "Game finished at " << now;
         eventLog << "finished=" << now << std::endl;
+        gameStats.Kills++;
+        if (!gameStats.Write()) {
+            ofLogError() << "Error writing game stats";
+        }
     }
 
     // Restart if needed
@@ -205,11 +240,13 @@ void ofApp::clearImage(const int i) {
 //--------------------------------------------------------------
 void ofApp::draw(){
     // Update HUD
-    f.drawString("distance=" + ofToString(currentDistance), 10, 40);
-    f.drawString("frame=" + ofToString(frame) + "/" + ofToString(configuration.ImageCount), 210, 40);
-    f.drawString("destination=" + ofToString(destinationFrame), 410, 40);
-    f.drawString("fps=" + ofToString(fps), 610, 40);
-    f.drawString("finished=" + ofToString(finishedAt), 810, 40);
+    int y = 40;
+    f.drawString("dist=" + ofToString(currentDistance), 10, y);
+    f.drawString("f=" + ofToString(frame) + "/" + ofToString(configuration.ImageCount), 160, y);
+    f.drawString("dest.f=" + ofToString(destinationFrame), 310, y);
+    f.drawString("fps=" + ofToString(fps), 460, y);
+    f.drawString("saves=" + ofToString(gameStats.Saves), 610, y);
+    f.drawString("kills=" + ofToString(gameStats.Kills), 760, y);
 
     // Draw the current animation frame
     ofTexture *img = getImage(frame);

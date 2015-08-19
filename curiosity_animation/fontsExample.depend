@@ -1486,13 +1486,51 @@
 
 1438203930 source:c:\processing_ultrasonic_animation\curiosity_animation\icon.rc
 
-1438172630 source:c:\processing_ultrasonic_animation\curiosity_animation\src\main.cpp
+1439990783 source:c:\processing_ultrasonic_animation\curiosity_animation\src\main.cpp
 	"ofMain.h"
 	"ofApp.h"
 
-1439040741 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
+1439990790 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
 	"ofMain.h"
 
 1439040674 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
 	"ofApp.h"
+
+1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxml.cpp
+	<ctype.h>
+	<sstream>
+	<iostream>
+	"tinyxml.h"
+
+1439593586 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxml.h
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+	<string>
+	<iostream>
+	<sstream>
+	"tinystr.h"
+
+1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxmlerror.cpp
+	"tinyxml.h"
+
+1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxmlparser.cpp
+	<ctype.h>
+	<stddef.h>
+	"tinyxml.h"
+	<windows.h>
+
+1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\src\ofxxmlsettings.cpp
+	"ofxXmlSettings.h"
+	<vector>
+	<string>
+	<iostream>
+
+1439592397 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\src\ofxxmlsettings.h
+	"ofMain.h"
+	<string.h>
+	"../libs/tinyxml.h"
+	"tinyxml.h"
 

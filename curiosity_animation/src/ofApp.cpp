@@ -160,6 +160,8 @@ void ofApp::update(){
                 std::string input = serialbuf.str();
                 serialbuf.str("");
                 ofLogNotice() << "Serial input: " << input << std::endl;
+                float f = ofToFloat(input);
+                setDistance("Serial input", f);
             } else {
                 serialbuf << c;
             }

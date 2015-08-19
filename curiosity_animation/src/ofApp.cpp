@@ -119,10 +119,13 @@ bool GameStats::Read() {
 }
 
 bool GameStats::Write() const {
+    ofFile f(ofToDataPath("gamestats.xml"));
+    f.moveTo("gamestats_backup.xml");
+
     ofxXmlSettings xml;
     xml.setValue("gamestats:Saves", Saves);
     xml.setValue("gamestats:Kills", Kills);
-    return xml.saveFile();
+    return xml.saveFile("gamestats.xml");
 }
 
 //--------------------------------------------------------------

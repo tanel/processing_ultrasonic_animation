@@ -135,17 +135,38 @@ void ofApp::update(){
     // Determine if user is now in the death zone
     if (!finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         finishedAt = now;
-        ofLogNotice() << "Game finished at " << now;
-        eventLog << "finished=" << now << std::endl;
+        ofLogNotice() << "Game finished with kill at " << now;
+        eventLog << "killed=" << now << std::endl;
         gameStats.Kills++;
         if (!gameStats.Write()) {
             ofLogError() << "Error writing game stats";
         }
     }
+    
+    // If save zone is active and user finds itself in it,
+    // then declare the game saved and finish it.
+    int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
+    if (!finishedAt && saveZoneActive && currentDistance > saveZoneStartsAt) {
+        finishedAt = now;
+        ofLogNotice() << "Game finished with save at " << now;
+        eventLog << "saved=" << now << std::endl;
+        gameStats.Saves++;
+        if (!gameStats.Write()) {
+            ofLogError() << "Error writing game stats";
+        }
+    }
+
+    // If user has moved out of save zone, and game is not finished
+    // yet, activate save zone
+    int moved = std::abs(configuration.MaxDistance - currentDistance);
+    if (!finishedAt && moved > configuration.DeathZone) {
+        saveZoneActive = true;
+    }
 
     // Restart if needed
     if (finishedAt && (finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         finishedAt = 0;
+        saveZoneActive = false;
         setFrame(0);
         setDistance("restart", configuration.MaxDistance);
         ofLogNotice() << "Game restarted";

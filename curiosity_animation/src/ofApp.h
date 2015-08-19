@@ -77,7 +77,9 @@ private:
     void setDestinationFrame(const int i);
     void clearImage(const int i);
 
+    // Current game state
     long finishedAt = 0;
+    bool saveZoneActive = false;
     
     Configuration configuration;
 

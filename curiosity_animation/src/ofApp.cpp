@@ -175,11 +175,24 @@ void ofApp::update(){
                        1000 / configuration.StartingFramesPerSecond, 1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
     if (timePassed >= millis) {
+        // Calculate step. When the distance is decreasing
+        // fast, we want the animation to be more responsive.
+        // So we step more frames if the
+        int step = std::abs(frame - destinationFrame);
+        if (step) {
+            if (step > 1) {
+                step = std::sqrt(step);
+            }
+            if (step < 1) {
+                step = 1;
+            }
+        }
+
         // move towards destination
         if (destinationFrame > frame) {
-            setFrame(frame + 1);
+            setFrame(frame + step);
         } else if (destinationFrame < frame) {
-            setFrame(frame -  1);
+            setFrame(frame - step);
         }
 
         previousFrameDrawnAt = now;

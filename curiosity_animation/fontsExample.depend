@@ -1490,11 +1490,12 @@
 	"ofMain.h"
 	"ofApp.h"
 
-1440002199 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
+1440170884 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
 	"ofMain.h"
 
-1439040674 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
+1440170884 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
 	"ofApp.h"
+	"ofxXmlSettings.h"
 
 1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxml.cpp
 	<ctype.h>

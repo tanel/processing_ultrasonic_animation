@@ -18,11 +18,10 @@ public:
 class Configuration {
 public:
     Configuration()
-        : ImageCount(326)
-        , Fullscreen(false)
+        : Fullscreen(false)
         , MinDistance(0)
         , MaxDistance(1000)
-        , DeathZone(50)
+        , DeathZone(100)
         , RestartIntervalSeconds(30)
         , ActiveSerialPort(0)
         , StartingFramesPerSecond(6)
@@ -35,7 +34,6 @@ public:
     
     bool Read();
     
-    int ImageCount;
     bool Fullscreen;
     int MinDistance;
     int MaxDistance;
@@ -69,13 +67,11 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 private:
-    ofTexture *getImage(const int i);
-    int frameForDistance() const;
+    int frameForDistance();
     void calculateFrame();
     void setDistance(const std::string readson, const int value);
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
-    void clearImage(const int i);
 
     // Current game state
     long finishedAt = 0;
@@ -88,16 +84,12 @@ private:
     ofSerial serialPort;
     std::stringstream serialbuf;
 
-    // Images that make up the animation sequence
-    std::map<int, ofTexture> images;
-
     // App state, you should not touch these;
     int currentDistance = 0;
     int previousDistance = currentDistance;
     long previousFrameDrawnAt = 0;
     long previousDistanceChangeAt = 0;
-    int frame = 0;
-    int destinationFrame = frame;
+    int destinationFrame = 0;
 
     // HUD
     ofTrueTypeFont f;
@@ -105,6 +97,8 @@ private:
 
     ofSoundPlayer backgroundSound;
     ofSoundPlayer heartbeatSound;
+    
+    ofVideoPlayer videoPlayer;
     
     ofFile eventLog;
     GameStats gameStats;

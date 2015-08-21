@@ -58,13 +58,17 @@ void ofApp::setup(){
         ofLogError() << "Error loading heartbeat sound";
     }
     heartbeatSound.setLoop(true);
+    
+    // Video
+    if (!videoPlayer.loadMovie(ofToDataPath("shoot2_anim_edit.mov"))) {
+        ofLogError() << "Error loading movie";
+    }
 }
 
 bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
     if (!xml.loadFile("configuration.xml")) {
-        xml.setValue("configuration:ImageCount", ImageCount);
         xml.setValue("configuration:Fullscreen", Fullscreen);
         xml.setValue("configuration:MinDistance", MinDistance);
         xml.setValue("configuration:MaxDistance", MaxDistance);
@@ -84,7 +88,6 @@ bool Configuration::Read() {
             return false;
         }
     } else {
-        ImageCount = xml.getValue("configuration:ImageCount", ImageCount);
         Fullscreen = xml.getValue("configuration:Fullscreen", Fullscreen);
         MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
         MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
@@ -167,7 +170,7 @@ void ofApp::update(){
     if (finishedAt && (finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         finishedAt = 0;
         saveZoneActive = false;
-        setFrame(0);
+        videoPlayer.setFrame(0);
         setDistance("restart", configuration.MaxDistance);
         ofLogNotice() << "Game restarted";
         eventLog << "started=" << now << std::endl;
@@ -196,28 +199,22 @@ void ofApp::update(){
                        1000 / configuration.StartingFramesPerSecond, 1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
     if (timePassed >= millis) {
-        // Calculate step. When the distance is decreasing
-        // fast, we want the animation to be more responsive.
-        // So we step more frames if the
-        int step = std::abs(frame - destinationFrame);
-        if (step) {
-            if (step > 1) {
-                step = std::sqrt(step);
-            }
-            if (step < 1) {
-                step = 1;
-            }
-        }
-
         // move towards destination
-        if (destinationFrame > frame) {
-            setFrame(frame + step);
-        } else if (destinationFrame < frame) {
-            setFrame(frame - step);
+        if (destinationFrame > videoPlayer.getCurrentFrame()) {
+            videoPlayer.setSpeed(1);
+            videoPlayer.play();
+        } else if (destinationFrame < videoPlayer.getCurrentFrame()) {
+            videoPlayer.setSpeed(-1);
+            videoPlayer.play();
+        } else {
+            videoPlayer.stop();
         }
 
         previousFrameDrawnAt = now;
     }
+    
+    // Update video
+    videoPlayer.update();
 
     // Update audio
     if (!backgroundSound.getIsPlaying()) {
@@ -244,53 +241,44 @@ void ofApp::update(){
     ofSoundUpdate();
 }
 
-ofTexture *ofApp::getImage(const int i) {
-    if (images.end() == images.find(i)) {
-        ofTexture img;
-        if (!ofLoadImage(img, ofToString(i) + ".jpg")) {
-            ofLogError() << "Error loading image";
-            return 0;
-        }
-        images[i] = img;
-    }
-    return &images[i];
-}
-
 // Frame for current distance
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
-int ofApp::frameForDistance() const {
-    return ofMap(currentDistance, configuration.MinDistance, configuration.MaxDistance, configuration.ImageCount, 0);
-}
-
-void ofApp::setFrame(const int i) {
-    frame = ofClamp(i, 0, configuration.ImageCount - 1);
+int ofApp::frameForDistance() {
+    return ofMap(currentDistance,
+                 configuration.MinDistance,
+                 configuration.MaxDistance,
+                 videoPlayer.getTotalNumFrames(),
+                 0);
 }
 
 void ofApp::setDestinationFrame(const int i) {
-    destinationFrame = ofClamp(i, 0, configuration.ImageCount - 1);
+    destinationFrame = ofClamp(i, 0, videoPlayer.getTotalNumFrames() - 1);
 }
-
-void ofApp::clearImage(const int i) {
-    images.erase(images.find(i));
-}
-
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    int restartCountdownSeconds = 0;
+    if (finishedAt) {
+        long now = ofGetElapsedTimeMillis();
+        int beenDeadSeconds = (now - finishedAt) / 1000;
+        restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
+    }
+
     // Update HUD
     int y = 40;
     f.drawString("dist=" + ofToString(currentDistance), 10, y);
-    f.drawString("f=" + ofToString(frame) + "/" + ofToString(configuration.ImageCount), 160, y);
+    f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
+                 160, y);
     f.drawString("dest.f=" + ofToString(destinationFrame), 310, y);
     f.drawString("fps=" + ofToString(fps), 460, y);
     f.drawString("saves=" + ofToString(gameStats.Saves), 610, y);
     f.drawString("kills=" + ofToString(gameStats.Kills), 760, y);
-
-    // Draw the current animation frame
-    ofTexture *img = getImage(frame);
-    img->draw( 0, 60, ofGetWidth(), ofGetHeight() - 60 );
-    clearImage(frame);
+    f.drawString("r=" + ofToString(restartCountdownSeconds), 910, y);
+    
+    // Draw video
+    int margin = 50;
+    videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
 }
 
 //--------------------------------------------------------------

@@ -30,7 +30,8 @@ public:
         , FinishingVolume(1.0)
         , StartingHeartBeatSpeed(1.0)
         , FinishingHeartBeatSpeed(2.0)
-        , FrameRate(60) {}
+        , FrameRate(60)
+        , VideoFileName("shoot2_anim_edit.mov") {}
     
     bool Read();
     
@@ -47,6 +48,7 @@ public:
     float StartingHeartBeatSpeed;
     float FinishingHeartBeatSpeed;
     int FrameRate;
+    std::string VideoFileName;
 };
 
 class ofApp : public ofBaseApp{

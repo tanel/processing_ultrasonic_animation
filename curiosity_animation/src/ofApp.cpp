@@ -60,7 +60,7 @@ void ofApp::setup(){
     heartbeatSound.setLoop(true);
     
     // Video
-    if (!videoPlayer.loadMovie(ofToDataPath("shoot2_anim_edit.mov"))) {
+    if (!videoPlayer.loadMovie(ofToDataPath(configuration.VideoFileName))) {
         ofLogError() << "Error loading movie";
     }
 }
@@ -82,6 +82,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
         xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         xml.setValue("configuration:FrameRate", FrameRate);
+        xml.setValue("configuration:VideoFileName", VideoFileName);
         
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -101,6 +102,7 @@ bool Configuration::Read() {
         StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
+        VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
     }
     
     return true;

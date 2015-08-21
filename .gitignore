@@ -16,6 +16,9 @@ of_v0.8.4_win_cb_release/
 # images, not for public release yet
 data/*.jpg
 
+# video, not for public release yet
+data/*.mov
+
 # codeblocks
 codeblocks-*.exe
 codeblocks_additions/

@@ -51,6 +51,17 @@ public:
     std::string VideoFileName;
 };
 
+class GameState {
+    
+ public:
+    GameState() {}
+    
+    // Current game state
+    long finishedAt = 0;
+    bool saveZoneActive = false;
+    bool saved = false;
+};
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -75,11 +86,9 @@ private:
 	void setFrame(const int i);
     void setDestinationFrame(const int i);
 
-    // Current game state
-    long finishedAt = 0;
-    bool saveZoneActive = false;
-    
     Configuration configuration;
+    
+    GameState state;
 
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.

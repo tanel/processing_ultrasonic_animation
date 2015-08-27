@@ -138,8 +138,9 @@ void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
 
     // Determine if user is now in the death zone
-    if (!finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
-        finishedAt = now;
+    if (!state.finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
+        state.finishedAt = now;
+        state.saved = false;
         ofLogNotice() << "Game finished with kill at " << now;
         eventLog << "killed=" << now << std::endl;
         gameStats.Kills++;
@@ -151,8 +152,10 @@ void ofApp::update(){
     // If save zone is active and user finds itself in it,
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
-    if (!finishedAt && saveZoneActive && currentDistance > saveZoneStartsAt) {
-        finishedAt = now;
+    if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
+        videoPlayer.stop();
+        state.finishedAt = now;
+        state.saved = true;
         ofLogNotice() << "Game finished with save at " << now;
         eventLog << "saved=" << now << std::endl;
         gameStats.Saves++;
@@ -164,14 +167,13 @@ void ofApp::update(){
     // If user has moved out of save zone, and game is not finished
     // yet, activate save zone
     int moved = std::abs(configuration.MaxDistance - currentDistance);
-    if (!finishedAt && moved > configuration.DeathZone) {
-        saveZoneActive = true;
+    if (!state.finishedAt && moved > configuration.DeathZone) {
+        state.saveZoneActive = true;
     }
 
     // Restart if needed
-    if (finishedAt && (finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
-        finishedAt = 0;
-        saveZoneActive = false;
+    if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
+        state = GameState();
         videoPlayer.setFrame(0);
         setDistance("restart", configuration.MaxDistance);
         ofLogNotice() << "Game restarted";
@@ -197,10 +199,13 @@ void ofApp::update(){
     // Update visual
     long timePassed = now - previousFrameDrawnAt;
     int millis = ofMap(currentDistance,
-                       configuration.MaxDistance, configuration.MinDistance,
-                       1000 / configuration.StartingFramesPerSecond, 1000 / configuration.FinishingFramesPerSecond);
+                       configuration.MaxDistance,
+                       configuration.MinDistance,
+                       1000 / configuration.StartingFramesPerSecond,
+                       1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
-    if (timePassed >= millis) {
+    
+    if (!state.finishedAt && timePassed >= millis) {
         // move towards destination
         if (destinationFrame > videoPlayer.getCurrentFrame()) {
             videoPlayer.setSpeed(1);
@@ -213,11 +218,11 @@ void ofApp::update(){
         }
 
         previousFrameDrawnAt = now;
+
+        // Update video
+        videoPlayer.update();
     }
     
-    // Update video
-    videoPlayer.update();
-
     // Update audio
     if (!backgroundSound.getIsPlaying()) {
         backgroundSound.play();
@@ -227,7 +232,7 @@ void ofApp::update(){
                                     configuration.MaxDistance, configuration.MinDistance,
                                     configuration.StartingVolume, configuration.FinishingVolume));
 
-    if (!finishedAt) {
+    if (!state.finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
@@ -261,9 +266,9 @@ void ofApp::setDestinationFrame(const int i) {
 //--------------------------------------------------------------
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
-    if (finishedAt) {
+    if (state.finishedAt) {
         long now = ofGetElapsedTimeMillis();
-        int beenDeadSeconds = (now - finishedAt) / 1000;
+        int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
     }
 
@@ -278,16 +283,43 @@ void ofApp::draw(){
     f.drawString("kills=" + ofToString(gameStats.Kills), 760, y);
     f.drawString("r=" + ofToString(restartCountdownSeconds), 910, y);
     
+    const int margin = 50;
+
     // Draw video
-    int margin = 50;
-    videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+    if (!state.finishedAt) {
+        ofSetHexColor(0xFFFFFF);
+        ofFill();
+        videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+    } else {
+        if (state.saved) {
+            ofSetHexColor(0xFFFFFF);
+        } else {
+            ofSetHexColor(0x000000);
+        }
+        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+        ofFill();
+        if (!state.saved) {
+            ofSetHexColor(0xFFFFFF);
+        } else {
+            ofSetHexColor(0x000000);
+        }
+        std::string text("");
+        if (state.saved) {
+            text = "LIFES SAVED: " + ofToString(gameStats.Saves);
+        } else {
+            text = "TOTAL KILLS: " + ofToString(gameStats.Kills);
+        }
+        f.drawString(text,
+                     ofGetWindowWidth() / 2 - 100,
+                     ofGetWindowHeight() / 2);
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     ofLogNotice() << "keyPressed key=" << key;
 
-    if (finishedAt) {
+    if (state.finishedAt) {
         return;
     }
 

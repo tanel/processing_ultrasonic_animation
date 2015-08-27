@@ -18,6 +18,8 @@ data/*.jpg
 
 # video, not for public release yet
 data/*.mov
+data/*.mp4
+data/*.mpg
 
 # codeblocks
 codeblocks-*.exe

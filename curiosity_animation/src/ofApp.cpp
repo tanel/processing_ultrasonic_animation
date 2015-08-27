@@ -125,7 +125,7 @@ bool GameStats::Read() {
 
 bool GameStats::Write() const {
     ofFile f(ofToDataPath("gamestats.xml"));
-    f.moveTo("gamestats_backup.xml");
+    f.moveTo("gamestats_backup.xml", false, true);
 
     ofxXmlSettings xml;
     xml.setValue("gamestats:Saves", Saves);

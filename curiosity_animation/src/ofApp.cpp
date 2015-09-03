@@ -49,11 +49,6 @@ void ofApp::setup(){
     f.setLetterSpacing(1.037);
 
     // Audio
-    if (!backgroundSound.loadSound("1.mp3")) {
-        ofLogError() << "Error loading background sound";
-    }
-    backgroundSound.setLoop(true);
-
     if (!heartbeatSound.loadSound("2.mp3")) {
         ofLogError() << "Error loading heartbeat sound";
     }
@@ -224,14 +219,6 @@ void ofApp::update(){
     }
     
     // Update audio
-    if (!backgroundSound.getIsPlaying()) {
-        backgroundSound.play();
-    }
-    
-    backgroundSound.setVolume(ofMap(currentDistance,
-                                    configuration.MaxDistance, configuration.MinDistance,
-                                    configuration.StartingVolume, configuration.FinishingVolume));
-
     if (!state.finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
@@ -337,44 +324,4 @@ void ofApp::setDistance(const std::string reason, const int value) {
 
     // Start animating towards this new distance
     setDestinationFrame(frameForDistance());
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
-
 }

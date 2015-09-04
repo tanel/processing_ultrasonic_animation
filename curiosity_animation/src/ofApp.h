@@ -73,10 +73,7 @@ class ofApp : public ofBaseApp{
 
 private:
     int frameForDistance();
-    void calculateFrame();
-    void setDistance(const std::string readson, const int value);
-	void setFrame(const int i);
-    void setDestinationFrame(const int i);
+    void setDistance(const std::string reason, const int value);
 
     Configuration configuration;
     

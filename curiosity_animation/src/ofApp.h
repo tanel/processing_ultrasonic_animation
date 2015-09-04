@@ -70,21 +70,10 @@ class ofApp : public ofBaseApp{
 		void draw();
 
 		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
 
 private:
     int frameForDistance();
-    void calculateFrame();
-    void setDistance(const std::string readson, const int value);
-	void setFrame(const int i);
-    void setDestinationFrame(const int i);
+    void setDistance(const std::string reason, const int value);
 
     Configuration configuration;
     
@@ -106,7 +95,6 @@ private:
     ofTrueTypeFont f;
     int fps = 0;
 
-    ofSoundPlayer backgroundSound;
     ofSoundPlayer heartbeatSound;
     
     ofVideoPlayer videoPlayer;

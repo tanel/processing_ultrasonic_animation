@@ -49,11 +49,6 @@ void ofApp::setup(){
     f.setLetterSpacing(1.037);
 
     // Audio
-    if (!backgroundSound.loadSound("1.mp3")) {
-        ofLogError() << "Error loading background sound";
-    }
-    backgroundSound.setLoop(true);
-
     if (!heartbeatSound.loadSound("2.mp3")) {
         ofLogError() << "Error loading heartbeat sound";
     }
@@ -63,6 +58,7 @@ void ofApp::setup(){
     if (!videoPlayer.loadMovie(ofToDataPath(configuration.VideoFileName))) {
         ofLogError() << "Error loading movie";
     }
+    videoPlayer.setLoopState(OF_LOOP_NONE);
 }
 
 bool Configuration::Read() {
@@ -153,7 +149,7 @@ void ofApp::update(){
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
     if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
-        videoPlayer.stop();
+        videoPlayer.setPaused(true);
         state.finishedAt = now;
         state.saved = true;
         ofLogNotice() << "Game finished with save at " << now;
@@ -174,9 +170,14 @@ void ofApp::update(){
     // Restart if needed
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         state = GameState();
+        
+        videoPlayer.setPaused(true);
         videoPlayer.setFrame(0);
+
         setDistance("restart", configuration.MaxDistance);
+        
         ofLogNotice() << "Game restarted";
+        
         eventLog << "started=" << now << std::endl;
     }
 
@@ -189,7 +190,9 @@ void ofApp::update(){
                 serialbuf.str("");
                 ofLogNotice() << "Serial input: " << input << std::endl;
                 float f = ofToFloat(input);
-                setDistance("Serial input", f);
+                if (videoPlayer.isPaused()) {
+                    setDistance("Serial input", f);
+                }
             } else {
                 serialbuf << c;
             }
@@ -205,33 +208,23 @@ void ofApp::update(){
                        1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
     
-    if (!state.finishedAt && timePassed >= millis) {
         // move towards destination
         if (destinationFrame > videoPlayer.getCurrentFrame()) {
-            videoPlayer.setSpeed(1);
-            videoPlayer.play();
+            if (videoPlayer.getSpeed() != 1) {
+                videoPlayer.setSpeed(1);
+            }
         } else if (destinationFrame < videoPlayer.getCurrentFrame()) {
-            videoPlayer.setSpeed(-1);
-            videoPlayer.play();
-        } else {
-            videoPlayer.stop();
+            if (videoPlayer.getSpeed() != -1) {
+                videoPlayer.setSpeed(-1);
+            }
+        } else if (videoPlayer.isPlaying()) {
+            videoPlayer.setPaused(true);
         }
-
-        previousFrameDrawnAt = now;
 
         // Update video
         videoPlayer.update();
-    }
     
     // Update audio
-    if (!backgroundSound.getIsPlaying()) {
-        backgroundSound.play();
-    }
-    
-    backgroundSound.setVolume(ofMap(currentDistance,
-                                    configuration.MaxDistance, configuration.MinDistance,
-                                    configuration.StartingVolume, configuration.FinishingVolume));
-
     if (!state.finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
@@ -259,10 +252,6 @@ int ofApp::frameForDistance() {
                  0);
 }
 
-void ofApp::setDestinationFrame(const int i) {
-    destinationFrame = ofClamp(i, 0, videoPlayer.getTotalNumFrames() - 1);
-}
-
 //--------------------------------------------------------------
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
@@ -279,9 +268,10 @@ void ofApp::draw(){
                  160, y);
     f.drawString("dest.f=" + ofToString(destinationFrame), 310, y);
     f.drawString("fps=" + ofToString(fps), 460, y);
-    f.drawString("saves=" + ofToString(gameStats.Saves), 610, y);
-    f.drawString("kills=" + ofToString(gameStats.Kills), 760, y);
-    f.drawString("r=" + ofToString(restartCountdownSeconds), 910, y);
+    f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
+    f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
+    f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
+    f.drawString("vid=" + ofToString(videoPlayer.isPlaying()), 860, y);
     
     const int margin = 50;
 
@@ -322,59 +312,19 @@ void ofApp::keyPressed(int key){
     if (state.finishedAt) {
         return;
     }
-
-    if (OF_KEY_UP == key) {
-        // distance decreases as viewer approaches
-        setDistance("keyboard up", currentDistance - 50 - int(ofRandom(100)));
-    } else if (OF_KEY_DOWN == key) {
-        // distance incrases as viewer steps back
-        setDistance("keyboar down", currentDistance + 50 + int(ofRandom(100)));
+    
+    if (videoPlayer.isPaused()) {
+        if (OF_KEY_UP == key) {
+            // distance decreases as viewer approaches
+            setDistance("keyboard up", currentDistance - 50 - int(ofRandom(100)));
+        } else if (OF_KEY_DOWN == key) {
+            // distance incrases as viewer steps back
+            setDistance("keyboar down", currentDistance + 50 + int(ofRandom(100)));
+        }
     }
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
     currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
-
-    // Start animating towards this new distance
-    setDestinationFrame(frameForDistance());
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
-
+    destinationFrame = ofClamp(frameForDistance(), 0, videoPlayer.getTotalNumFrames() - 1);
 }

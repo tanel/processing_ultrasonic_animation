@@ -1,7 +1,6 @@
 #include "ofApp.h"
 #include "ofxXmlSettings.h"
 
-//--------------------------------------------------------------
 void ofApp::setup(){
     // start logging
     ofLogToFile("app.log");
@@ -129,7 +128,6 @@ bool GameStats::Write() const {
     return xml.saveFile("gamestats.xml");
 }
 
-//--------------------------------------------------------------
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
     
@@ -192,6 +190,7 @@ void ofApp::update(){
                 float f = ofToFloat(input);
                 if (videoPlayer.isPaused()) {
                     setDistance("Serial input", f);
+                    videoPlayer.setPaused(false);
                 }
             } else {
                 serialbuf << c;
@@ -217,8 +216,10 @@ void ofApp::update(){
         if (videoPlayer.getSpeed() != -1) {
             videoPlayer.setSpeed(-1);
         }
-    } else if (videoPlayer.isPlaying()) {
-        videoPlayer.setPaused(true);
+    } else {
+        if (videoPlayer.isPlaying()) {
+            videoPlayer.setPaused(true);
+        }
     }
     
     // Update video
@@ -252,7 +253,6 @@ int ofApp::frameForDistance() {
                  0);
 }
 
-//--------------------------------------------------------------
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
     if (state.finishedAt) {
@@ -305,21 +305,22 @@ void ofApp::draw(){
     }
 }
 
-//--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     ofLogNotice() << "keyPressed key=" << key;
     
     if (state.finishedAt) {
         return;
     }
-    
+
     if (videoPlayer.isPaused()) {
         if (OF_KEY_UP == key) {
             // distance decreases as viewer approaches
             setDistance("keyboard up", currentDistance - 50 - int(ofRandom(100)));
+            videoPlayer.setPaused(false);
         } else if (OF_KEY_DOWN == key) {
             // distance incrases as viewer steps back
             setDistance("keyboar down", currentDistance + 50 + int(ofRandom(100)));
+            videoPlayer.setPaused(false);
         }
     }
 }

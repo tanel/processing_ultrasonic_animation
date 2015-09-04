@@ -18,20 +18,20 @@ public:
 class Configuration {
 public:
     Configuration()
-        : Fullscreen(false)
-        , MinDistance(0)
-        , MaxDistance(1000)
-        , DeathZone(100)
-        , RestartIntervalSeconds(30)
-        , ActiveSerialPort(0)
-        , StartingFramesPerSecond(6)
-        , FinishingFramesPerSecond(100)
-        , StartingVolume(0.2)
-        , FinishingVolume(1.0)
-        , StartingHeartBeatSpeed(1.0)
-        , FinishingHeartBeatSpeed(2.0)
-        , FrameRate(60)
-        , VideoFileName("shoot2_anim_edit.mov") {}
+    : Fullscreen(false)
+    , MinDistance(0)
+    , MaxDistance(1000)
+    , DeathZone(100)
+    , RestartIntervalSeconds(30)
+    , ActiveSerialPort(0)
+    , StartingFramesPerSecond(6)
+    , FinishingFramesPerSecond(100)
+    , StartingVolume(0.2)
+    , FinishingVolume(1.0)
+    , StartingHeartBeatSpeed(1.0)
+    , FinishingHeartBeatSpeed(2.0)
+    , FrameRate(60)
+    , VideoFileName("shoot2_anim_edit.mov") {}
     
     bool Read();
     
@@ -53,7 +53,7 @@ public:
 
 class GameState {
     
- public:
+public:
     GameState() {}
     
     // Current game state
@@ -63,38 +63,38 @@ class GameState {
 };
 
 class ofApp : public ofBaseApp{
-
-	public:
-		void setup();
-		void update();
-		void draw();
-
-		void keyPressed(int key);
-
+    
+public:
+    void setup();
+    void update();
+    void draw();
+    
+    void keyPressed(int key);
+    
 private:
     int frameForDistance();
     void setDistance(const std::string reason, const int value);
-
+    
     Configuration configuration;
     
     GameState state;
-
+    
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.
     ofSerial serialPort;
     std::stringstream serialbuf;
-
+    
     // App state, you should not touch these;
     int currentDistance = 0;
     int previousDistance = currentDistance;
     long previousFrameDrawnAt = 0;
     long previousDistanceChangeAt = 0;
     int destinationFrame = 0;
-
+    
     // HUD
     ofTrueTypeFont f;
     int fps = 0;
-
+    
     ofSoundPlayer heartbeatSound;
     
     ofVideoPlayer videoPlayer;

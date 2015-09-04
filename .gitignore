@@ -28,3 +28,6 @@ codeblocks_additions/
 # windows codeblocks artifacts
 **/bin/*
 obj/
+
+# packaged app
+*.zip

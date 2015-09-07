@@ -242,7 +242,7 @@ void ofApp::update(){
             std::string input = serialbuf.str();
             serialbuf.str("");
 
-            if (!state.finishedAt && isPlaying()) {
+            if (!state.finishedAt && !isPlaying()) {
                 float f = ofToFloat(input);
 
                 int prev = currentDistance;

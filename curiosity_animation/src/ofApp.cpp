@@ -162,13 +162,13 @@ void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
 
     // Stop video if we have reached the required frame
-    if (!state.finishedAt && videoPlayer.isPlaying()) {
-        if (videoPlayer.getSpeed() == 1) {
-            if (videoPlayer.getCurrentFrame() > frameForDistance()) {
+    if (videoPlayer.isPlaying()) {
+        if (videoPlayer.getSpeed() == kForward) {
+            if (videoPlayer.getCurrentFrame() >= frameForDistance()) {
                 videoPlayer.stop();
             }
-        } else if (videoPlayer.getSpeed() == -1) {
-            if (videoPlayer.getCurrentFrame() < frameForDistance()) {
+        } else if (videoPlayer.getSpeed() == kBack) {
+            if (videoPlayer.getCurrentFrame() <= frameForDistance()) {
                 videoPlayer.stop();
             }
         }
@@ -183,19 +183,12 @@ void ofApp::update(){
         state.finishedAt = now;
         state.saved = false;
 
-        videoPlayer.stop();
-
-        setDistance("killed", configuration.MaxDistance);
+        setDistance("killed", 0);
 
         gameStats.Kills++;
         if (!gameStats.Write()) {
             ofLogError() << "Error writing game stats";
         }
-
-        if (!loadVideo()) {
-            ofLogError() << "Error loading video after kill";
-        }
-        ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
     }
 
     // If save zone is active and user finds itself in it,
@@ -209,17 +202,11 @@ void ofApp::update(){
         state.finishedAt = now;
         state.saved = true;
         
-        videoPlayer.stop();
-
         setDistance("saved", configuration.MaxDistance);
 
         gameStats.Saves++;
         if (!gameStats.Write()) {
             ofLogError() << "Error writing game stats";
-        }
-
-        if (!loadVideo()) {
-            ofLogError() << "Error loading video after save";
         }
     }
 
@@ -232,10 +219,17 @@ void ofApp::update(){
 
     // Restart if needed
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
+        ofLogNotice() << "Game restarted";
+        
+        setDistance("restart", configuration.MaxDistance);
+
         state = GameState();
 
-        ofLogNotice() << "Game restarted";
-
+        if (!loadVideo()) {
+            ofLogError() << "Error loading video after kill";
+        }
+        ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
+        
         eventLog << "started=" << now << std::endl;
     }
 
@@ -327,11 +321,7 @@ void ofApp::draw(){
     const int margin = 50;
 
     // Draw video
-    if (!state.finishedAt) {
-        ofSetHexColor(0xFFFFFF);
-        ofFill();
-        videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-    } else {
+    if (state.finishedAt && !videoPlayer.isPlaying()) {
         if (state.saved) {
             ofSetHexColor(0xFFFFFF);
         } else {
@@ -353,7 +343,12 @@ void ofApp::draw(){
         f.drawString(text,
                      ofGetWindowWidth() / 2 - 100,
                      ofGetWindowHeight() / 2);
+        return;
     }
+    
+    ofSetHexColor(0xFFFFFF);
+    ofFill();
+    videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
 }
 
 void ofApp::keyPressed(int key){

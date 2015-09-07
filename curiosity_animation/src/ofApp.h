@@ -74,6 +74,7 @@ public:
 private:
     int frameForDistance();
     void setDistance(const std::string reason, const int value);
+    bool loadVideo();
     
     Configuration configuration;
     

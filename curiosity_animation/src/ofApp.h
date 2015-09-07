@@ -78,7 +78,8 @@ private:
     void setDistance(const std::string reason, const int value);
     bool loadVideo();
     void animateVideo(const int direction);
-    
+    bool isPlaying();
+
     Configuration configuration;
     
     GameState state;

@@ -211,7 +211,7 @@ void ofApp::update(){
             ofLogError() << "Error writing game stats";
         }
     }
-
+    
     // If user has moved out of save zone, and game is not finished
     // yet, activate save zone
     int moved = std::abs(configuration.MaxDistance - currentDistance);
@@ -236,27 +236,34 @@ void ofApp::update(){
     }
 
     // Read serial
-    if (serialPort.isInitialized()) {
-        if (serialPort.available()) {
-            char c = serialPort.readByte();
-            if ('\n' == c) {
-                std::string input = serialbuf.str();
-                serialbuf.str("");
-                ofLogNotice() << "Serial input: " << input << std::endl;
-                float f = ofToFloat(input);
+    if (serialPort.isInitialized() && serialPort.available()) {
+        char c = serialPort.readByte();
+        if ('\n' == c) {
+            std::string input = serialbuf.str();
+            serialbuf.str("");
+            ofLogNotice() << "Serial input: " << input << std::endl;
 
-                int prev = currentDistance;
-
-                setDistance("Serial input", f);
-
-                if (prev > currentDistance) {
-                    animateVideo(kForward);
-                } else if (prev < currentDistance) {
-                    animateVideo(kBack);
-                }
-            } else {
-                serialbuf << c;
+            if (state.finishedAt) {
+                return;
             }
+
+            if (isPlaying()) {
+                return;
+            }
+
+            float f = ofToFloat(input);
+
+            int prev = currentDistance;
+
+            setDistance("Serial input", f);
+
+            if (prev > currentDistance) {
+                animateVideo(kForward);
+            } else if (prev < currentDistance) {
+                animateVideo(kBack);
+            }
+        } else {
+            serialbuf << c;
         }
     }
 

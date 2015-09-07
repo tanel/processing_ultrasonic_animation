@@ -178,7 +178,7 @@ void ofApp::update(){
 
     // Determine if user is now in the death zone
     if (!state.finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
-        ofLogNotice() << "Game finished with kill at " << now;
+        ofLogNotice() << "Game finished with kill at " << now << " with current distance of " << currentDistance;
 
         eventLog << "killed=" << now << std::endl;
 
@@ -197,7 +197,7 @@ void ofApp::update(){
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
     if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
-        ofLogNotice() << "Game finished with save at " << now;
+        ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance;
 
         eventLog << "saved=" << now << std::endl;
 
@@ -241,26 +241,23 @@ void ofApp::update(){
         if ('\n' == c) {
             std::string input = serialbuf.str();
             serialbuf.str("");
-            ofLogNotice() << "Serial input: " << input << std::endl;
 
-            if (state.finishedAt) {
-                return;
-            }
+            if (!state.finishedAt && isPlaying()) {
+                float f = ofToFloat(input);
 
-            if (isPlaying()) {
-                return;
-            }
+                int prev = currentDistance;
 
-            float f = ofToFloat(input);
+                setDistance("Serial input", f);
 
-            int prev = currentDistance;
-
-            setDistance("Serial input", f);
-
-            if (prev > currentDistance) {
-                animateVideo(kForward);
-            } else if (prev < currentDistance) {
-                animateVideo(kBack);
+                if (prev > currentDistance) {
+                    animateVideo(kForward);
+                    ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << prev
+                    << " current distance: " << currentDistance;
+                } else if (prev < currentDistance) {
+                    animateVideo(kBack);
+                    ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << prev
+                    << " current distance: " << currentDistance;
+                }
             }
         } else {
             serialbuf << c;

@@ -31,7 +31,8 @@ public:
     , StartingHeartBeatSpeed(1.0)
     , FinishingHeartBeatSpeed(2.0)
     , FrameRate(60)
-    , VideoFileName("shoot2_anim_edit.mov") {}
+    , VideoFileName("shoot2_anim_edit.mov")
+    , SetFrame(true) {}
     
     bool Read();
     
@@ -49,6 +50,7 @@ public:
     float FinishingHeartBeatSpeed;
     int FrameRate;
     std::string VideoFileName;
+    bool SetFrame;
 };
 
 class GameState {
@@ -75,6 +77,7 @@ private:
     int frameForDistance();
     void setDistance(const std::string reason, const int value);
     bool loadVideo();
+    void animateVideo(const int direction);
     
     Configuration configuration;
     

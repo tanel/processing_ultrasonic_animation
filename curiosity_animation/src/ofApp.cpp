@@ -1,6 +1,25 @@
 #include "ofApp.h"
 #include "ofxXmlSettings.h"
 
+const int kForward = 1;
+const int kBack = -1;
+
+void ofApp::animateVideo(const int direction) {
+    if (direction != kForward && direction != kBack) {
+        ofLogError() << "Invalid direction " << direction;
+        return;
+    }
+    videoPlayer.setSpeed(direction);
+    
+    // Various video players on various platforms
+    // act a bit different when setting a frame number.
+    if (configuration.SetFrame) {
+        videoPlayer.setFrame(frameForDistance());
+    }
+    
+    videoPlayer.play();
+}
+
 bool ofApp::loadVideo() {
     videoPlayer = ofVideoPlayer();
     if (!videoPlayer.loadMovie(ofToDataPath(configuration.VideoFileName))) {
@@ -68,7 +87,6 @@ void ofApp::setup(){
     }
 }
 
-
 bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
@@ -87,6 +105,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
+        xml.setValue("configuration:SetFrame", SetFrame);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -107,6 +126,7 @@ bool Configuration::Read() {
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
+        SetFrame = xml.getValue("configuration:SetFrame", SetFrame);
     }
 
     return true;
@@ -214,8 +234,6 @@ void ofApp::update(){
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         state = GameState();
 
-        videoPlayer.stop();
-
         ofLogNotice() << "Game restarted";
 
         eventLog << "started=" << now << std::endl;
@@ -236,13 +254,9 @@ void ofApp::update(){
                 setDistance("Serial input", f);
 
                 if (prev > currentDistance) {
-                    videoPlayer.setSpeed(1);
-                    videoPlayer.setFrame(frameForDistance());
-                    videoPlayer.play();
+                    animateVideo(kForward);
                 } else if (prev < currentDistance) {
-                    videoPlayer.setSpeed(-1);
-                    videoPlayer.setFrame(frameForDistance());
-                    videoPlayer.play();
+                    animateVideo(kBack);
                 }
             } else {
                 serialbuf << c;
@@ -342,7 +356,6 @@ void ofApp::draw(){
     }
 }
 
-//--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     ofLogNotice() << "keyPressed key=" << key;
 
@@ -361,19 +374,16 @@ void ofApp::keyPressed(int key){
         int n = currentDistance - kMinStep - int(ofRandom(100));
 
         setDistance("keyboard up", n);
+        
+        animateVideo(kForward);
 
-        videoPlayer.setSpeed(1);
-        videoPlayer.setFrame(frameForDistance());
-        videoPlayer.play();
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
         int n = currentDistance + kMinStep + int(ofRandom(100));
 
         setDistance("keyboard down", n);
-
-        videoPlayer.setSpeed(-1);
-        videoPlayer.setFrame(frameForDistance());
-        videoPlayer.play();
+        
+        animateVideo(kBack);
     }
 }
 

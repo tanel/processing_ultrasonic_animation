@@ -9,15 +9,20 @@ void ofApp::animateVideo(const int direction) {
         ofLogError() << "Invalid direction " << direction;
         return;
     }
-    videoPlayer.setSpeed(direction);
-    
-    // Various video players on various platforms
-    // act a bit different when setting a frame number.
-    if (configuration.SetFrame) {
-        videoPlayer.setFrame(frameForDistance());
+    if (videoPlayer.getSpeed() != direction) {
+        videoPlayer.setPaused(true);
+        videoPlayer.setSpeed(direction);
     }
     
-    videoPlayer.play();
+    if (!isPlaying()) {
+        videoPlayer.play();
+    }
+
+    videoPlayer.update();
+}
+
+bool ofApp::isPlaying() {
+    return videoPlayer.isPlaying() && !videoPlayer.isPaused();
 }
 
 bool ofApp::loadVideo() {
@@ -87,6 +92,7 @@ void ofApp::setup(){
     }
 }
 
+
 bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
@@ -105,7 +111,6 @@ bool Configuration::Read() {
         xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
-        xml.setValue("configuration:SetFrame", SetFrame);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -126,7 +131,6 @@ bool Configuration::Read() {
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
-        SetFrame = xml.getValue("configuration:SetFrame", SetFrame);
     }
 
     return true;
@@ -157,19 +161,17 @@ bool GameStats::Write() const {
     return xml.saveFile("gamestats.xml");
 }
 
-//--------------------------------------------------------------
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
 
-    // Stop video if we have reached the required frame
-    if (videoPlayer.isPlaying()) {
+    if (isPlaying()) {
         if (videoPlayer.getSpeed() == kForward) {
             if (videoPlayer.getCurrentFrame() >= frameForDistance()) {
-                videoPlayer.stop();
+                videoPlayer.setPaused(true);
             }
         } else if (videoPlayer.getSpeed() == kBack) {
             if (videoPlayer.getCurrentFrame() <= frameForDistance()) {
-                videoPlayer.stop();
+                videoPlayer.setPaused(true);
             }
         }
     }
@@ -183,7 +185,7 @@ void ofApp::update(){
         state.finishedAt = now;
         state.saved = false;
 
-        setDistance("killed", 0);
+        setDistance("killed", configuration.MinDistance);
 
         gameStats.Kills++;
         if (!gameStats.Write()) {
@@ -201,7 +203,7 @@ void ofApp::update(){
 
         state.finishedAt = now;
         state.saved = true;
-        
+
         setDistance("saved", configuration.MaxDistance);
 
         gameStats.Saves++;
@@ -220,16 +222,16 @@ void ofApp::update(){
     // Restart if needed
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         ofLogNotice() << "Game restarted";
-        
-        setDistance("restart", configuration.MaxDistance);
 
         state = GameState();
 
+        setDistance("restart", configuration.MaxDistance);
+        
         if (!loadVideo()) {
             ofLogError() << "Error loading video after kill";
         }
         ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
-        
+
         eventLog << "started=" << now << std::endl;
     }
 
@@ -297,7 +299,6 @@ int ofApp::frameForDistance() {
                  0);
 }
 
-//--------------------------------------------------------------
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
     if (state.finishedAt) {
@@ -316,12 +317,12 @@ void ofApp::draw(){
     f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
     f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
     f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
-    f.drawString("vid=" + ofToString(videoPlayer.isPlaying()), 860, y);
+    f.drawString("vid=" + ofToString(isPlaying()), 860, y);
 
     const int margin = 50;
 
     // Draw video
-    if (state.finishedAt && !videoPlayer.isPlaying()) {
+    if (state.finishedAt && !isPlaying()) {
         if (state.saved) {
             ofSetHexColor(0xFFFFFF);
         } else {
@@ -343,6 +344,7 @@ void ofApp::draw(){
         f.drawString(text,
                      ofGetWindowWidth() / 2 - 100,
                      ofGetWindowHeight() / 2);
+
         return;
     }
     
@@ -358,7 +360,7 @@ void ofApp::keyPressed(int key){
         return;
     }
 
-    if (videoPlayer.isPlaying()) {
+    if (isPlaying()) {
         return;
     }
 
@@ -369,15 +371,14 @@ void ofApp::keyPressed(int key){
         int n = currentDistance - kMinStep - int(ofRandom(100));
 
         setDistance("keyboard up", n);
-        
-        animateVideo(kForward);
 
+        animateVideo(kForward);
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
         int n = currentDistance + kMinStep + int(ofRandom(100));
 
         setDistance("keyboard down", n);
-        
+
         animateVideo(kBack);
     }
 }

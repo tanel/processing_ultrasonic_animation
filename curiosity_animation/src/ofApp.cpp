@@ -188,7 +188,7 @@ void ofApp::update(){
 
         state.finishedAt = now;
         state.saved = true;
-
+        
         videoPlayer.stop();
 
         setDistance("saved", configuration.MaxDistance);

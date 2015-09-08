@@ -218,7 +218,7 @@ void ofApp::update(){
     // If user has moved out of save zone, and game is not finished
     // yet, activate save zone
     int moved = std::abs(configuration.MaxDistance - currentDistance);
-    if (!state.finishedAt && moved > configuration.DeathZone) {
+    if (!state.finishedAt && moved > configuration.DeathZone * 2) {
         state.saveZoneActive = true;
     }
 

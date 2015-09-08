@@ -113,6 +113,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
         xml.setValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
+        xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -134,6 +135,7 @@ bool Configuration::Read() {
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
         CheckAfterNFrames = xml.getValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
+        AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
     }
 
     return true;
@@ -217,32 +219,44 @@ void ofApp::update(){
 }
 
 void ofApp::readSerial() {
-    if (serialPort.isInitialized() && serialPort.available()) {
-        char c = serialPort.readByte();
-        if ('\n' == c) {
-            std::string input = serialbuf.str();
-            serialbuf.str("");
+    if (!serialPort.isInitialized()) {
+        return;
+    }
+    
+    if (!serialPort.available()) {
+        return;
+    }
+    char c = serialPort.readByte();
+    if ('\n' != c) {
+        serialbuf << c;
+        return;
+    }
+    std::string input = serialbuf.str();
+    serialbuf.str("");
             
-            if (isAccepingInput()) {
-                float f = ofToFloat(input);
-                
-                int prev = currentDistance;
-                
-                setDistance("Serial input", f);
-                
-                if (prev > currentDistance) {
-                    animateVideo(kForward);
-                    ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << prev
+    if (!isAccepingInput()) {
+        return;
+    }
+    float f = ofToFloat(input);
+    
+    int prev = currentDistance;
+
+    setDistance("Serial input", f);
+
+    if (prev > currentDistance) {
+        animateVideo(kForward);
+
+        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << prev
                     << " current distance: " << currentDistance;
-                } else if (prev < currentDistance) {
-                    animateVideo(kBack);
-                    ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << prev
+                return;
+    }
+    if (prev < currentDistance) {
+        animateVideo(kBack);
+
+        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << prev
                     << " current distance: " << currentDistance;
-                }
-            }
-        } else {
-            serialbuf << c;
-        }
+
+                return;
     }
 }
 

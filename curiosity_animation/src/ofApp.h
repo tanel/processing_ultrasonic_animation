@@ -33,7 +33,8 @@ public:
     , FrameRate(60)
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
-    , CheckAfterNFrames(20) {}
+    , CheckAfterNFrames(20)
+    , AutoSaveSeconds(10) {}
     
     bool Read();
     
@@ -53,6 +54,7 @@ public:
     std::string VideoFileName;
     bool SetFrame;
     int CheckAfterNFrames;
+    int AutoSaveSeconds;
 };
 
 class GameState {
@@ -64,6 +66,7 @@ public:
     long finishedAt = 0;
     bool saveZoneActive = false;
     bool saved = false;
+    int minDistance = 0;
 };
 
 class ofApp : public ofBaseApp{
@@ -82,6 +85,13 @@ private:
     void animateVideo(const int direction);
     bool isPlaying();
     bool isAccepingInput();
+    void restartGame();
+    void updateAudio();
+    void saveGame(const std::string reason);
+    void calculateFPS();
+    void killGame();
+    void readSerial();
+    void determineVideoState();
 
     Configuration configuration;
     

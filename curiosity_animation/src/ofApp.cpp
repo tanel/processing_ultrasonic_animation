@@ -70,10 +70,8 @@ void ofApp::setup(){
         }
     }
 
-    currentDistance = configuration.MaxDistance;
-
-    previousDistanceChangeAt = ofGetElapsedTimeMillis();
-
+    setDistance("initialize", configuration.MaxDistance);
+    
     // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
         ofLogError() << "Error loading font";
@@ -194,7 +192,7 @@ void ofApp::update(){
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
     if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
-        saveGame();
+        saveGame("user walked into save zone");
     }
     
     // If user has moved out of save zone, and game is not finished
@@ -208,6 +206,13 @@ void ofApp::update(){
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         restartGame();
     }
+    
+    // If nothing has happened for a while, save game automatically
+    if (!state.finishedAt) {
+        if (previousDistanceChangeAt < now - (configuration.AutoSaveSeconds*1000) && state.minDistance && state.minDistance < configuration.MaxDistance) {
+            saveGame("automatically saved because of no user action");
+        }
+    }
 
     readSerial();
 
@@ -219,10 +224,12 @@ void ofApp::update(){
 }
 
 void ofApp::readSerial() {
+    if (!isAccepingInput()) {
+        return;
+    }
     if (!serialPort.isInitialized()) {
         return;
     }
-    
     if (!serialPort.available()) {
         return;
     }
@@ -234,29 +241,22 @@ void ofApp::readSerial() {
     std::string input = serialbuf.str();
     serialbuf.str("");
             
-    if (!isAccepingInput()) {
-        return;
-    }
     float f = ofToFloat(input);
     
-    int prev = currentDistance;
-
     setDistance("Serial input", f);
 
-    if (prev > currentDistance) {
+    if (previousDistance > currentDistance) {
         animateVideo(kForward);
 
-        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << prev
+        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << previousDistance
                     << " current distance: " << currentDistance;
-                return;
     }
-    if (prev < currentDistance) {
+    if (previousDistance < currentDistance) {
         animateVideo(kBack);
 
-        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << prev
+        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << previousDistance
                     << " current distance: " << currentDistance;
 
-                return;
     }
 }
 
@@ -287,10 +287,11 @@ void ofApp::killGame() {
     }
 }
 
-void ofApp::saveGame() {
+void ofApp::saveGame(const std::string reason) {
     long now = ofGetElapsedTimeMillis();
 
-    ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance;
+    ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance
+        << " because of " << reason;
     
     eventLog << "saved=" << now << std::endl;
     
@@ -440,5 +441,14 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
+    previousDistance = currentDistance;
     currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
+    if (previousDistance != currentDistance) {
+        previousDistanceChangeAt = ofGetElapsedTimeMillis();
+    }
+    if (!state.minDistance) {
+        state.minDistance = currentDistance;
+    } else {
+        state.minDistance = std::min(state.minDistance, currentDistance);
+    }
 }

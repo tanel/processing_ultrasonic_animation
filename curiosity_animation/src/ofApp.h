@@ -34,7 +34,7 @@ public:
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
     , CheckAfterNFrames(20)
-    , AutoSaveSeconds(60) {}
+    , AutoSaveSeconds(10) {}
     
     bool Read();
     
@@ -66,6 +66,7 @@ public:
     long finishedAt = 0;
     bool saveZoneActive = false;
     bool saved = false;
+    int minDistance = 0;
 };
 
 class ofApp : public ofBaseApp{
@@ -86,7 +87,7 @@ private:
     bool isAccepingInput();
     void restartGame();
     void updateAudio();
-    void saveGame();
+    void saveGame(const std::string reason);
     void calculateFPS();
     void killGame();
     void readSerial();

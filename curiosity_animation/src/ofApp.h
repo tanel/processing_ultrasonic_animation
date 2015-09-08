@@ -82,6 +82,9 @@ private:
     void animateVideo(const int direction);
     bool isPlaying();
     bool isAccepingInput();
+    void restartGame();
+    void updateAudio();
+    void saveGame();
 
     Configuration configuration;
     

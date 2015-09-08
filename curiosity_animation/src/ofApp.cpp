@@ -200,19 +200,7 @@ void ofApp::update(){
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
     if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
-        ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance;
-
-        eventLog << "saved=" << now << std::endl;
-
-        state.finishedAt = now;
-        state.saved = true;
-
-        setDistance("saved", configuration.MaxDistance);
-
-        gameStats.Saves++;
-        if (!gameStats.Write()) {
-            ofLogError() << "Error writing game stats";
-        }
+        saveGame();
     }
     
     // If user has moved out of save zone, and game is not finished
@@ -224,18 +212,7 @@ void ofApp::update(){
 
     // Restart if needed
     if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
-        ofLogNotice() << "Game restarted";
-
-        state = GameState();
-
-        setDistance("restart", configuration.MaxDistance);
-        
-        if (!loadVideo()) {
-            ofLogError() << "Error loading video after kill";
-        }
-        ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
-
-        eventLog << "started=" << now << std::endl;
+        restartGame();
     }
 
     // Read serial
@@ -278,7 +255,28 @@ void ofApp::update(){
     // Update video
     videoPlayer.update();
 
-    // Update audio
+    updateAudio();
+}
+
+void ofApp::saveGame() {
+    long now = ofGetElapsedTimeMillis();
+
+    ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance;
+    
+    eventLog << "saved=" << now << std::endl;
+    
+    state.finishedAt = now;
+    state.saved = true;
+    
+    setDistance("saved", configuration.MaxDistance);
+    
+    gameStats.Saves++;
+    if (!gameStats.Write()) {
+        ofLogError() << "Error writing game stats";
+    }
+}
+
+void ofApp::updateAudio() {
     if (!state.finishedAt) {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
@@ -291,8 +289,23 @@ void ofApp::update(){
             heartbeatSound.stop();
         }
     }
-
+    
     ofSoundUpdate();
+}
+
+void ofApp::restartGame() {
+    ofLogNotice() << "Game restarted";
+    
+    state = GameState();
+    
+    setDistance("restart", configuration.MaxDistance);
+    
+    if (!loadVideo()) {
+        ofLogError() << "Error loading video after kill";
+    }
+    ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
+    
+    eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
 }
 
 bool ofApp::isAccepingInput() {

@@ -87,6 +87,8 @@ private:
     void saveGame();
     void calculateFPS();
     void killGame();
+    void readSerial();
+    void determineVideoState();
 
     Configuration configuration;
     

@@ -164,9 +164,7 @@ bool GameStats::Write() const {
     return xml.saveFile("gamestats.xml");
 }
 
-void ofApp::update(){
-    long now = ofGetElapsedTimeMillis();
-
+void ofApp::determineVideoState() {
     if (isPlaying()) {
         if (videoPlayer.getSpeed() == kForward) {
             if (videoPlayer.getCurrentFrame() >= frameForDistance()) {
@@ -178,6 +176,12 @@ void ofApp::update(){
             }
         }
     }
+}
+
+void ofApp::update(){
+    long now = ofGetElapsedTimeMillis();
+    
+    determineVideoState();
 
     // Determine if user is now in the death zone
     if (!state.finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
@@ -203,18 +207,27 @@ void ofApp::update(){
         restartGame();
     }
 
-    // Read serial
+    readSerial();
+
+    calculateFPS();
+
+    videoPlayer.update();
+
+    updateAudio();
+}
+
+void ofApp::readSerial() {
     if (serialPort.isInitialized() && serialPort.available()) {
         char c = serialPort.readByte();
         if ('\n' == c) {
             std::string input = serialbuf.str();
             serialbuf.str("");
-
+            
             if (isAccepingInput()) {
                 float f = ofToFloat(input);
-
+                
                 int prev = currentDistance;
-
+                
                 setDistance("Serial input", f);
                 
                 if (prev > currentDistance) {
@@ -231,12 +244,6 @@ void ofApp::update(){
             serialbuf << c;
         }
     }
-
-    calculateFPS();
-
-    videoPlayer.update();
-
-    updateAudio();
 }
 
 void ofApp::calculateFPS() {

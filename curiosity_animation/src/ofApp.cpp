@@ -181,19 +181,7 @@ void ofApp::update(){
 
     // Determine if user is now in the death zone
     if (!state.finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
-        ofLogNotice() << "Game finished with kill at " << now << " with current distance of " << currentDistance;
-
-        eventLog << "killed=" << now << std::endl;
-
-        state.finishedAt = now;
-        state.saved = false;
-
-        setDistance("killed", configuration.MinDistance);
-
-        gameStats.Kills++;
-        if (!gameStats.Write()) {
-            ofLogError() << "Error writing game stats";
-        }
+        killGame();
     }
 
     // If save zone is active and user finds itself in it,
@@ -244,18 +232,38 @@ void ofApp::update(){
         }
     }
 
-    // Update visual
+    calculateFPS();
+
+    videoPlayer.update();
+
+    updateAudio();
+}
+
+void ofApp::calculateFPS() {
     int millis = ofMap(currentDistance,
                        configuration.MaxDistance,
                        configuration.MinDistance,
                        1000 / configuration.StartingFramesPerSecond,
                        1000 / configuration.FinishingFramesPerSecond);
     fps = 1000 / millis;
+}
 
-    // Update video
-    videoPlayer.update();
+void ofApp::killGame() {
+    long now = ofGetElapsedTimeMillis();
 
-    updateAudio();
+    ofLogNotice() << "Game finished with kill at " << now << " with current distance of " << currentDistance;
+    
+    eventLog << "killed=" << now << std::endl;
+    
+    state.finishedAt = now;
+    state.saved = false;
+    
+    setDistance("killed", configuration.MinDistance);
+    
+    gameStats.Kills++;
+    if (!gameStats.Write()) {
+        ofLogError() << "Error writing game stats";
+    }
 }
 
 void ofApp::saveGame() {

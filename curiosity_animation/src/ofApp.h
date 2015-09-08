@@ -85,6 +85,8 @@ private:
     void restartGame();
     void updateAudio();
     void saveGame();
+    void calculateFPS();
+    void killGame();
 
     Configuration configuration;
     

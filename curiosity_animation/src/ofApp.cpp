@@ -15,6 +15,7 @@ void ofApp::animateVideo(const int direction) {
     }
     
     if (!isPlaying()) {
+        frameAtLastAnimationStart = videoPlayer.getCurrentFrame();
         videoPlayer.play();
     }
 
@@ -242,13 +243,13 @@ void ofApp::update(){
             std::string input = serialbuf.str();
             serialbuf.str("");
 
-            if (!state.finishedAt && !isPlaying()) {
+            if (isAccepingInput()) {
                 float f = ofToFloat(input);
 
                 int prev = currentDistance;
 
                 setDistance("Serial input", f);
-
+                
                 if (prev > currentDistance) {
                     animateVideo(kForward);
                     ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << prev
@@ -290,6 +291,17 @@ void ofApp::update(){
     }
 
     ofSoundUpdate();
+}
+
+bool ofApp::isAccepingInput() {
+    if (state.finishedAt) {
+        return false;
+    }
+    if (!isPlaying()) {
+        return true;
+    }
+    int framesPlayed = std::abs(frameAtLastAnimationStart - videoPlayer.getCurrentFrame());
+    return framesPlayed >= 20;
 }
 
 // Frame for current distance
@@ -359,12 +371,8 @@ void ofApp::draw(){
 
 void ofApp::keyPressed(int key){
     ofLogNotice() << "keyPressed key=" << key;
-
-    if (state.finishedAt) {
-        return;
-    }
-
-    if (isPlaying()) {
+    
+    if (!isAccepingInput()) {
         return;
     }
 

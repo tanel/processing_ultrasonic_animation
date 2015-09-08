@@ -79,6 +79,7 @@ private:
     bool loadVideo();
     void animateVideo(const int direction);
     bool isPlaying();
+    bool isAccepingInput();
 
     Configuration configuration;
     
@@ -95,6 +96,7 @@ private:
     long previousFrameDrawnAt = 0;
     long previousDistanceChangeAt = 0;
     int destinationFrame = 0;
+    int frameAtLastAnimationStart = 0;
     
     // HUD
     ofTrueTypeFont f;

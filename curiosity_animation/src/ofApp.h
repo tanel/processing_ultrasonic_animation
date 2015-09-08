@@ -32,7 +32,8 @@ public:
     , FinishingHeartBeatSpeed(2.0)
     , FrameRate(60)
     , VideoFileName("shoot2_anim_edit.mov")
-    , SetFrame(true) {}
+    , SetFrame(true)
+    , CheckAfterNFrames(20) {}
     
     bool Read();
     
@@ -51,6 +52,7 @@ public:
     int FrameRate;
     std::string VideoFileName;
     bool SetFrame;
+    int CheckAfterNFrames;
 };
 
 class GameState {

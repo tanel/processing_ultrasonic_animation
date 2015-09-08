@@ -112,6 +112,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
+        xml.setValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -132,6 +133,7 @@ bool Configuration::Read() {
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
+        CheckAfterNFrames = xml.getValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
     }
 
     return true;
@@ -301,7 +303,7 @@ bool ofApp::isAccepingInput() {
         return true;
     }
     int framesPlayed = std::abs(frameAtLastAnimationStart - videoPlayer.getCurrentFrame());
-    return framesPlayed >= 20;
+    return framesPlayed >= configuration.CheckAfterNFrames;
 }
 
 // Frame for current distance

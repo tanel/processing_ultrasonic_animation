@@ -104,6 +104,7 @@ private:
     // Optional.
     ofSerial serialPort;
     std::stringstream serialbuf;
+    std::string serialInput;
     
     // App state, you should not touch these;
     int currentDistance = 0;

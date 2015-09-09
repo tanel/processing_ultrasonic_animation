@@ -242,31 +242,35 @@ void ofApp::readSerial() {
     if (!serialPort.isInitialized()) {
         return;
     }
-    std::string input = serialbuf.str();
+    
     while (serialPort.available()) {
         char c = serialPort.readByte();
         if ('\n' == c) {
-            input = serialbuf.str();
+            serialInput = serialbuf.str();
             serialbuf.str("");
         } else {
             serialbuf << c;
         }
     }
     
-    float f = ofToFloat(input);
+    if (serialInput.empty()) {
+        return;
+    }
+    
+    float f = ofToFloat(serialInput);
     
     setDistance("Serial input", f);
 
     if (previousDistance > currentDistance) {
         animateVideo(kForward);
 
-        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: forward prev: " << previousDistance
+        ofLogNotice() << "Serial input: " << serialInput << " f: " << f << " moving: forward prev: " << previousDistance
                     << " current distance: " << currentDistance;
     }
     if (previousDistance < currentDistance) {
         animateVideo(kBack);
 
-        ofLogNotice() << "Serial input: " << input << " f: " << f << " moving: back prev: " << previousDistance
+        ofLogNotice() << "Serial input: " << serialInput << " f: " << f << " moving: back prev: " << previousDistance
                     << " current distance: " << currentDistance;
 
     }
@@ -395,6 +399,7 @@ void ofApp::draw(){
         f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
         f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
         f.drawString("vid=" + ofToString(isPlaying()), 860, y);
+        f.drawString("ser=" + ofToString(serialInput), 960, y);
     }
 
     const int kMargin = 50;
@@ -436,11 +441,9 @@ void ofApp::draw(){
     }
 
     // Draw video, if its running
-    if (videoPlayer.isPlaying()) {
-        ofSetHexColor(0xFFFFFF);
-        ofFill();
-        videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-    }
+    ofSetHexColor(0xFFFFFF);
+    ofFill();
+    videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
 }
 
 void ofApp::keyPressed(int key){
@@ -470,6 +473,8 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
+    ofLogNotice() << "setDistance reason=" << reason << " value=" << value;
+    
     previousDistance = currentDistance;
     currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
     if (previousDistance != currentDistance) {

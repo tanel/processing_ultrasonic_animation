@@ -242,17 +242,17 @@ void ofApp::readSerial() {
     if (!serialPort.isInitialized()) {
         return;
     }
-    if (!serialPort.available()) {
-        return;
-    }
-    char c = serialPort.readByte();
-    if ('\n' != c) {
-        serialbuf << c;
-        return;
-    }
     std::string input = serialbuf.str();
-    serialbuf.str("");
-            
+    while (serialPort.available()) {
+        char c = serialPort.readByte();
+        if ('\n' == c) {
+            input = serialbuf.str();
+            serialbuf.str("");
+        } else {
+            serialbuf << c;
+        }
+    }
+    
     float f = ofToFloat(input);
     
     setDistance("Serial input", f);

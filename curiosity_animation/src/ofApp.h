@@ -57,6 +57,7 @@ public:
     int CheckAfterNFrames;
     int AutoSaveSeconds;
     std::string IntroFileName;
+    std::string OutroFileName;
 };
 
 class GameState {

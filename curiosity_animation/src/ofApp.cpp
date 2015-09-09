@@ -155,13 +155,14 @@ bool GameStats::Read() {
 }
 
 bool GameStats::Write() const {
-    ofFile f(ofToDataPath("gamestats.xml"));
-    f.moveTo("gamestats_backup.xml", false, true);
-
+    std::string path = ofToDataPath("gamestats.xml");
+    if (ofFile::doesFileExist(path)) {
+        ofFile::removeFile(path);
+    }
     ofxXmlSettings xml;
     xml.setValue("gamestats:Saves", Saves);
     xml.setValue("gamestats:Kills", Kills);
-    return xml.saveFile("gamestats.xml");
+    return xml.saveFile(path);
 }
 
 void ofApp::determineVideoState() {

@@ -34,7 +34,8 @@ public:
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
     , CheckAfterNFrames(20)
-    , AutoSaveSeconds(10) {}
+    , AutoSaveSeconds(10)
+    , IntroFileName("intro.jpg"){}
     
     bool Read();
     
@@ -55,6 +56,7 @@ public:
     bool SetFrame;
     int CheckAfterNFrames;
     int AutoSaveSeconds;
+    std::string IntroFileName;
 };
 
 class GameState {
@@ -120,4 +122,8 @@ private:
     
     ofFile eventLog;
     GameStats gameStats;
+    
+    // Intro and outro pics
+    ofImage intro;
+    ofImage outro;
 };

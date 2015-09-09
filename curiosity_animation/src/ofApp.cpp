@@ -57,10 +57,10 @@ void ofApp::setup(){
     }
     
     // Intro and outro pics
-    if (!intro.loadImage(ofToDataPath("intro.jpg"))) {
+    if (!intro.loadImage(ofToDataPath(configuration.IntroFileName))) {
         ofLogError() << "Error loading intro";
     }
-    if (!outro.loadImage(ofToDataPath("outro.jpg"))) {
+    if (!outro.loadImage(ofToDataPath(configuration.OutroFileName))) {
         ofLogError() << "Error loading outro";
     }
 }
@@ -120,6 +120,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
         xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         xml.setValue("configuration:IntroFileName", IntroFileName);
+        xml.setValue("configuration:OutroFileName", OutroFileName);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -143,6 +144,7 @@ bool Configuration::Read() {
         CheckAfterNFrames = xml.getValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
         AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
+        OutroFileName = xml.getValue("configuration:OutroFileName", OutroFileName);
     }
 
     return true;
@@ -338,6 +340,9 @@ void ofApp::restartGame() {
     
     state = GameState();
     
+    // Reset prev. distance
+    previousDistance = configuration.MaxDistance;
+    
     setDistance("restart", configuration.MaxDistance);
     
     if (!loadVideo()) {
@@ -422,12 +427,12 @@ void ofApp::draw(){
     
     // Draw intro image, if game has not started yet
     if (!state.finishedAt && !isPlaying() && configuration.MaxDistance == currentDistance && !previousDistance) {
-        intro.draw(0, 0); //kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
     // Draw outro image, if game is over
     if (state.finishedAt && !isPlaying() && configuration.MinDistance == currentDistance && previousDistance) {
-        outro.draw(0, 0); //kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        outro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
     // Draw video, if its running

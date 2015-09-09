@@ -1,6 +1,70 @@
 #include "ofApp.h"
 #include "ofxXmlSettings.h"
 
+void ofApp::setup(){
+    // start logging
+    ofLogToFile("app.log");
+    
+    // start recoding events
+    if (!eventLog.open(ofToDataPath("events.txt"), ofFile::WriteOnly)) {
+        ofLogError() << "Error opening events.txt - !!!DATA WILL BE LOST!!!";
+    }
+    
+    if (!configuration.Read()) {
+        ofLogError() << "Error reading configuration";
+    }
+    
+    if (!gameStats.Read()) {
+        ofLogError() << "Error reading game stats.";
+    }
+    
+    ofSetFrameRate(configuration.FrameRate);
+    
+    ofSetFullscreen(configuration.Fullscreen);
+    
+#ifdef TARGET_OSX
+    ofSetDataPathRoot("../Resources/data/");
+#endif
+    
+    // Distance reading
+    serialPort.listDevices();
+    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
+    if (configuration.ActiveSerialPort < deviceList.size()) {
+        if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
+            ofLogError() << "Failed to connect to serial device! "
+            << deviceList[configuration.ActiveSerialPort].getDeviceName();
+        }
+    }
+    
+    setDistance("initialize", configuration.MaxDistance);
+    
+    // HUD
+    if (!f.loadFont("verdana.ttf", 16, true, true)) {
+        ofLogError() << "Error loading font";
+    }
+    f.setLineHeight(18.0f);
+    f.setLetterSpacing(1.037);
+    
+    // Audio
+    if (!heartbeatSound.loadSound("2.mp3")) {
+        ofLogError() << "Error loading heartbeat sound";
+    }
+    heartbeatSound.setLoop(true);
+    
+    // Video
+    if (!loadVideo()) {
+        ofLogError() << "Error loading video";
+    }
+    
+    // Intro and outro pics
+    if (!intro.loadImage(ofToDataPath("intro.jpg"))) {
+        ofLogError() << "Error loading intro";
+    }
+    if (!outro.loadImage(ofToDataPath("outro.jpg"))) {
+        ofLogError() << "Error loading outro";
+    }
+}
+
 const int kForward = 1;
 const int kBack = -1;
 
@@ -35,63 +99,6 @@ bool ofApp::loadVideo() {
     return true;
 }
 
-void ofApp::setup(){
-    // start logging
-    ofLogToFile("app.log");
-
-    // start recoding events
-    if (!eventLog.open(ofToDataPath("events.txt"), ofFile::WriteOnly)) {
-        ofLogError() << "Error opening events.txt - !!!DATA WILL BE LOST!!!";
-    }
-
-    if (!configuration.Read()) {
-        ofLogError() << "Error reading configuration";
-    }
-
-    if (!gameStats.Read()) {
-        ofLogError() << "Error reading game stats.";
-    }
-
-    ofSetFrameRate(configuration.FrameRate);
-
-    ofSetFullscreen(configuration.Fullscreen);
-
-#ifdef TARGET_OSX
-    ofSetDataPathRoot("../Resources/data/");
-#endif
-
-    // Distance reading
-    serialPort.listDevices();
-    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    if (configuration.ActiveSerialPort < deviceList.size()) {
-        if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
-            ofLogError() << "Failed to connect to serial device! "
-                << deviceList[configuration.ActiveSerialPort].getDeviceName();
-        }
-    }
-
-    setDistance("initialize", configuration.MaxDistance);
-    
-    // HUD
-    if (!f.loadFont("verdana.ttf", 16, true, true)) {
-        ofLogError() << "Error loading font";
-    }
-    f.setLineHeight(18.0f);
-    f.setLetterSpacing(1.037);
-
-    // Audio
-    if (!heartbeatSound.loadSound("2.mp3")) {
-        ofLogError() << "Error loading heartbeat sound";
-    }
-    heartbeatSound.setLoop(true);
-
-    // Video
-    if (!loadVideo()) {
-        ofLogError() << "Error loading video";
-    }
-}
-
-
 bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
@@ -112,6 +119,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:VideoFileName", VideoFileName);
         xml.setValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
         xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
+        xml.setValue("configuration:IntroFileName", IntroFileName);
 
         if (!xml.saveFile("configuration.xml")) {
             ofLogError() << "Error saving configuration file";
@@ -134,6 +142,7 @@ bool Configuration::Read() {
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
         CheckAfterNFrames = xml.getValue("configuration:CheckAfterNFrames", CheckAfterNFrames);
         AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
+        IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
     }
 
     return true;
@@ -370,27 +379,30 @@ void ofApp::draw(){
     }
 
     // Update HUD
-    int y = 40;
-    f.drawString("dist=" + ofToString(currentDistance), 10, y);
-    f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
-                 160, y);
-    f.drawString("dest.f=" + ofToString(frameForDistance()), 300, y);
-    f.drawString("fps=" + ofToString(fps), 460, y);
-    f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
-    f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
-    f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
-    f.drawString("vid=" + ofToString(isPlaying()), 860, y);
+    if (true) {
+        int y = 40;
+        f.drawString("dist=" + ofToString(currentDistance), 10, y);
+        f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
+                     160, y);
+        f.drawString("dest.f=" + ofToString(frameForDistance()), 300, y);
+        f.drawString("fps=" + ofToString(fps), 460, y);
+        f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
+        f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
+        f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
+        f.drawString("vid=" + ofToString(isPlaying()), 860, y);
+    }
 
-    const int margin = 50;
+    const int kMargin = 50;
 
-    // Draw video
+    // Draw finished state stats if game is over
     if (state.finishedAt && !isPlaying()) {
+
         if (state.saved) {
             ofSetHexColor(0xFFFFFF);
         } else {
             ofSetHexColor(0x000000);
         }
-        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+        ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
         ofFill();
         if (!state.saved) {
             ofSetHexColor(0xFFFFFF);
@@ -406,13 +418,24 @@ void ofApp::draw(){
         f.drawString(text,
                      ofGetWindowWidth() / 2 - 100,
                      ofGetWindowHeight() / 2);
-
-        return;
     }
     
-    ofSetHexColor(0xFFFFFF);
-    ofFill();
-    videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+    // Draw intro image, if game has not started yet
+    if (!state.finishedAt && !isPlaying() && configuration.MaxDistance == currentDistance && !previousDistance) {
+        intro.draw(0, 0); //kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+    }
+
+    // Draw outro image, if game is over
+    if (state.finishedAt && !isPlaying() && configuration.MinDistance == currentDistance && previousDistance) {
+        outro.draw(0, 0); //kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+    }
+
+    // Draw video, if its running
+    if (videoPlayer.isPlaying()) {
+        ofSetHexColor(0xFFFFFF);
+        ofFill();
+        videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+    }
 }
 
 void ofApp::keyPressed(int key){

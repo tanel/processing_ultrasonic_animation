@@ -272,7 +272,6 @@ void ofApp::readSerial() {
 
         ofLogNotice() << "Serial input: " << serialInput << " f: " << f << " moving: back prev: " << previousDistance
                     << " current distance: " << currentDistance;
-
     }
 }
 
@@ -323,19 +322,23 @@ void ofApp::saveGame(const std::string reason) {
 }
 
 void ofApp::updateAudio() {
-    if (!state.finishedAt) {
-        if (!heartbeatSound.getIsPlaying()) {
-            heartbeatSound.play();
-        }
-        heartbeatSound.setSpeed(ofMap(currentDistance,
-                                      configuration.MaxDistance, configuration.MinDistance,
-                                      configuration.StartingHeartBeatSpeed, configuration.FinishingHeartBeatSpeed));
-    } else {
+    // Game over, dudes
+    if (state.finishedAt && !videoPlayer.isPlaying()) {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();
         }
+        return;
+    } else {
+        if (!heartbeatSound.getIsPlaying()) {
+            heartbeatSound.play();
+        }
+        heartbeatSound.setSpeed(ofMap(
+                                      currentDistance,
+                                      configuration.MaxDistance,
+                                      configuration.MinDistance,
+                                      configuration.StartingHeartBeatSpeed,
+                                      configuration.FinishingHeartBeatSpeed));
     }
-    
     ofSoundUpdate();
 }
 

@@ -9,9 +9,7 @@ xcuserdata/
 *.xcscheme
 
 # openframeworks release itself. its quite big
-of_v0.8.4_osx_release/
-of_v0.8.4_vs_release/
-of_v0.8.4_win_cb_release/
+of_v0.8.4_*_release/
 
 # images, not for public release yet
 data/*.jpg
@@ -31,3 +29,11 @@ obj/
 
 # packaged app
 *.zip
+
+# log files
+curiosity_animation/log
+data/*.log
+data/*.txt
+
+# game stats
+data/*.xml

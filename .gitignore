@@ -30,5 +30,10 @@ obj/
 # packaged app
 *.zip
 
-# log file
+# log files
 curiosity_animation/log
+data/*.log
+data/*.txt
+
+# game stats
+data/*.xml

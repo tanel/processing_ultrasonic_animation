@@ -392,7 +392,7 @@ int ofApp::frameForDistance() {
 
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
-    if (state.finishedAt) {
+    if (state.finishedAt && !videoPlayer.isPlaying()) {
         long now = ofGetElapsedTimeMillis();
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;

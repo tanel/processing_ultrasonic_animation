@@ -65,6 +65,8 @@ class GameState {
 public:
     GameState()
     : finishedAt(0)
+    , savedAt(0)
+    , killedAt(0)
     , saveZoneActive(false)
     , saved(false)
     , minDistance(0)
@@ -79,6 +81,8 @@ public:
     
     // Current game state
     long finishedAt;
+    long savedAt;
+    long killedAt;
     bool saveZoneActive;
     bool saved;
     int minDistance;

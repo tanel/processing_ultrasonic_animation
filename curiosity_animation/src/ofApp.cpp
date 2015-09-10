@@ -303,7 +303,7 @@ void ofApp::killGame() {
     eventLog << "killed=" << now << std::endl;
     
     state.finishedAt = now;
-    state.saved = false;
+    state.killedAt = now;
     
     setDistance("killed", configuration.MinDistance);
     
@@ -324,7 +324,7 @@ void ofApp::saveGame(const std::string reason) {
     eventLog << "saved=" << now << std::endl;
     
     state.finishedAt = now;
-    state.saved = true;
+    state.savedAt = now;
     
     setDistance("saved", configuration.MaxDistance);
     
@@ -336,7 +336,7 @@ void ofApp::saveGame(const std::string reason) {
 
 void ofApp::updateAudio() {
     // Game over, dudes
-    if (state.finishedAt && !videoPlayer.isPlaying()) {
+    if (state.finishedAt && !isPlaying()) {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();
         }
@@ -408,45 +408,45 @@ int ofApp::frameForDistance() {
 
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
-    if (state.finishedAt && !videoPlayer.isPlaying()) {
+    if (state.finishedAt && !isPlaying()) {
         long now = ofGetElapsedTimeMillis();
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
     }
 
     // Update HUD
-    if (true) {
-        int y = 40;
-        f.drawString("dist=" + ofToString(state.currentDistance), 10, y);
-        f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
+    int y = 40;
+    f.drawString("dist=" + ofToString(state.currentDistance), 10, y);
+    f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
                      160, y);
-        f.drawString("dest.f=" + ofToString(frameForDistance()), 300, y);
-        f.drawString("fps=" + ofToString(state.fps), 460, y);
-        f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
-        f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
-        f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
-        f.drawString("vid=" + ofToString(isPlaying()), 860, y);
-        f.drawString("ser=" + ofToString(state.serialInput), 960, y);
-    }
+    f.drawString("dest.f=" + ofToString(frameForDistance()), 300, y);
+    f.drawString("fps=" + ofToString(state.fps), 460, y);
+    f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
+    f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
+    f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
+    f.drawString("vid=" + ofToString(isPlaying()), 860, y);
+    f.drawString("ser=" + ofToString(state.serialInput), 960, y);
 
     const int kMargin = 50;
 
     // Draw finished state stats if game is over
     if (state.finishedAt && !isPlaying()) {
-        if (state.saved) {
+        std::cout << "drawing stats" << std::endl;
+
+        if (state.savedAt) {
             ofSetHexColor(0xFFFFFF);
         } else {
             ofSetHexColor(0x000000);
         }
         ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
         ofFill();
-        if (!state.saved) {
+        if (!state.savedAt) {
             ofSetHexColor(0xFFFFFF);
         } else {
             ofSetHexColor(0x000000);
         }
         std::string text("");
-        if (state.saved) {
+        if (state.savedAt) {
             text = "LIFES SAVED: " + ofToString(gameStats.Saves);
         } else {
             text = "TOTAL KILLS: " + ofToString(gameStats.Kills);
@@ -457,18 +457,16 @@ void ofApp::draw(){
     }
     
     // Draw intro image, if game has not started yet
-    if (!state.finishedAt && !isPlaying()
-        && configuration.MaxDistance == state.currentDistance && !state.previousDistance) {
+    if (!state.finishedAt && !isPlaying() && !state.startedAt) {
+        std::cout << "drawing intro" << std::endl;
+        ofSetHexColor(0xFFFFFF);
+        ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
-    // Draw outro image, if game is over
-    if (state.finishedAt && !isPlaying() && configuration.MinDistance == state.currentDistance && state.previousDistance) {
-        outro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-    }
-
     // Draw video, if its running
-    if (state.startedAt && (videoPlayer.isPlaying() || videoPlayer.isPaused())) {
+    if (isPlaying() || (!state.finishedAt && state.startedAt)) {
+        std::cout << "drawing video" << std::endl;
         ofSetHexColor(0xFFFFFF);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);

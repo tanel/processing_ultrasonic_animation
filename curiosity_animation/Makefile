@@ -6,8 +6,9 @@ endif
 
 # make sure the the OF_ROOT location is defined
 ifndef OF_ROOT
-    OF_ROOT=../../..
+    OF_ROOT=../of_v0.8.4_linuxarmv6l_release
 endif
 
 # call the project makefile!
 include $(OF_ROOT)/libs/openFrameworksCompiled/project/makefileCommon/compile.project.mk
+

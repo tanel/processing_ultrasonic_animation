@@ -2,6 +2,14 @@
 #include "ofxXmlSettings.h"
 
 void ofApp::setup(){
+    currentDistance = 0;
+    previousDistance = currentDistance;
+    previousFrameDrawnAt = 0;
+    previousDistanceChangeAt = 0;
+    destinationFrame = 0;
+    frameAtLastAnimationStart = 0;
+    fps = 0;
+
     // start logging
     ofLogToFile("app.log");
     

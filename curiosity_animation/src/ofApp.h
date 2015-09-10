@@ -63,13 +63,17 @@ public:
 class GameState {
     
 public:
-    GameState() {}
+    GameState()
+    : finishedAt(0)
+    , saveZoneActive(false)
+    , saved(false)
+    , minDistance(0) {}
     
     // Current game state
-    long finishedAt = 0;
-    bool saveZoneActive = false;
-    bool saved = false;
-    int minDistance = 0;
+    long finishedAt;
+    bool saveZoneActive;
+    bool saved;
+    int minDistance;
 };
 
 class ofApp : public ofBaseApp{
@@ -107,16 +111,16 @@ private:
     std::string serialInput;
     
     // App state, you should not touch these;
-    int currentDistance = 0;
-    int previousDistance = currentDistance;
-    long previousFrameDrawnAt = 0;
-    long previousDistanceChangeAt = 0;
-    int destinationFrame = 0;
-    int frameAtLastAnimationStart = 0;
+    int currentDistance;
+    int previousDistance;
+    long previousFrameDrawnAt;
+    long previousDistanceChangeAt;
+    int destinationFrame;
+    int frameAtLastAnimationStart;
     
     // HUD
     ofTrueTypeFont f;
-    int fps = 0;
+    int fps;
     
     ofSoundPlayer heartbeatSound;
     

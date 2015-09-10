@@ -29,3 +29,6 @@ obj/
 
 # packaged app
 *.zip
+
+# log file
+curiosity_animation/log

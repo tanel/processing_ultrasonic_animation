@@ -2,14 +2,6 @@
 #include "ofxXmlSettings.h"
 
 void ofApp::setup(){
-    currentDistance = 0;
-    previousDistance = currentDistance;
-    previousFrameDrawnAt = 0;
-    previousDistanceChangeAt = 0;
-    destinationFrame = 0;
-    frameAtLastAnimationStart = 0;
-    fps = 0;
-
     // start logging
     ofLogToFile("app.log");
     
@@ -85,9 +77,11 @@ void ofApp::animateVideo(const int direction) {
         videoPlayer.setPaused(true);
         videoPlayer.setSpeed(direction);
     }
-    
+    if (!state.startedAt) {
+        startGame();
+    }
     if (!isPlaying()) {
-        frameAtLastAnimationStart = videoPlayer.getCurrentFrame();
+        state.frameAtLastAnimationStart = videoPlayer.getCurrentFrame();
         videoPlayer.play();
     }
 
@@ -204,20 +198,20 @@ void ofApp::update(){
     determineVideoState();
 
     // Determine if user is now in the death zone
-    if (!state.finishedAt && (currentDistance < configuration.MinDistance + configuration.DeathZone)) {
+    if (!state.finishedAt && (state.currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         killGame();
     }
 
     // If save zone is active and user finds itself in it,
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
-    if (!state.finishedAt && state.saveZoneActive && currentDistance > saveZoneStartsAt) {
+    if (!state.finishedAt && state.saveZoneActive && state.currentDistance > saveZoneStartsAt) {
         saveGame("user walked into save zone");
     }
     
     // If user has moved out of save zone, and game is not finished
     // yet, activate save zone
-    int moved = std::abs(configuration.MaxDistance - currentDistance);
+    int moved = std::abs(configuration.MaxDistance - state.currentDistance);
     if (!state.finishedAt && moved > configuration.DeathZone * 2) {
         state.saveZoneActive = true;
     }
@@ -229,7 +223,7 @@ void ofApp::update(){
     
     // If nothing has happened for a while, save game automatically
     if (!state.finishedAt) {
-        if (previousDistanceChangeAt < now - (configuration.AutoSaveSeconds*1000) && state.minDistance && state.minDistance < configuration.MaxDistance) {
+        if (state.previousDistanceChangeAt < now - (configuration.AutoSaveSeconds*1000) && state.minDistance && state.minDistance < configuration.MaxDistance) {
             saveGame("automatically saved because of no user action");
         }
     }
@@ -251,51 +245,60 @@ void ofApp::readSerial() {
         return;
     }
     
+    std::stringstream serialbuf;
+
     while (serialPort.available()) {
         char c = serialPort.readByte();
         if ('\n' == c) {
-            serialInput = serialbuf.str();
+            state.serialInput = serialbuf.str();
             serialbuf.str("");
         } else {
             serialbuf << c;
         }
     }
     
-    if (serialInput.empty()) {
+    if (state.serialInput.empty()) {
         return;
     }
     
-    float f = ofToFloat(serialInput);
+    float f = ofToFloat(state.serialInput);
     
     setDistance("Serial input", f);
 
-    if (previousDistance > currentDistance) {
+    if (state.previousDistance > state.currentDistance) {
         animateVideo(kForward);
 
-        ofLogNotice() << "Serial input: " << serialInput << " f: " << f << " moving: forward prev: " << previousDistance
-                    << " current distance: " << currentDistance;
+        ofLogNotice()
+            << "Serial input: " << state.serialInput
+            << " f: " << f
+            << " moving: forward prev: " << state.previousDistance
+            << " current distance: " << state.currentDistance;
     }
-    if (previousDistance < currentDistance) {
+    if (state.previousDistance < state.currentDistance) {
         animateVideo(kBack);
 
-        ofLogNotice() << "Serial input: " << serialInput << " f: " << f << " moving: back prev: " << previousDistance
-                    << " current distance: " << currentDistance;
+        ofLogNotice()
+            << "Serial input: " << state.serialInput
+            << " f: " << f
+            << " moving: back prev: " << state.previousDistance
+            << " current distance: " << state.currentDistance;
     }
 }
 
 void ofApp::calculateFPS() {
-    int millis = ofMap(currentDistance,
+    int millis = ofMap(state.currentDistance,
                        configuration.MaxDistance,
                        configuration.MinDistance,
                        1000 / configuration.StartingFramesPerSecond,
                        1000 / configuration.FinishingFramesPerSecond);
-    fps = 1000 / millis;
+    state.fps = 1000 / millis;
 }
 
 void ofApp::killGame() {
     long now = ofGetElapsedTimeMillis();
 
-    ofLogNotice() << "Game finished with kill at " << now << " with current distance of " << currentDistance;
+    ofLogNotice() << "Game finished with kill at " << now
+        << " with current distance of " << state.currentDistance;
     
     eventLog << "killed=" << now << std::endl;
     
@@ -313,7 +316,9 @@ void ofApp::killGame() {
 void ofApp::saveGame(const std::string reason) {
     long now = ofGetElapsedTimeMillis();
 
-    ofLogNotice() << "Game finished with save at " << now << " with current distance of " << currentDistance
+    ofLogNotice()
+        << "Game finished with save at " << now
+        << " with current distance of " << state.currentDistance
         << " because of " << reason;
     
     eventLog << "saved=" << now << std::endl;
@@ -341,7 +346,7 @@ void ofApp::updateAudio() {
             heartbeatSound.play();
         }
         heartbeatSound.setSpeed(ofMap(
-                                      currentDistance,
+                                      state.currentDistance,
                                       configuration.MaxDistance,
                                       configuration.MinDistance,
                                       configuration.StartingHeartBeatSpeed,
@@ -356,7 +361,7 @@ void ofApp::restartGame() {
     state = GameState();
     
     // Reset prev. distance
-    previousDistance = configuration.MaxDistance;
+    state.previousDistance = configuration.MaxDistance;
     
     setDistance("restart", configuration.MaxDistance);
     
@@ -368,6 +373,17 @@ void ofApp::restartGame() {
     eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
 }
 
+void ofApp::startGame() {
+    long now = ofGetElapsedTimeMillis();
+    
+    ofLogNotice() << "Game started at " << now
+        << " with current distance of " << state.currentDistance;
+
+    state.startedAt = now;
+    
+    eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
+}
+
 bool ofApp::isAccepingInput() {
     if (state.finishedAt) {
         return false;
@@ -375,7 +391,7 @@ bool ofApp::isAccepingInput() {
     if (!isPlaying()) {
         return true;
     }
-    int framesPlayed = std::abs(frameAtLastAnimationStart - videoPlayer.getCurrentFrame());
+    int framesPlayed = std::abs(state.frameAtLastAnimationStart - videoPlayer.getCurrentFrame());
     return framesPlayed >= configuration.CheckAfterNFrames;
 }
 
@@ -383,7 +399,7 @@ bool ofApp::isAccepingInput() {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() {
-    return ofMap(currentDistance,
+    return ofMap(state.currentDistance,
                  configuration.MinDistance,
                  configuration.MaxDistance,
                  videoPlayer.getTotalNumFrames(),
@@ -401,23 +417,22 @@ void ofApp::draw(){
     // Update HUD
     if (true) {
         int y = 40;
-        f.drawString("dist=" + ofToString(currentDistance), 10, y);
+        f.drawString("dist=" + ofToString(state.currentDistance), 10, y);
         f.drawString("f=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()),
                      160, y);
         f.drawString("dest.f=" + ofToString(frameForDistance()), 300, y);
-        f.drawString("fps=" + ofToString(fps), 460, y);
+        f.drawString("fps=" + ofToString(state.fps), 460, y);
         f.drawString("sv=" + ofToString(gameStats.Saves), 560, y);
         f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
         f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
         f.drawString("vid=" + ofToString(isPlaying()), 860, y);
-        f.drawString("ser=" + ofToString(serialInput), 960, y);
+        f.drawString("ser=" + ofToString(state.serialInput), 960, y);
     }
 
     const int kMargin = 50;
 
     // Draw finished state stats if game is over
     if (state.finishedAt && !isPlaying()) {
-
         if (state.saved) {
             ofSetHexColor(0xFFFFFF);
         } else {
@@ -442,19 +457,22 @@ void ofApp::draw(){
     }
     
     // Draw intro image, if game has not started yet
-    if (!state.finishedAt && !isPlaying() && configuration.MaxDistance == currentDistance && !previousDistance) {
+    if (!state.finishedAt && !isPlaying()
+        && configuration.MaxDistance == state.currentDistance && !state.previousDistance) {
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
     // Draw outro image, if game is over
-    if (state.finishedAt && !isPlaying() && configuration.MinDistance == currentDistance && previousDistance) {
+    if (state.finishedAt && !isPlaying() && configuration.MinDistance == state.currentDistance && state.previousDistance) {
         outro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
     // Draw video, if its running
-    ofSetHexColor(0xFFFFFF);
-    ofFill();
-    videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+    if (state.startedAt && (videoPlayer.isPlaying() || videoPlayer.isPaused())) {
+        ofSetHexColor(0xFFFFFF);
+        ofFill();
+        videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+    }
 }
 
 void ofApp::keyPressed(int key){
@@ -468,32 +486,31 @@ void ofApp::keyPressed(int key){
 
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
-        int n = currentDistance - kMinStep - int(ofRandom(100));
-
-        setDistance("keyboard up", n);
-
-        animateVideo(kForward);
+        int n = state.currentDistance - kMinStep - int(ofRandom(100));
+        if (n >= configuration.MinDistance) {
+            setDistance("keyboard up", n);
+            animateVideo(kForward);
+        }
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
-        int n = currentDistance + kMinStep + int(ofRandom(100));
-
-        setDistance("keyboard down", n);
-
-        animateVideo(kBack);
+        int n = state.currentDistance + kMinStep + int(ofRandom(100));
+        if (n <= configuration.MaxDistance) {
+            setDistance("keyboard down", n);
+            animateVideo(kBack);
+        }
     }
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
     ofLogNotice() << "setDistance reason=" << reason << " value=" << value;
-    
-    previousDistance = currentDistance;
-    currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
-    if (previousDistance != currentDistance) {
-        previousDistanceChangeAt = ofGetElapsedTimeMillis();
+    state.previousDistance = state.currentDistance;
+    state.currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
+    if (state.previousDistance != state.currentDistance) {
+        state.previousDistanceChangeAt = ofGetElapsedTimeMillis();
     }
     if (!state.minDistance) {
-        state.minDistance = currentDistance;
+        state.minDistance = state.currentDistance;
     } else {
-        state.minDistance = std::min(state.minDistance, currentDistance);
+        state.minDistance = std::min(state.minDistance, state.currentDistance);
     }
 }

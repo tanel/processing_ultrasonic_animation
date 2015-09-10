@@ -67,13 +67,33 @@ public:
     : finishedAt(0)
     , saveZoneActive(false)
     , saved(false)
-    , minDistance(0) {}
+    , minDistance(0)
+    , startedAt(0)
+    , currentDistance(0)
+    , previousDistance(currentDistance)
+    , previousFrameDrawnAt(0)
+    , previousDistanceChangeAt(0)
+    , destinationFrame(0)
+    , frameAtLastAnimationStart(0)
+    , fps(0) {}
     
     // Current game state
     long finishedAt;
     bool saveZoneActive;
     bool saved;
     int minDistance;
+    long startedAt;
+    
+    std::string serialInput;
+    
+    // App state, you should not touch these;
+    int currentDistance;
+    int previousDistance;
+    long previousFrameDrawnAt;
+    long previousDistanceChangeAt;
+    int destinationFrame;
+    int frameAtLastAnimationStart;
+    int fps;
 };
 
 class ofApp : public ofBaseApp{
@@ -93,6 +113,7 @@ private:
     bool isPlaying();
     bool isAccepingInput();
     void restartGame();
+    void startGame();
     void updateAudio();
     void saveGame(const std::string reason);
     void calculateFPS();
@@ -107,20 +128,9 @@ private:
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.
     ofSerial serialPort;
-    std::stringstream serialbuf;
-    std::string serialInput;
-    
-    // App state, you should not touch these;
-    int currentDistance;
-    int previousDistance;
-    long previousFrameDrawnAt;
-    long previousDistanceChangeAt;
-    int destinationFrame;
-    int frameAtLastAnimationStart;
     
     // HUD
     ofTrueTypeFont f;
-    int fps;
     
     ofSoundPlayer heartbeatSound;
     

@@ -245,17 +245,17 @@ void ofApp::readSerial() {
         return;
     }
     
-    std::stringstream serialbuf;
-
-    while (serialPort.available()) {
-        char c = serialPort.readByte();
-        if ('\n' == c) {
-            state.serialInput = serialbuf.str();
-            serialbuf.str("");
-        } else {
-            serialbuf << c;
-        }
+    if (!serialPort.available()) {
+        return;
     }
+    char c = serialPort.readByte();
+    if ('\n' != c) {
+        serialbuf << c;
+        return;
+    }
+    
+    state.serialInput = serialbuf.str();
+    serialbuf.str("");
     
     if (state.serialInput.empty()) {
         return;

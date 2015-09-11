@@ -129,6 +129,8 @@ private:
     
     GameState state;
     
+    std::stringstream serialbuf;
+    
     // Serial port, for reading distance from ultrasonic sensor.
     // Optional.
     ofSerial serialPort;

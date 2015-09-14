@@ -64,6 +64,7 @@ const std::string kStateWaiting = "waiting";
 const std::string kStateStarted = "started";
 const std::string kStateSaved = "saved";
 const std::string kStateKilled = "killed";
+const std::string kStateStats = "stats";
 
 class GameState {
     
@@ -73,6 +74,7 @@ public:
     , saveZoneActive(false)
     , minDistance(0)
     , finishedAt(0)
+    , gameWasSaved(false)
     , currentDistance(0)
     , previousDistance(currentDistance)
     , previousFrameDrawnAt(0)
@@ -86,6 +88,7 @@ public:
     bool saveZoneActive;
     int minDistance;
     long finishedAt;
+    bool gameWasSaved;
     
     std::string serialInput;
     

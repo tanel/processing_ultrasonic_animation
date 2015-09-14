@@ -77,7 +77,7 @@ void ofApp::animateVideo(const int direction) {
         videoPlayer.setPaused(true);
         videoPlayer.setSpeed(direction);
     }
-    if (!state.startedAt) {
+    if (kStateWaiting == state.name) {
         startGame();
     }
     if (!isPlaying()) {
@@ -198,34 +198,40 @@ void ofApp::update(){
     determineVideoState();
 
     // Determine if user is now in the death zone
-    if (!state.finishedAt && (state.currentDistance < configuration.MinDistance + configuration.DeathZone)) {
+    if (kStateStarted == state.name && (state.currentDistance < configuration.MinDistance + configuration.DeathZone)) {
         killGame();
     }
 
     // If save zone is active and user finds itself in it,
     // then declare the game saved and finish it.
     int saveZoneStartsAt = std::abs(configuration.MaxDistance - configuration.DeathZone);
-    if (!state.finishedAt && state.saveZoneActive && state.currentDistance > saveZoneStartsAt) {
+    if (kStateStarted == state.name && state.saveZoneActive && state.currentDistance > saveZoneStartsAt) {
         saveGame("user walked into save zone");
     }
     
     // If user has moved out of save zone, and game is not finished
     // yet, activate save zone
     int moved = std::abs(configuration.MaxDistance - state.currentDistance);
-    if (!state.finishedAt && moved > configuration.DeathZone * 2) {
+    if (kStateStarted == state.name && moved > configuration.DeathZone * 2) {
         state.saveZoneActive = true;
     }
 
     // Restart if needed
-    if (state.finishedAt && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
+    if (kStateStats == state.name && (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000))) {
         restartGame();
     }
     
     // If nothing has happened for a while, save game automatically
-    if (!state.finishedAt) {
+    if (kStateStarted == state.name) {
         if (state.previousDistanceChangeAt < now - (configuration.AutoSaveSeconds*1000) && state.minDistance && state.minDistance < configuration.MaxDistance) {
             saveGame("automatically saved because of no user action");
         }
+    }
+    
+    // if video has stopped playing and game is killed or saved, move into stats state
+    if (!isPlaying() && (kStateKilled == state.name || kStateSaved == state.name)) {
+        state.name = kStateStats;
+        state.finishedAt = now;
     }
 
     readSerial();
@@ -302,8 +308,8 @@ void ofApp::killGame() {
     
     eventLog << "killed=" << now << std::endl;
     
-    state.finishedAt = now;
-    state.killedAt = now;
+    state.name = kStateKilled;
+    state.gameWasSaved = false;
     
     setDistance("killed", configuration.MinDistance);
     
@@ -323,8 +329,8 @@ void ofApp::saveGame(const std::string reason) {
     
     eventLog << "saved=" << now << std::endl;
     
-    state.finishedAt = now;
-    state.savedAt = now;
+    state.name = kStateSaved;
+    state.gameWasSaved = true;
     
     setDistance("saved", configuration.MaxDistance);
     
@@ -336,7 +342,7 @@ void ofApp::saveGame(const std::string reason) {
 
 void ofApp::updateAudio() {
     // Game over, dudes
-    if (state.finishedAt && !isPlaying()) {
+    if (kStateStats == state.name) {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();
         }
@@ -379,13 +385,13 @@ void ofApp::startGame() {
     ofLogNotice() << "Game started at " << now
         << " with current distance of " << state.currentDistance;
 
-    state.startedAt = now;
+    state.name = kStateStarted;
     
     eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
 }
 
 bool ofApp::isAccepingInput() {
-    if (state.finishedAt) {
+    if (kStateKilled == state.name || kStateSaved == state.name || kStateStats == state.name) {
         return false;
     }
     if (!isPlaying()) {
@@ -406,9 +412,12 @@ int ofApp::frameForDistance() {
                  0);
 }
 
+const int kColorWhite = 0xFFFFFF;
+const int kColorBlack = 0x000000;
+
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
-    if (state.finishedAt && !isPlaying()) {
+    if (kStateStats == state.name) {
         long now = ofGetElapsedTimeMillis();
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
@@ -426,27 +435,27 @@ void ofApp::draw(){
     f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
     f.drawString("vid=" + ofToString(isPlaying()), 860, y);
     f.drawString("ser=" + ofToString(state.serialInput), 960, y);
+    f.drawString("state=" + state.name, 1060, y);
 
     const int kMargin = 50;
 
     // Draw finished state stats if game is over
-    if (state.finishedAt && !isPlaying()) {
+    if (kStateStats == state.name) {
         std::cout << "drawing stats" << std::endl;
-
-        if (state.savedAt) {
-            ofSetHexColor(0xFFFFFF);
+        if (state.gameWasSaved) {
+            ofSetHexColor(kColorWhite);
         } else {
-            ofSetHexColor(0x000000);
+            ofSetHexColor(kColorBlack);
         }
         ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
         ofFill();
-        if (!state.savedAt) {
-            ofSetHexColor(0xFFFFFF);
+        if (state.gameWasSaved) {
+            ofSetHexColor(kColorBlack);
         } else {
-            ofSetHexColor(0x000000);
+            ofSetHexColor(kColorWhite);
         }
         std::string text("");
-        if (state.savedAt) {
+        if (state.gameWasSaved) {
             text = "LIFES SAVED: " + ofToString(gameStats.Saves);
         } else {
             text = "TOTAL KILLS: " + ofToString(gameStats.Kills);
@@ -457,17 +466,17 @@ void ofApp::draw(){
     }
     
     // Draw intro image, if game has not started yet
-    if (!state.finishedAt && !isPlaying() && !state.startedAt) {
+    if (kStateWaiting == state.name) {
         std::cout << "drawing intro" << std::endl;
-        ofSetHexColor(0xFFFFFF);
+        ofSetHexColor(kColorWhite);
         ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }
 
     // Draw video, if its running
-    if (isPlaying() || (!state.finishedAt && state.startedAt)) {
+    if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
         std::cout << "drawing video" << std::endl;
-        ofSetHexColor(0xFFFFFF);
+        ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
     }

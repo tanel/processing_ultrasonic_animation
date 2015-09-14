@@ -60,17 +60,21 @@ public:
     std::string OutroFileName;
 };
 
+const std::string kStateWaiting = "waiting";
+const std::string kStateStarted = "started";
+const std::string kStateSaved = "saved";
+const std::string kStateKilled = "killed";
+const std::string kStateStats = "stats";
+
 class GameState {
     
 public:
     GameState()
-    : finishedAt(0)
-    , savedAt(0)
-    , killedAt(0)
+    : name(kStateWaiting)
     , saveZoneActive(false)
-    , saved(false)
     , minDistance(0)
-    , startedAt(0)
+    , finishedAt(0)
+    , gameWasSaved(false)
     , currentDistance(0)
     , previousDistance(currentDistance)
     , previousFrameDrawnAt(0)
@@ -80,13 +84,11 @@ public:
     , fps(0) {}
     
     // Current game state
-    long finishedAt;
-    long savedAt;
-    long killedAt;
+    std::string name;
     bool saveZoneActive;
-    bool saved;
     int minDistance;
-    long startedAt;
+    long finishedAt;
+    bool gameWasSaved;
     
     std::string serialInput;
     

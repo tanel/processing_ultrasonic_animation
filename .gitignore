@@ -11,14 +11,6 @@ xcuserdata/
 # openframeworks release itself. its quite big
 of_v0.8.4_*_release/
 
-# images, not for public release yet
-data/*.jpg
-
-# video, not for public release yet
-data/*.mov
-data/*.mp4
-data/*.mpg
-
 # codeblocks
 codeblocks-*.exe
 codeblocks_additions/

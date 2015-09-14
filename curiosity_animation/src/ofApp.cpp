@@ -441,7 +441,6 @@ void ofApp::draw(){
 
     // Draw finished state stats if game is over
     if (kStateStats == state.name) {
-        std::cout << "drawing stats" << std::endl;
         if (state.gameWasSaved) {
             ofSetHexColor(kColorWhite);
         } else {
@@ -467,7 +466,6 @@ void ofApp::draw(){
     
     // Draw intro image, if game has not started yet
     if (kStateWaiting == state.name) {
-        std::cout << "drawing intro" << std::endl;
         ofSetHexColor(kColorWhite);
         ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -475,7 +473,6 @@ void ofApp::draw(){
 
     // Draw video, if its running
     if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
-        std::cout << "drawing video" << std::endl;
         ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);

@@ -26,18 +26,9 @@ void ofApp::setup(){
     ofSetDataPathRoot("../Resources/data/");
 #endif
     
-    // Distance reading
-    serialPort.listDevices();
-    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    for (int i = 0; i < deviceList.size(); i++) {
-        std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
-    }
-    if (configuration.ActiveSerialPort < deviceList.size()) {
-        if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
-            std::cerr << "Failed to connect to serial device! "
-            << deviceList[configuration.ActiveSerialPort].getDeviceName() << std::endl;
-        }
-    }
+    // Distance reader
+    serialReader.activeSerialPort = configuration.ActiveSerialPort;
+    serialReader.startThread();
     
     setDistance("initialize", configuration.MaxDistance);
     
@@ -70,6 +61,10 @@ void ofApp::setup(){
 
 const int kForward = 1;
 const int kBack = -1;
+
+void ofApp::exit() {
+    serialReader.stopThread();
+}
 
 void ofApp::animateVideo(const int direction) {
     if (direction != kForward && direction != kBack) {
@@ -237,59 +232,41 @@ void ofApp::update(){
         state.finishedAt = now;
     }
 
-    readSerial();
-
     calculateFPS();
 
     videoPlayer.update();
 
     updateAudio();
+
+    readSerial();
 }
 
 void ofApp::readSerial() {
     if (!isAccepingInput()) {
         return;
     }
-    if (!serialPort.isInitialized()) {
+
+    int distanceReading = serialReader.lastReading;
+    if (!distanceReading) {
         return;
     }
     
-    if (!serialPort.available()) {
-        return;
-    }
-    char c = serialPort.readByte();
-    if ('\n' != c) {
-        serialbuf << c;
-        return;
-    }
-    
-    state.serialInput = serialbuf.str();
-    serialbuf.str("");
-    
-    if (state.serialInput.empty()) {
-        return;
-    }
-    
-    float f = ofToFloat(state.serialInput);
-    
-    setDistance("Serial input", f);
+    setDistance("Serial input", distanceReading);
 
     if (state.previousDistance > state.currentDistance) {
         animateVideo(kForward);
 
         std::cout
-            << "Serial input: " << state.serialInput
-            << " f: " << f
-            << " moving: forward prev: " << state.previousDistance
+            << "Serial input: " << distanceReading
+        << " moving: forward prev: " << state.previousDistance
         << " current distance: " << state.currentDistance << std::endl;
     }
     if (state.previousDistance < state.currentDistance) {
         animateVideo(kBack);
 
         std::cout
-            << "Serial input: " << state.serialInput
-            << " f: " << f
-            << " moving: back prev: " << state.previousDistance
+            << "Serial input: " << distanceReading
+        << " moving: back prev: " << state.previousDistance
         << " current distance: " << state.currentDistance << std::endl;
     }
 }
@@ -437,7 +414,7 @@ void ofApp::draw(){
     f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
     f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
     f.drawString("vid=" + ofToString(isPlaying()), 860, y);
-    f.drawString("ser=" + ofToString(state.serialInput), 960, y);
+    f.drawString("ser=" + ofToString(serialReader.lastReading), 960, y);
     f.drawString("state=" + state.name, 1060, y);
 
     const int kMargin = 50;

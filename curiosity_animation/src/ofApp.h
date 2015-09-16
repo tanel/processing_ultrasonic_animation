@@ -2,6 +2,63 @@
 
 #include "ofMain.h"
 
+class SerialReader : public ofThread {
+public:
+    SerialReader()
+        : lastReading(0)
+        , activeSerialPort(0) {}
+    
+    void threadedFunction() {
+        
+        serialPort.listDevices();
+        vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
+        for (int i = 0; i < deviceList.size(); i++) {
+            std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
+        }
+        if (activeSerialPort < deviceList.size()) {
+            if (!serialPort.setup(activeSerialPort, 9600)) {
+                std::cerr << "Failed to connect to serial device! "
+                << deviceList[activeSerialPort].getDeviceName() << std::endl;
+            }
+        }
+        
+        while(isThreadRunning()) {
+            std::cout << "serial thread" << std::endl;
+
+            if (!serialPort.isInitialized()) {
+                continue;
+            }
+            
+            if (!serialPort.available()) {
+                continue;
+            }
+            char c = serialPort.readByte();
+            if ('\n' != c) {
+                serialbuf << c;
+                continue;
+            }
+            
+            std::string s = serialbuf.str();
+            serialbuf.str("");
+            
+            if (!s.empty()) {
+                // FIXME: lock access
+                lastReading = ofToInt(s);
+            }
+        }
+        
+        // done
+    }
+
+    int lastReading;
+    int activeSerialPort;
+
+private:
+    // Serial port, for reading distance from ultrasonic sensor.
+    ofSerial serialPort;
+    std::stringstream serialbuf;
+};
+
 class GameStats {
 public:
     GameStats()
@@ -90,8 +147,6 @@ public:
     long finishedAt;
     bool gameWasSaved;
     
-    std::string serialInput;
-    
     // App state, you should not touch these;
     int currentDistance;
     int previousDistance;
@@ -106,6 +161,7 @@ class ofApp : public ofBaseApp{
     
 public:
     void setup();
+    void exit();
     void update();
     void draw();
     
@@ -124,18 +180,14 @@ private:
     void saveGame(const std::string reason);
     void calculateFPS();
     void killGame();
-    void readSerial();
     void determineVideoState();
+    void readSerial();
 
     Configuration configuration;
     
     GameState state;
     
-    std::stringstream serialbuf;
-    
-    // Serial port, for reading distance from ultrasonic sensor.
-    // Optional.
-    ofSerial serialPort;
+    SerialReader serialReader;
     
     // HUD
     ofTrueTypeFont f;

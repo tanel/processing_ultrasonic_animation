@@ -30,8 +30,6 @@ void ofApp::setup(){
     serialReader.activeSerialPort = configuration.ActiveSerialPort;
     serialReader.startThread();
     
-    setDistance("initialize", configuration.MaxDistance);
-    
     // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
         std::cerr << "Error loading font" << std::endl;
@@ -177,15 +175,16 @@ bool GameStats::Write() const {
 }
 
 void ofApp::determineVideoState() {
-    if (isPlaying()) {
-        if (videoPlayer.getSpeed() == kForward) {
-            if (videoPlayer.getCurrentFrame() >= frameForDistance()) {
-                videoPlayer.setPaused(true);
-            }
-        } else if (videoPlayer.getSpeed() == kBack) {
-            if (videoPlayer.getCurrentFrame() <= frameForDistance()) {
-                videoPlayer.setPaused(true);
-            }
+    if (!isPlaying()) {
+        return;
+    }
+    if (videoPlayer.getSpeed() == kForward) {
+        if (videoPlayer.getCurrentFrame() >= frameForDistance()) {
+            videoPlayer.setPaused(true);
+        }
+    } else if (videoPlayer.getSpeed() == kBack) {
+        if (videoPlayer.getCurrentFrame() <= frameForDistance()) {
+            videoPlayer.setPaused(true);
         }
     }
 }
@@ -291,8 +290,6 @@ void ofApp::killGame() {
     state.name = kStateKilled;
     state.gameWasSaved = false;
     
-    setDistance("killed", configuration.MinDistance);
-    
     gameStats.Kills++;
     if (!gameStats.Write()) {
         std::cerr << "Error writing game stats" << std::endl;
@@ -311,8 +308,6 @@ void ofApp::saveGame(const std::string reason) {
     
     state.name = kStateSaved;
     state.gameWasSaved = true;
-    
-    setDistance("saved", configuration.MaxDistance);
     
     gameStats.Saves++;
     if (!gameStats.Write()) {
@@ -349,8 +344,6 @@ void ofApp::restartGame() {
     // Reset prev. distance
     state.previousDistance = configuration.MaxDistance;
     
-    setDistance("restart", configuration.MaxDistance);
-    
     if (!loadVideo()) {
         std::cerr << "Error loading video after kill" << std::endl;
     }
@@ -385,7 +378,14 @@ bool ofApp::isAccepingInput() {
 // Note that this is not the actual frame that will be animated.
 // Instead will start to animate towards this frame.
 int ofApp::frameForDistance() {
-    return ofMap(state.currentDistance,
+    int d = state.currentDistance;
+    // Override dest. frame on certain conditions, like kill, save etc
+    if (kStateKilled == state.name) {
+        d = configuration.MinDistance;
+    } else if (kStateSaved == state.name) {
+        d = configuration.MaxDistance;
+    }
+    return ofMap(d,
                  configuration.MinDistance,
                  configuration.MaxDistance,
                  videoPlayer.getTotalNumFrames(),

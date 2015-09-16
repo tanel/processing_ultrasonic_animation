@@ -7,15 +7,15 @@ void ofApp::setup(){
     
     // start recoding events
     if (!eventLog.open(ofToDataPath("events.txt"), ofFile::WriteOnly)) {
-        ofLogError() << "Error opening events.txt - !!!DATA WILL BE LOST!!!";
+        std::cerr << "Error opening events.txt - !!!DATA WILL BE LOST!!!" << std::endl;
     }
     
     if (!configuration.Read()) {
-        ofLogError() << "Error reading configuration";
+        std::cerr << "Error reading configuration" << std::endl;
     }
     
     if (!gameStats.Read()) {
-        ofLogError() << "Error reading game stats.";
+        std::cerr << "Error reading game stats." << std::endl;
     }
     
     ofSetFrameRate(configuration.FrameRate);
@@ -26,51 +26,49 @@ void ofApp::setup(){
     ofSetDataPathRoot("../Resources/data/");
 #endif
     
-    // Distance reading
-    serialPort.listDevices();
-    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    if (configuration.ActiveSerialPort < deviceList.size()) {
-        if (!serialPort.setup(configuration.ActiveSerialPort, 9600)) {
-            ofLogError() << "Failed to connect to serial device! "
-            << deviceList[configuration.ActiveSerialPort].getDeviceName();
-        }
-    }
+    // Distance reader
+    serialReader.activeSerialPort = configuration.ActiveSerialPort;
+    serialReader.startThread();
     
     setDistance("initialize", configuration.MaxDistance);
     
     // HUD
     if (!f.loadFont("verdana.ttf", 16, true, true)) {
-        ofLogError() << "Error loading font";
+        std::cerr << "Error loading font" << std::endl;
     }
     f.setLineHeight(18.0f);
     f.setLetterSpacing(1.037);
     
     // Audio
     if (!heartbeatSound.loadSound("2.mp3")) {
-        ofLogError() << "Error loading heartbeat sound";
+        std::cerr << "Error loading heartbeat sound" << std::endl;
     }
     heartbeatSound.setLoop(true);
     
     // Video
     if (!loadVideo()) {
-        ofLogError() << "Error loading video";
+        std::cerr << "Error loading video" << std::endl;
     }
     
     // Intro and outro pics
     if (!intro.loadImage(ofToDataPath(configuration.IntroFileName))) {
-        ofLogError() << "Error loading intro";
+        std::cerr << "Error loading intro" << std::endl;
     }
     if (!outro.loadImage(ofToDataPath(configuration.OutroFileName))) {
-        ofLogError() << "Error loading outro";
+        std::cerr << "Error loading outro" << std::endl;
     }
 }
 
 const int kForward = 1;
 const int kBack = -1;
 
+void ofApp::exit() {
+    serialReader.stopThread();
+}
+
 void ofApp::animateVideo(const int direction) {
     if (direction != kForward && direction != kBack) {
-        ofLogError() << "Invalid direction " << direction;
+        std::cerr << "Invalid direction " << direction << std::endl;
         return;
     }
     if (videoPlayer.getSpeed() != direction) {
@@ -125,7 +123,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:OutroFileName", OutroFileName);
 
         if (!xml.saveFile("configuration.xml")) {
-            ofLogError() << "Error saving configuration file";
+            std::cerr << "Error saving configuration file" << std::endl;
             return false;
         }
     } else {
@@ -234,60 +232,42 @@ void ofApp::update(){
         state.finishedAt = now;
     }
 
-    readSerial();
-
     calculateFPS();
 
     videoPlayer.update();
 
     updateAudio();
+
+    readSerial();
 }
 
 void ofApp::readSerial() {
     if (!isAccepingInput()) {
         return;
     }
-    if (!serialPort.isInitialized()) {
+
+    int distanceReading = serialReader.lastReading;
+    if (!distanceReading) {
         return;
     }
-    
-    if (!serialPort.available()) {
-        return;
-    }
-    char c = serialPort.readByte();
-    if ('\n' != c) {
-        serialbuf << c;
-        return;
-    }
-    
-    state.serialInput = serialbuf.str();
-    serialbuf.str("");
-    
-    if (state.serialInput.empty()) {
-        return;
-    }
-    
-    float f = ofToFloat(state.serialInput);
-    
-    setDistance("Serial input", f);
+     
+    setDistance("Serial input", distanceReading);
 
     if (state.previousDistance > state.currentDistance) {
         animateVideo(kForward);
 
-        ofLogNotice()
-            << "Serial input: " << state.serialInput
-            << " f: " << f
-            << " moving: forward prev: " << state.previousDistance
-            << " current distance: " << state.currentDistance;
+        std::cout
+            << "Serial input: " << distanceReading
+        << " moving: forward prev: " << state.previousDistance
+        << " current distance: " << state.currentDistance << std::endl;
     }
     if (state.previousDistance < state.currentDistance) {
         animateVideo(kBack);
 
-        ofLogNotice()
-            << "Serial input: " << state.serialInput
-            << " f: " << f
-            << " moving: back prev: " << state.previousDistance
-            << " current distance: " << state.currentDistance;
+        std::cout
+            << "Serial input: " << distanceReading
+        << " moving: back prev: " << state.previousDistance
+        << " current distance: " << state.currentDistance << std::endl;
     }
 }
 
@@ -303,8 +283,8 @@ void ofApp::calculateFPS() {
 void ofApp::killGame() {
     long now = ofGetElapsedTimeMillis();
 
-    ofLogNotice() << "Game finished with kill at " << now
-        << " with current distance of " << state.currentDistance;
+    std::cout << "Game finished with kill at " << now
+    << " with current distance of " << state.currentDistance << std::endl;
     
     eventLog << "killed=" << now << std::endl;
     
@@ -315,17 +295,17 @@ void ofApp::killGame() {
     
     gameStats.Kills++;
     if (!gameStats.Write()) {
-        ofLogError() << "Error writing game stats";
+        std::cerr << "Error writing game stats" << std::endl;
     }
 }
 
 void ofApp::saveGame(const std::string reason) {
     long now = ofGetElapsedTimeMillis();
 
-    ofLogNotice()
+    std::cout
         << "Game finished with save at " << now
         << " with current distance of " << state.currentDistance
-        << " because of " << reason;
+        << " because of " << reason << std::endl;
     
     eventLog << "saved=" << now << std::endl;
     
@@ -336,7 +316,7 @@ void ofApp::saveGame(const std::string reason) {
     
     gameStats.Saves++;
     if (!gameStats.Write()) {
-        ofLogError() << "Error writing game stats";
+        std::cerr << "Error writing game stats" << std::endl;
     }
 }
 
@@ -362,7 +342,7 @@ void ofApp::updateAudio() {
 }
 
 void ofApp::restartGame() {
-    ofLogNotice() << "Game restarted";
+    std::cout << "Game restarted" << std::endl;
     
     state = GameState();
     
@@ -372,9 +352,9 @@ void ofApp::restartGame() {
     setDistance("restart", configuration.MaxDistance);
     
     if (!loadVideo()) {
-        ofLogError() << "Error loading video after kill";
+        std::cerr << "Error loading video after kill" << std::endl;
     }
-    ofLogNotice() << "frame after resettting video player: " << videoPlayer.getCurrentFrame();
+    std::cout << "frame after resettting video player: " << videoPlayer.getCurrentFrame() << std::endl;
     
     eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
 }
@@ -382,8 +362,8 @@ void ofApp::restartGame() {
 void ofApp::startGame() {
     long now = ofGetElapsedTimeMillis();
     
-    ofLogNotice() << "Game started at " << now
-        << " with current distance of " << state.currentDistance;
+    std::cout << "Game started at " << now
+    << " with current distance of " << state.currentDistance << std::endl;
 
     state.name = kStateStarted;
     
@@ -434,14 +414,13 @@ void ofApp::draw(){
     f.drawString("kl=" + ofToString(gameStats.Kills), 660, y);
     f.drawString("rs=" + ofToString(restartCountdownSeconds), 760, y);
     f.drawString("vid=" + ofToString(isPlaying()), 860, y);
-    f.drawString("ser=" + ofToString(state.serialInput), 960, y);
+    f.drawString("ser=" + ofToString(serialReader.lastReading), 960, y);
     f.drawString("state=" + state.name, 1060, y);
 
     const int kMargin = 50;
 
     // Draw finished state stats if game is over
     if (kStateStats == state.name) {
-        std::cout << "drawing stats" << std::endl;
         if (state.gameWasSaved) {
             ofSetHexColor(kColorWhite);
         } else {
@@ -467,7 +446,6 @@ void ofApp::draw(){
     
     // Draw intro image, if game has not started yet
     if (kStateWaiting == state.name) {
-        std::cout << "drawing intro" << std::endl;
         ofSetHexColor(kColorWhite);
         ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -475,7 +453,6 @@ void ofApp::draw(){
 
     // Draw video, if its running
     if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
-        std::cout << "drawing video" << std::endl;
         ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -483,7 +460,7 @@ void ofApp::draw(){
 }
 
 void ofApp::keyPressed(int key){
-    ofLogNotice() << "keyPressed key=" << key;
+    std::cout << "keyPressed key=" << key << std::endl;
     
     if (!isAccepingInput()) {
         return;
@@ -509,7 +486,7 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::setDistance(const std::string reason, const int value) {
-    ofLogNotice() << "setDistance reason=" << reason << " value=" << value;
+    std::cout << "setDistance reason=" << reason << " value=" << value << std::endl;
     state.previousDistance = state.currentDistance;
     state.currentDistance = ofClamp(value, configuration.MinDistance, configuration.MaxDistance);
     if (state.previousDistance != state.currentDistance) {

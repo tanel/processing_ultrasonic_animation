@@ -23,8 +23,6 @@ public:
         }
         
         while(isThreadRunning()) {
-            std::cout << "serial thread" << std::endl;
-
             if (!serialPort.isInitialized()) {
                 continue;
             }
@@ -37,10 +35,12 @@ public:
                 serialbuf << c;
                 continue;
             }
-            
+
             std::string s = serialbuf.str();
             serialbuf.str("");
-            
+
+            std::cout << "serial thread input=" << s << std::endl;
+
             if (!s.empty()) {
                 // FIXME: lock access
                 lastReading = ofToInt(s);

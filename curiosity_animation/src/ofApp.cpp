@@ -250,7 +250,7 @@ void ofApp::readSerial() {
     if (!distanceReading) {
         return;
     }
-    
+     
     setDistance("Serial input", distanceReading);
 
     if (state.previousDistance > state.currentDistance) {

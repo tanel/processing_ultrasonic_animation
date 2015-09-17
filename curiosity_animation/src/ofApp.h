@@ -8,47 +8,7 @@ public:
         : lastReading(0)
         , activeSerialPort(0) {}
     
-    void threadedFunction() {
-        
-        serialPort.listDevices();
-        vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-        for (int i = 0; i < deviceList.size(); i++) {
-            std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
-        }
-        if (activeSerialPort < deviceList.size()) {
-            if (!serialPort.setup(activeSerialPort, 9600)) {
-                std::cerr << "Failed to connect to serial device! "
-                << deviceList[activeSerialPort].getDeviceName() << std::endl;
-            }
-        }
-        
-        while(isThreadRunning()) {
-            if (!serialPort.isInitialized()) {
-                continue;
-            }
-            
-            if (!serialPort.available()) {
-                continue;
-            }
-            char c = serialPort.readByte();
-            if ('\n' != c) {
-                serialbuf << c;
-                continue;
-            }
-
-            std::string s = serialbuf.str();
-            serialbuf.str("");
-
-            std::cout << "serial thread input=" << s << std::endl;
-
-            if (!s.empty()) {
-                // FIXME: lock access
-                lastReading = ofToInt(s);
-            }
-        }
-        
-        // done
-    }
+    void threadedFunction();
 
     int lastReading;
     int activeSerialPort;
@@ -129,35 +89,23 @@ public:
     GameState()
     : name(kStateWaiting)
     , saveZoneActive(false)
-    , minDistance(0)
     , finishedAt(0)
     , gameWasSaved(false)
-    , currentDistance(0)
-    , previousDistance(currentDistance)
-    , previousFrameDrawnAt(0)
-    , previousDistanceChangeAt(0)
-    , destinationFrame(0)
-    , frameAtLastAnimationStart(0)
+    , lastUserInputAt(0)
     , fps(0) {}
     
     // Current game state
     std::string name;
     bool saveZoneActive;
-    int minDistance;
     long finishedAt;
     bool gameWasSaved;
+    long lastUserInputAt;
     
     // App state, you should not touch these;
-    int currentDistance;
-    int previousDistance;
-    long previousFrameDrawnAt;
-    long previousDistanceChangeAt;
-    int destinationFrame;
-    int frameAtLastAnimationStart;
     int fps;
 };
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp {
     
 public:
     void setup();
@@ -165,11 +113,8 @@ public:
     void update();
     void draw();
     
-    void keyPressed(int key);
-    
 private:
     int frameForDistance();
-    void setDistance(const std::string reason, const int value);
     bool loadVideo();
     void animateVideo(const int direction);
     bool isPlaying();
@@ -180,8 +125,6 @@ private:
     void saveGame(const std::string reason);
     void calculateFPS();
     void killGame();
-    void determineVideoState();
-    void readSerial();
 
     Configuration configuration;
     

@@ -392,7 +392,7 @@ void ofApp::draw(){
     f.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
     f.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
     f.drawString("deathzone=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
-    f.drawString("save active=" + ofToString(state.saveZoneActive), 600, y);
+    f.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
     f.drawString("state=" + state.name, 800, y);
     
     const int kMargin = 50;

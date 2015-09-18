@@ -472,7 +472,7 @@ void SerialReader::threadedFunction() {
             if (n) {
                 std::cout << "serial thread input=" << n << std::endl;
                 values.push_front(n);
-                values.resize(kNumOfValues);
+                values.resize(std::min(kNumOfValues, int(values.size())));
             }
         }
     }

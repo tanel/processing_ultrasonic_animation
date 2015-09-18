@@ -2,21 +2,30 @@
 
 #include "ofMain.h"
 
+const int kNumOfValues = 5;
+
 class SerialReader : public ofThread {
 public:
     SerialReader()
-        : lastReading(0)
-        , activeSerialPort(0) {}
+    : activeSerialPort(0) {}
     
     void threadedFunction();
-
-    int lastReading;
+    
+    int reading() const {
+        if (values.empty()) {
+            return 0;
+        }
+        return std::accumulate(values.begin(), values.end(), 0) / values.size();
+    }
+    
     int activeSerialPort;
-
+    
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
     std::stringstream serialbuf;
+    
+    std::deque<int> values;
 };
 
 class GameStats {
@@ -114,18 +123,27 @@ public:
     void draw();
     
 private:
-    int frameForDistance();
+    int frameForDistance(const int distance) const;
     bool loadVideo();
     void animateVideo(const int direction);
     bool isPlaying();
     bool isAccepingInput();
     void restartGame();
     void startGame();
-    void updateAudio();
+    void updateAudio(const int distance);
+    void updateVideo(const int distance);
     void saveGame(const std::string reason);
-    void calculateFPS();
+    void calculateFPS(const int distance);
     void killGame();
-
+    
+    int saveZoneStartsAt() const {
+        return std::abs(configuration.MaxDistance - configuration.DeathZone);
+    }
+    
+    int distanceMoved(const int distance) const {
+        return std::abs(configuration.MaxDistance - distance);
+    }
+    
     Configuration configuration;
     
     GameState state;
@@ -138,6 +156,9 @@ private:
     ofSoundPlayer heartbeatSound;
     
     ofVideoPlayer videoPlayer;
+    
+    // cached from videoplayer
+    int totalNumOfFrames;
     
     ofFile eventLog;
     GameStats gameStats;

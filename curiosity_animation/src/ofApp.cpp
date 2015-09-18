@@ -2,6 +2,8 @@
 #include "ofxXmlSettings.h"
 
 void ofApp::setup(){
+    ofBackground(54, 54, 54, 255);
+    
     // start logging
     ofLogToFile("app.log");
     
@@ -371,6 +373,8 @@ void ofApp::draw(){
     }
     
     // Update HUD
+    ofSetColor(255);
+    
     int y = 20;
     f.drawString("distance=" + ofToString(serialReader.lastReading), 10, y);
     f.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(videoPlayer.getTotalNumFrames()), 200, y);
@@ -380,9 +384,9 @@ void ofApp::draw(){
     f.drawString("kills=" + ofToString(gameStats.Kills), 900, y);
     
     y = 40;
-    f.drawString("rs=" + ofToString(restartCountdownSeconds), 10, y);
-    f.drawString("vid=" + ofToString(isPlaying()), 200, y);
-    f.drawString("dz=" + ofToString(configuration.DeathZone), 400, y);
+    f.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
+    f.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
+    f.drawString("deathzone=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
     f.drawString("save active=" + ofToString(state.saveZoneActive), 600, y);
     f.drawString("state=" + state.name, 800, y);
     

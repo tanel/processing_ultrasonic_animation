@@ -133,7 +133,31 @@ bool Configuration::Read() {
     return true;
 }
 
+void GameStats::AddKill() {
+    totalKills++;
+    updateDay();
+    todayKills++;
+    write();
+}
+
+void GameStats::AddSave() {
+    totalSaves++;
+    updateDay();
+    todaySaves++;
+    write();
+}
+
+void GameStats::updateDay() {
+    std::string newDay = currentDate();
+    if (today != newDay) {
+        todayKills = 0;
+        todaySaves = 0;
+        today = newDay;
+    }
+}
+
 bool GameStats::Read() {
+    /* FIXME:
     // Read game stats or create default
     ofxXmlSettings xml;
     if (!xml.loadFile("gamestats.xml")) {
@@ -144,19 +168,25 @@ bool GameStats::Read() {
         Saves = xml.getValue("gamestats:Saves", Saves);
         Kills = xml.getValue("gamestats:Kills", Kills);
     }
-    
+    */
     return true;
 }
 
-bool GameStats::Write() const {
-    std::string path = ofToDataPath("gamestats.xml");
-    if (ofFile::doesFileExist(path)) {
-        ofFile::removeFile(path);
-    }
-    ofxXmlSettings xml;
-    xml.setValue("gamestats:Saves", Saves);
-    xml.setValue("gamestats:Kills", Kills);
-    return xml.saveFile(path);
+std::string GameStats::currentDate() {
+    string timeFormat = "%Y-%m-%d";
+    Poco::LocalDateTime now;
+    return Poco::DateTimeFormatter::format(now, timeFormat);
+}
+
+void GameStats::write() const {
+    ofxJSONElement data;
+    data["totalSaves"] = totalSaves;
+    data["totalKills"] = totalKills;
+    data["todaySaves"] = todaySaves;
+    data["todayKills"] = todayKills;
+    data["today"] = today;
+    ofFile f(ofToDataPath("gamestats.json"), ofFile::WriteOnly);
+    f << data;
 }
 
 void ofApp::update(){
@@ -268,10 +298,7 @@ void ofApp::killGame() {
     state.name = kStateKilled;
     state.gameWasSaved = false;
     
-    gameStats.Kills++;
-    if (!gameStats.Write()) {
-        std::cerr << "Error writing game stats" << std::endl;
-    }
+    gameStats.AddKill();
 }
 
 void ofApp::saveGame(const std::string reason) {
@@ -286,10 +313,7 @@ void ofApp::saveGame(const std::string reason) {
     state.name = kStateSaved;
     state.gameWasSaved = true;
     
-    gameStats.Saves++;
-    if (!gameStats.Write()) {
-        std::cerr << "Error writing game stats" << std::endl;
-    }
+    gameStats.AddSave();
 }
 
 void ofApp::updateAudio(const int distance) {
@@ -386,8 +410,8 @@ void ofApp::draw(){
     f.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
     f.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
     f.drawString("fps=" + ofToString(state.fps), 600, y);
-    f.drawString("saves=" + ofToString(gameStats.Saves), 800, y);
-    f.drawString("kills=" + ofToString(gameStats.Kills), 900, y);
+    f.drawString("saves=" + ofToString(gameStats.TotalSaves()), 800, y);
+    f.drawString("kills=" + ofToString(gameStats.TotalKills()), 900, y);
     
     y = 40;
     f.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
@@ -414,9 +438,9 @@ void ofApp::draw(){
         }
         std::string text("");
         if (state.gameWasSaved) {
-            text = "LIFES SAVED: " + ofToString(gameStats.Saves);
+            text = "LIFES SAVED: " + ofToString(gameStats.TotalSaves());
         } else {
-            text = "TOTAL KILLS: " + ofToString(gameStats.Kills);
+            text = "TOTAL KILLS: " + ofToString(gameStats.TotalKills());
         }
         f.drawString(text,
                      ofGetWindowWidth() / 2 - 100,

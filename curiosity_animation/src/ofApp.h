@@ -2,6 +2,11 @@
 
 #include "ofMain.h"
 
+#include "Poco/String.h"
+#include "Poco/LocalDateTime.h"
+#include "Poco/DateTimeFormatter.h"
+#include "Poco/URI.h"
+
 const int kNumOfValues = 5;
 
 class SerialReader : public ofThread {
@@ -31,14 +36,38 @@ private:
 class GameStats {
 public:
     GameStats()
-    : Saves(0)
-    , Kills(0) {}
+    : totalSaves(0)
+    , totalKills(0)
+    , todaySaves(0)
+    , todayKills(0)
+    , today(currentDate()) {
+    }
     
     bool Read();
-    bool Write() const;
     
-    int Saves;
-    int Kills;
+    void AddKill();
+    void AddSave();
+    
+    int TotalSaves() const {
+        return totalSaves;
+    }
+
+    int TotalKills() const {
+        return totalKills;
+    }
+
+private:
+    int totalSaves;
+    int totalKills;
+    int todaySaves;
+    int todayKills;
+    std::string today;
+
+    void write() const;
+    
+    void updateDay();
+
+    static std::string currentDate();
 };
 
 class Configuration {

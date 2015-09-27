@@ -1,0 +1,2 @@
+default:
+	jslint app.js

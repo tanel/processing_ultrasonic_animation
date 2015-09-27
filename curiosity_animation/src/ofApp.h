@@ -43,7 +43,7 @@ public:
     , today(currentDate()) {
     }
     
-    bool Read();
+    void Read();
     
     void AddKill();
     void AddSave();
@@ -51,22 +51,22 @@ public:
     int TotalSaves() const {
         return totalSaves;
     }
-
+    
     int TotalKills() const {
         return totalKills;
     }
-
+    
 private:
     int totalSaves;
     int totalKills;
     int todaySaves;
     int todayKills;
     std::string today;
-
+    
     void write() const;
     
     void updateDay();
-
+    
     static std::string currentDate();
 };
 

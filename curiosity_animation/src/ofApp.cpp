@@ -17,9 +17,7 @@ void ofApp::setup(){
         std::cerr << "Error reading configuration" << std::endl;
     }
     
-    if (!gameStats.Read()) {
-        std::cerr << "Error reading game stats." << std::endl;
-    }
+    gameStats.Read();
     
     ofSetFrameRate(configuration.FrameRate);
     
@@ -156,20 +154,17 @@ void GameStats::updateDay() {
     }
 }
 
-bool GameStats::Read() {
-    /* FIXME:
-    // Read game stats or create default
-    ofxXmlSettings xml;
-    if (!xml.loadFile("gamestats.xml")) {
-        if (!Write()) {
-            return false;
-        }
-    } else {
-        Saves = xml.getValue("gamestats:Saves", Saves);
-        Kills = xml.getValue("gamestats:Kills", Kills);
+void GameStats::Read() {
+    ofFile f(ofToDataPath("gamestats.json"), ofFile::ReadOnly);
+    if (f.exists()) {
+        ofxJSONElement data;
+        f >> data;
+        totalSaves = data["totalSaves"].asInt();
+        totalKills = data["totalKills"].asInt();
+        todaySaves = data["todaySaves"].asInt();
+        todayKills = data["todayKills"].asInt();
+        today = data["today"].asString();
     }
-    */
-    return true;
 }
 
 std::string GameStats::currentDate() {

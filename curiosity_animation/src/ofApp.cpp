@@ -17,6 +17,10 @@ void ofApp::setup(){
         std::cerr << "Error reading configuration" << std::endl;
     }
     
+#ifdef TARGET_OSX
+    ofSetDataPathRoot("../Resources/data/");
+#endif
+    
     gameStats.Read();
     
     ofSetFrameRate(configuration.FrameRate);
@@ -25,10 +29,6 @@ void ofApp::setup(){
     
     ofSetWindowShape(1000, 200);
     ofSetWindowPosition(0, 0);
-    
-#ifdef TARGET_OSX
-    ofSetDataPathRoot("../Resources/data/");
-#endif
     
     // Distance reader
     serialReader.activeSerialPort = configuration.ActiveSerialPort;
@@ -155,7 +155,8 @@ void GameStats::updateDay() {
 }
 
 void GameStats::Read() {
-    ofFile f(ofToDataPath("gamestats.json"), ofFile::ReadOnly);
+    std::string path = ofToDataPath("gamestats.json");
+    ofFile f(path, ofFile::ReadOnly);
     if (f.exists()) {
         ofxJSONElement data;
         f >> data;
@@ -164,6 +165,7 @@ void GameStats::Read() {
         todaySaves = data["todaySaves"].asInt();
         todayKills = data["todayKills"].asInt();
         today = data["today"].asString();
+        f.close();
     }
 }
 
@@ -180,8 +182,11 @@ void GameStats::write() const {
     data["todaySaves"] = todaySaves;
     data["todayKills"] = todayKills;
     data["today"] = today;
-    ofFile f(ofToDataPath("gamestats.json"), ofFile::WriteOnly);
+    std::string path = ofToDataPath("gamestats.json");
+    ofFile f(path, ofFile::WriteOnly);
     f << data;
+    f.flush();
+    f.close();
 }
 
 void ofApp::update(){
@@ -311,6 +316,20 @@ void ofApp::saveGame(const std::string reason) {
     gameStats.AddSave();
 }
 
+void ofApp::keyPressed(int key) {
+    ofLogNotice() << "keyPressed key=" << key;
+    
+    const int kMinStep = 100;
+    
+    if (OF_KEY_UP == key) {
+        // distance decreases as viewer approaches
+        serialReader.AddReading(serialReader.reading() - kMinStep);
+    } else if (OF_KEY_DOWN == key) {
+        // distance incrases as viewer steps back
+        serialReader.AddReading(serialReader.reading() + kMinStep);
+    }
+}
+
 void ofApp::updateAudio(const int distance) {
     // Game over, dudes
     if (kStateStats == state.name) {
@@ -352,13 +371,6 @@ void ofApp::startGame() {
     state.name = kStateStarted;
     
     eventLog << "started=" << ofGetElapsedTimeMillis() << std::endl;
-}
-
-bool ofApp::isAccepingInput() {
-    if (kStateKilled == state.name || kStateSaved == state.name || kStateStats == state.name) {
-        return false;
-    }
-    return isPlaying();
 }
 
 // Frame for current distance
@@ -457,6 +469,22 @@ void ofApp::draw(){
     }
 }
 
+int SerialReader::reading() const {
+    if (values.empty()) {
+        return 0;
+    }
+    return std::accumulate(values.begin(), values.end(), 0) / values.size();
+}
+
+void SerialReader::AddReading(const int value) {
+    if (!value) {
+        return;
+    }
+    std::cout << "serial thread input=" << value << std::endl;
+    values.push_front(value);
+    values.resize(std::min(kNumOfValues, int(values.size())));
+}
+
 void SerialReader::threadedFunction() {
     serialPort.listDevices();
     vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
@@ -488,12 +516,7 @@ void SerialReader::threadedFunction() {
         serialbuf.str("");
         
         if (!s.empty()) {
-            int n = ofToInt(s);
-            if (n) {
-                std::cout << "serial thread input=" << n << std::endl;
-                values.push_front(n);
-                values.resize(std::min(kNumOfValues, int(values.size())));
-            }
+            AddReading(ofToInt(s));
         }
     }
     

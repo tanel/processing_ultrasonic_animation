@@ -16,12 +16,9 @@ public:
     
     void threadedFunction();
     
-    int reading() const {
-        if (values.empty()) {
-            return 0;
-        }
-        return std::accumulate(values.begin(), values.end(), 0) / values.size();
-    }
+    void AddReading(const int value);
+    
+    int reading() const;
     
     int activeSerialPort;
     
@@ -122,7 +119,6 @@ const std::string kStateKilled = "killed";
 const std::string kStateStats = "stats";
 
 class GameState {
-    
 public:
     GameState()
     : name(kStateWaiting)
@@ -150,13 +146,13 @@ public:
     void exit();
     void update();
     void draw();
+    void keyPressed(int key);
     
 private:
     int frameForDistance(const int distance) const;
     bool loadVideo();
     void animateVideo(const int direction);
     bool isPlaying();
-    bool isAccepingInput();
     void restartGame();
     void startGame();
     void updateAudio(const int distance);

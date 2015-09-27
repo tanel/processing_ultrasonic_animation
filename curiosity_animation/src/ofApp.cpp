@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #include "ofxXmlSettings.h"
+#include "ofxJSONElement.h"
 
 void ofApp::setup(){
     ofBackground(54, 54, 54, 255);

@@ -41,7 +41,7 @@ $(function () {
             window.stats.history = {};
         }
 
-        var data = {
+        var bardata = {
             labels: [],
             datasets: [
                 {
@@ -62,18 +62,42 @@ $(function () {
                 }
             ]
         },
-            // Get the context of the canvas element we want to select
-            ctx = document.getElementById("barchart").getContext("2d");
+            piedata = {
+                labels: [
+                    "UUDISHIMU / CURIOSITY",
+                    "HUMAANSUS / HUMANITY",
+                ],
+                datasets: [{
+                    data: [
+                        window.stats.total.kills,
+                        window.stats.total.saves,
+                    ],
+                    backgroundColor: [
+                        "#F7464A",
+                        "#46BFBD",
+                    ],
+                }],
+            },
+            barctx = document.getElementById("barchart").getContext("2d"),
+            piectx = document.getElementById("piechart").getContext("2d");
 
         $.each(window.stats.history, function (key, val) {
-            data.labels.push(key);
-            data.datasets[0].data.push(val.saves);
-            data.datasets[1].data.push(val.kills);
+            bardata.labels.push(key);
+            bardata.datasets[0].data.push(val.saves);
+            bardata.datasets[1].data.push(val.kills);
         });
 
-        window.myBar = new Chart(ctx, {
+        window.barChart = new Chart(barctx, {
             type: 'bar',
-            data: data,
+            data: bardata,
+            options: {
+                responsive: false,
+            }
+        });
+
+        window.pieChart = new Chart(piectx, {
+            type: 'pie',
+            data: piedata,
             options: {
                 responsive: false,
             }

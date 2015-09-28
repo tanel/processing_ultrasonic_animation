@@ -30,15 +30,19 @@ private:
     std::deque<int> values;
 };
 
+class GameResult {
+public:
+    GameResult()
+    : Saves(0)
+    , Kills(0) {}
+    
+    int Saves;
+    int Kills;
+};
+
 class GameStats {
 public:
-    GameStats()
-    : totalSaves(0)
-    , totalKills(0)
-    , todaySaves(0)
-    , todayKills(0)
-    , today(currentDate()) {
-    }
+    GameStats() {}
     
     void Read();
     
@@ -46,23 +50,18 @@ public:
     void AddSave();
     
     int TotalSaves() const {
-        return totalSaves;
+        return total.Saves;
     }
     
     int TotalKills() const {
-        return totalKills;
+        return total.Kills;
     }
     
 private:
-    int totalSaves;
-    int totalKills;
-    int todaySaves;
-    int todayKills;
-    std::string today;
+    GameResult total;
+    std::map<std::string, GameResult> history;
     
     void write() const;
-    
-    void updateDay();
     
     static std::string currentDate();
 };
@@ -140,7 +139,6 @@ public:
 };
 
 class ofApp : public ofBaseApp {
-    
 public:
     void setup();
     void exit();

@@ -1,10 +1,9 @@
-/*global $:false, window:false, Chart:false */
+/*global $:false, window:false, Chart:false, document:false */
 "use strict";
 $(function () {
     // Configuration
     window.settings = {
-        ajaxIntervalMillis: 5000,
-        graphIntervalMillis: 2000,
+        ajaxIntervalMillis: 10000,
     };
 
     // we'll keep data here
@@ -18,7 +17,7 @@ $(function () {
             window.stats = data;
 
             // Force redraw of chart
-            window.chartFunc();
+            window.updateUI();
         });
     };
 
@@ -28,14 +27,15 @@ $(function () {
     // We'll rotate charts
     window.currentChart = 0;
 
-    // callback func for drawing charts
-    window.chartFunc = function () {
+    window.updateUI = function () {
         console.log("updating charts");
-        // FIXME: redraw chart
-        // FIXME: rotate chart
 
-        $(".total_saves").text(window.stats.totalSaves);
-        $(".total_kills").text(window.stats.totalKills);
+        if (!window.stats.total) {
+            window.stats.total = {};
+        }
+
+        $(".total_saves").text(window.stats.total.saves);
+        $(".total_kills").text(window.stats.total.kills);
 
         var data = {
             labels: ["January", "February", "March", "April", "May", "June", "July"],
@@ -57,25 +57,20 @@ $(function () {
                     data: [28, 48, 40, 19, 86, 27, 90]
                 }
             ]
-        };
-        var options = {};
-
-        // Get the context of the canvas element we want to select
-        var ctx = document.getElementById("barchart").getContext("2d");
+        },
+            // Get the context of the canvas element we want to select
+            ctx = document.getElementById("barchart").getContext("2d");
         window.myBar = new Chart(ctx, {
-                type: 'bar',
-                data: data,
-                options: {
-                    responsive: true,
-                }
-            });        
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: false,
+            }
+        });
     };
 
-    // update charts with given interval
-    window.ajaxTimer = window.setInterval(window.chartFunc, window.settings.graphIntervalMillis);
-
-    // start by drawing (empty) chart
-    window.chartFunc();
+    // draw an (empty) chart
+    window.updateUI();
 
     console.log("initialized");
 

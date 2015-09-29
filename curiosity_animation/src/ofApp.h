@@ -50,6 +50,7 @@ private:
     // HUD
     ofTrueTypeFont hudFont;
     ofTrueTypeFont overlayFont;
+    ofTrueTypeFont stateFont;
     
     ofSoundPlayer heartbeatSound;
     

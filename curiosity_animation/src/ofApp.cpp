@@ -45,6 +45,9 @@ void ofApp::setup(){
     if (!overlayFont.loadFont("verdana.ttf", 300, true, true)) {
         std::cerr << "Error loading overlay font" << std::endl;
     }
+    if (!stateFont.loadFont("verdana.ttf", 100, true, true)) {
+        std::cerr << "Error loading status font" << std::endl;
+    }
     
     // Audio
     if (!heartbeatSound.loadSound("2.mp3")) {
@@ -207,10 +210,14 @@ void ofApp::keyPressed(int key) {
     
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
-        serialReader.AddReading(serialReader.Reading() - kMinStep);
+        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
+                                        configuration.MinDistance,
+                                        configuration.MaxDistance));
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
-        serialReader.AddReading(serialReader.Reading() + kMinStep);
+        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
+                                        configuration.MinDistance,
+                                        configuration.MaxDistance));
     }
 }
 
@@ -358,5 +365,10 @@ void ofApp::draw(){
                                    ofGetWindowHeight() / 2);
         }
     }
+    
+    ofSetHexColor(kColorBlack);
+    stateFont.drawString(state.name,
+                         100,
+                         ofGetWindowHeight() / 2 + 200);
     
 }

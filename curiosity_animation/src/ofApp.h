@@ -31,7 +31,6 @@ private:
     void updateAudio(const int distance);
     void updateVideo(const int distance);
     void saveGame(const std::string reason);
-    void calculateFPS(const int distance);
     void killGame();
     
     int saveZoneStartsAt() const {

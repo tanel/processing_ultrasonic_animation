@@ -145,8 +145,6 @@ void ofApp::update(){
         }
     }
     
-    calculateFPS(distance);
-    
     updateVideo(distance);
     
     updateAudio(distance);
@@ -175,15 +173,6 @@ void ofApp::updateVideo(const int distance) {
         }
     }
     videoPlayer.update();
-}
-
-void ofApp::calculateFPS(const int distance) {
-    int millis = ofMap(distance,
-                       configuration.MaxDistance,
-                       configuration.MinDistance,
-                       1000 / configuration.StartingFramesPerSecond,
-                       1000 / configuration.FinishingFramesPerSecond);
-    state.fps = 1000 / millis;
 }
 
 void ofApp::killGame() {

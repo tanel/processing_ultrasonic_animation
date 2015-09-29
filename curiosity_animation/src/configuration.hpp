@@ -21,8 +21,6 @@ public:
     , DeathZone(100)
     , RestartIntervalSeconds(30)
     , ActiveSerialPort(0)
-    , StartingFramesPerSecond(6)
-    , FinishingFramesPerSecond(100)
     , StartingVolume(0.2)
     , FinishingVolume(1.0)
     , StartingHeartBeatSpeed(1.0)
@@ -30,7 +28,6 @@ public:
     , FrameRate(60)
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
-    , CheckAfterNFrames(20)
     , AutoSaveSeconds(10)
     , IntroFileName("intro.jpg"){}
     
@@ -42,8 +39,6 @@ public:
     int DeathZone;
     int RestartIntervalSeconds;
     int ActiveSerialPort;
-    int StartingFramesPerSecond;
-    int FinishingFramesPerSecond;
     float StartingVolume;
     float FinishingVolume;
     float StartingHeartBeatSpeed;
@@ -51,7 +46,6 @@ public:
     int FrameRate;
     std::string VideoFileName;
     bool SetFrame;
-    int CheckAfterNFrames;
     int AutoSaveSeconds;
     std::string IntroFileName;
     std::string OutroFileName;

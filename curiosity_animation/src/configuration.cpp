@@ -20,8 +20,6 @@ bool Configuration::Read() {
         xml.setValue("configuration:DeathZone", DeathZone);
         xml.setValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
         xml.setValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        xml.setValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
-        xml.setValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
         xml.setValue("configuration:StartingVolume", StartingVolume);
         xml.setValue("configuration:FinishingVolume", FinishingVolume);
         xml.setValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
@@ -43,8 +41,6 @@ bool Configuration::Read() {
         DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
         RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
         ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        StartingFramesPerSecond = xml.getValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
-        FinishingFramesPerSecond = xml.getValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
         StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);
         FinishingVolume = xml.getValue("configuration:FinishingVolume", FinishingVolume);
         StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);

@@ -8,16 +8,7 @@
 #include "Poco/URI.h"
 
 #include "serial_reader.hpp"
-
-class GameResult {
-public:
-    GameResult()
-    : Saves(0)
-    , Kills(0) {}
-    
-    int Saves;
-    int Kills;
-};
+#include "game_result.hpp"
 
 class GameStats {
 public:

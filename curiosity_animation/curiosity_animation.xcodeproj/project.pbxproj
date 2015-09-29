@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7495F6E01BBAB76400B9482B /* serial_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6DE1BBAB76400B9482B /* serial_reader.cpp */; settings = {ASSET_TAGS = (); }; };
+		7495F6E31BBAB82F00B9482B /* game_result.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6E11BBAB82F00B9482B /* game_result.cpp */; settings = {ASSET_TAGS = (); }; };
 		74ACA36B1B7911E2009EC19A /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3641B7911E2009EC19A /* tinyxml.cpp */; };
 		74ACA36C1B7911E2009EC19A /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3661B7911E2009EC19A /* tinyxmlerror.cpp */; };
 		74ACA36D1B7911E2009EC19A /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3671B7911E2009EC19A /* tinyxmlparser.cpp */; };
@@ -69,6 +70,8 @@
 /* Begin PBXFileReference section */
 		7495F6DE1BBAB76400B9482B /* serial_reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serial_reader.cpp; sourceTree = "<group>"; };
 		7495F6DF1BBAB76400B9482B /* serial_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serial_reader.hpp; sourceTree = "<group>"; };
+		7495F6E11BBAB82F00B9482B /* game_result.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game_result.cpp; sourceTree = "<group>"; };
+		7495F6E21BBAB82F00B9482B /* game_result.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game_result.hpp; sourceTree = "<group>"; };
 		74ACA3641B7911E2009EC19A /* tinyxml.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml.cpp; sourceTree = "<group>"; };
 		74ACA3651B7911E2009EC19A /* tinyxml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml.h; sourceTree = "<group>"; };
 		74ACA3661B7911E2009EC19A /* tinyxmlerror.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlerror.cpp; sourceTree = "<group>"; };
@@ -301,6 +304,8 @@
 			children = (
 				7495F6DE1BBAB76400B9482B /* serial_reader.cpp */,
 				7495F6DF1BBAB76400B9482B /* serial_reader.hpp */,
+				7495F6E11BBAB82F00B9482B /* game_result.cpp */,
+				7495F6E21BBAB82F00B9482B /* game_result.hpp */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -416,6 +421,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7495F6E31BBAB82F00B9482B /* game_result.cpp in Sources */,
 				7495F6E01BBAB76400B9482B /* serial_reader.cpp in Sources */,
 				74ACA36E1B7911E2009EC19A /* ofxXmlSettings.cpp in Sources */,
 				74ACA36C1B7911E2009EC19A /* tinyxmlerror.cpp in Sources */,

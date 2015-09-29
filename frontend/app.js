@@ -113,25 +113,26 @@ $(function () {
         $(".total_kills").text(window.stats.total.kills);
     };
 
+    window.startDate = moment();
+    window.endDate = moment();
+
     // Update the dates, which are visible in multiple charts
     window.displayDates = function () {
-        var today = moment(),
-            startDate = moment(),
-            endDate = moment();
+        var today = moment();
         $(".today").text(today.format(window.settings.dateFormat));
 
         // find the start and end date range of available data
         $.each(window.stats.history, function (key) {
             var date = moment(key);
-            if (!startDate || date.isBefore(startDate)) {
-                startDate = date;
+            if (date.isBefore(window.startDate)) {
+                window.startDate = moment(date);
             }
-            if (!endDate || date.isAfter(endDate)) {
-                endDate = date;
+            if (date.isAfter(window.endDate)) {
+                window.endDate = moment(date);
             }
         });
-        $(".start_date").text(startDate.format(window.settings.dateFormat));
-        $(".end_date").text(endDate.format(window.settings.dateFormat));
+        $(".start_date").text(window.startDate.format(window.settings.dateFormat));
+        $(".end_date").text(window.endDate.format(window.settings.dateFormat));
     };
 
     window.displayPieChart = function () {

@@ -1,10 +1,11 @@
-/*global $:false, window:false, Chart:false, document:false */
+/*global $:false, window:false, Chart:false, document:false, moment:false */
 "use strict";
 $(function () {
     // Configuration
     window.settings = {
         ajaxIntervalMillis: 10000,
         chartRotateIntervalMillis: 5000,
+        dateFormat: "DD.MM.YYYY",
     };
 
     // we'll keep data here
@@ -31,6 +32,8 @@ $(function () {
         console.log("rotating charts");
 
         window.ensureData();
+
+        window.displayDates();
 
         window.displayTotals();
 
@@ -103,10 +106,32 @@ $(function () {
         });
     };
 
+    // Update the total numbers, which are included in multiple charts
     window.displayTotals = function () {
         window.ensureData();
         $(".total_saves").text(window.stats.total.saves);
         $(".total_kills").text(window.stats.total.kills);
+    };
+
+    // Update the dates, which are visible in multiple charts
+    window.displayDates = function () {
+        var today = moment(),
+            startDate = moment(),
+            endDate = moment();
+        $(".today").text(today.format(window.settings.dateFormat));
+
+        // find the start and end date range of available data
+        $.each(window.stats.history, function (key) {
+            var date = moment(key);
+            if (!startDate || date.isBefore(startDate)) {
+                startDate = date;
+            }
+            if (!endDate || date.isAfter(endDate)) {
+                endDate = date;
+            }
+        });
+        $(".start_date").text(startDate.format(window.settings.dateFormat));
+        $(".end_date").text(endDate.format(window.settings.dateFormat));
     };
 
     window.displayPieChart = function () {

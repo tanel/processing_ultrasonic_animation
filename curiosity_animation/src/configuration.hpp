@@ -48,7 +48,6 @@ public:
     bool SetFrame;
     int AutoSaveSeconds;
     std::string IntroFileName;
-    std::string OutroFileName;
 };
 
 

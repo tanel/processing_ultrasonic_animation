@@ -61,9 +61,6 @@ void ofApp::setup(){
     if (!intro.loadImage(ofToDataPath(configuration.IntroFileName))) {
         std::cerr << "Error loading intro" << std::endl;
     }
-    if (!outro.loadImage(ofToDataPath(configuration.OutroFileName))) {
-        std::cerr << "Error loading outro" << std::endl;
-    }
 }
 
 const int kForward = 1;
@@ -303,9 +300,8 @@ void ofApp::draw(){
     hudFont.drawString("distance=" + ofToString(distance), 10, y);
     hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
     hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    hudFont.drawString("fps=" + ofToString(state.fps), 600, y);
-    hudFont.drawString("saves=" + ofToString(gameStats.TotalSaves()), 800, y);
-    hudFont.drawString("kills=" + ofToString(gameStats.TotalKills()), 900, y);
+    hudFont.drawString("saves=" + ofToString(gameStats.TotalSaves()), 600, y);
+    hudFont.drawString("kills=" + ofToString(gameStats.TotalKills()), 800, y);
     
     y = 40;
     hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);

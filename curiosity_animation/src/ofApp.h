@@ -61,7 +61,6 @@ private:
     ofFile eventLog;
     GameStats gameStats;
     
-    // Intro and outro pics
+    // Intro pic
     ofImage intro;
-    ofImage outro;
 };

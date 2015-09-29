@@ -113,6 +113,7 @@ $(function () {
         $(".total_kills").text(window.stats.total.kills);
     };
 
+    // Until we have real data from backend, use today's date
     window.startDate = moment();
     window.endDate = moment();
 

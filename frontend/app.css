@@ -1,0 +1,9 @@
+.stats {
+	border: 1px solid;
+	margin: 5px;
+	padding: 5px;
+}
+#barchart {
+	width: 1000px;
+	height: 200px;
+}

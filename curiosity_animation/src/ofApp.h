@@ -2,74 +2,68 @@
 
 #include "ofMain.h"
 
+#include "Poco/String.h"
+#include "Poco/LocalDateTime.h"
+#include "Poco/DateTimeFormatter.h"
+#include "Poco/URI.h"
+
+const int kNumOfValues = 5;
+
 class SerialReader : public ofThread {
 public:
     SerialReader()
-        : lastReading(0)
-        , activeSerialPort(0) {}
+    : activeSerialPort(0) {}
     
-    void threadedFunction() {
-        
-        serialPort.listDevices();
-        vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-        for (int i = 0; i < deviceList.size(); i++) {
-            std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
-        }
-        if (activeSerialPort < deviceList.size()) {
-            if (!serialPort.setup(activeSerialPort, 9600)) {
-                std::cerr << "Failed to connect to serial device! "
-                << deviceList[activeSerialPort].getDeviceName() << std::endl;
-            }
-        }
-        
-        while(isThreadRunning()) {
-            if (!serialPort.isInitialized()) {
-                continue;
-            }
-            
-            if (!serialPort.available()) {
-                continue;
-            }
-            char c = serialPort.readByte();
-            if ('\n' != c) {
-                serialbuf << c;
-                continue;
-            }
-
-            std::string s = serialbuf.str();
-            serialbuf.str("");
-
-            std::cout << "serial thread input=" << s << std::endl;
-
-            if (!s.empty()) {
-                // FIXME: lock access
-                lastReading = ofToInt(s);
-            }
-        }
-        
-        // done
-    }
-
-    int lastReading;
+    void threadedFunction();
+    
+    void AddReading(const int value);
+    
+    int reading() const;
+    
     int activeSerialPort;
-
+    
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
     std::stringstream serialbuf;
+    
+    std::deque<int> values;
+};
+
+class GameResult {
+public:
+    GameResult()
+    : Saves(0)
+    , Kills(0) {}
+    
+    int Saves;
+    int Kills;
 };
 
 class GameStats {
 public:
-    GameStats()
-    : Saves(0)
-    , Kills(0) {}
+    GameStats() {}
     
-    bool Read();
-    bool Write() const;
+    void Read();
     
-    int Saves;
-    int Kills;
+    void AddKill();
+    void AddSave();
+    
+    int TotalSaves() const {
+        return total.Saves;
+    }
+    
+    int TotalKills() const {
+        return total.Kills;
+    }
+    
+private:
+    GameResult total;
+    std::map<std::string, GameResult> history;
+    
+    void write() const;
+    
+    static std::string currentDate();
 };
 
 class Configuration {
@@ -124,65 +118,55 @@ const std::string kStateKilled = "killed";
 const std::string kStateStats = "stats";
 
 class GameState {
-    
 public:
     GameState()
     : name(kStateWaiting)
     , saveZoneActive(false)
-    , minDistance(0)
     , finishedAt(0)
     , gameWasSaved(false)
-    , currentDistance(0)
-    , previousDistance(currentDistance)
-    , previousFrameDrawnAt(0)
-    , previousDistanceChangeAt(0)
-    , destinationFrame(0)
-    , frameAtLastAnimationStart(0)
+    , lastUserInputAt(0)
     , fps(0) {}
     
     // Current game state
     std::string name;
     bool saveZoneActive;
-    int minDistance;
     long finishedAt;
     bool gameWasSaved;
+    long lastUserInputAt;
     
     // App state, you should not touch these;
-    int currentDistance;
-    int previousDistance;
-    long previousFrameDrawnAt;
-    long previousDistanceChangeAt;
-    int destinationFrame;
-    int frameAtLastAnimationStart;
     int fps;
 };
 
-class ofApp : public ofBaseApp{
-    
+class ofApp : public ofBaseApp {
 public:
     void setup();
     void exit();
     void update();
     void draw();
-    
     void keyPressed(int key);
     
 private:
-    int frameForDistance();
-    void setDistance(const std::string reason, const int value);
+    int frameForDistance(const int distance) const;
     bool loadVideo();
     void animateVideo(const int direction);
     bool isPlaying();
-    bool isAccepingInput();
     void restartGame();
     void startGame();
-    void updateAudio();
+    void updateAudio(const int distance);
+    void updateVideo(const int distance);
     void saveGame(const std::string reason);
-    void calculateFPS();
+    void calculateFPS(const int distance);
     void killGame();
-    void determineVideoState();
-    void readSerial();
-
+    
+    int saveZoneStartsAt() const {
+        return std::abs(configuration.MaxDistance - configuration.DeathZone);
+    }
+    
+    int distanceMoved(const int distance) const {
+        return std::abs(configuration.MaxDistance - distance);
+    }
+    
     Configuration configuration;
     
     GameState state;
@@ -195,6 +179,9 @@ private:
     ofSoundPlayer heartbeatSound;
     
     ofVideoPlayer videoPlayer;
+    
+    // cached from videoplayer
+    int totalNumOfFrames;
     
     ofFile eventLog;
     GameStats gameStats;

@@ -333,8 +333,8 @@ void ofApp::draw(){
             text = "TOTAL KILLS: " + ofToString(gameStats.TotalKills());
         }
         hudFont.drawString(text,
-                     ofGetWindowWidth() / 2 - 100,
-                     ofGetWindowHeight() / 2);
+                           ofGetWindowWidth() / 2 - 100,
+                           ofGetWindowHeight() / 2);
     }
     
     // Draw intro image, if game has not started yet
@@ -351,10 +351,12 @@ void ofApp::draw(){
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
         
         // Draw overlay, for debugging
-        ofSetHexColor(kColorBlack);
-        overlayFont.drawString(ofToString(distance),
-                           100,
-                           ofGetWindowHeight() / 2);
+        if (configuration.DebugOverlay) {
+            ofSetHexColor(kColorBlack);
+            overlayFont.drawString(ofToString(distance),
+                                   100,
+                                   ofGetWindowHeight() / 2);
+        }
     }
-
+    
 }

@@ -29,7 +29,8 @@ public:
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
     , AutoSaveSeconds(10)
-    , IntroFileName("intro.jpg"){}
+    , IntroFileName("intro.jpg")
+    , DebugOverlay(true) {}
     
     bool Read();
     
@@ -48,6 +49,7 @@ public:
     bool SetFrame;
     int AutoSaveSeconds;
     std::string IntroFileName;
+    bool DebugOverlay;
 };
 
 

@@ -7,28 +7,7 @@
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/URI.h"
 
-const int kNumOfValues = 5;
-
-class SerialReader : public ofThread {
-public:
-    SerialReader()
-    : activeSerialPort(0) {}
-    
-    void threadedFunction();
-    
-    void AddReading(const int value);
-    
-    int reading() const;
-    
-    int activeSerialPort;
-    
-private:
-    // Serial port, for reading distance from ultrasonic sensor.
-    ofSerial serialPort;
-    std::stringstream serialbuf;
-    
-    std::deque<int> values;
-};
+#include "serial_reader.hpp"
 
 class GameResult {
 public:

@@ -35,11 +35,16 @@ void ofApp::setup(){
     serialReader.startThread();
     
     // HUD
-    if (!f.loadFont("verdana.ttf", 12, true, true)) {
-        std::cerr << "Error loading font" << std::endl;
+    if (!hudFont.loadFont("verdana.ttf", 12, true, true)) {
+        std::cerr << "Error loading HUD font" << std::endl;
     }
-    f.setLineHeight(18.0f);
-    f.setLetterSpacing(1.037);
+    hudFont.setLineHeight(18.0f);
+    hudFont.setLetterSpacing(1.037);
+    
+    // Overlay
+    if (!overlayFont.loadFont("verdana.ttf", 300, true, true)) {
+        std::cerr << "Error loading overlay font" << std::endl;
+    }
     
     // Audio
     if (!heartbeatSound.loadSound("2.mp3")) {
@@ -212,7 +217,7 @@ void ofApp::saveGame(const std::string reason) {
 void ofApp::keyPressed(int key) {
     ofLogNotice() << "keyPressed key=" << key;
     
-    const int kMinStep = 100;
+    const int kMinStep = 50;
     
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
@@ -306,19 +311,19 @@ void ofApp::draw(){
     const int distance = serialReader.reading();
     
     int y = 20;
-    f.drawString("distance=" + ofToString(distance), 10, y);
-    f.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
-    f.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    f.drawString("fps=" + ofToString(state.fps), 600, y);
-    f.drawString("saves=" + ofToString(gameStats.TotalSaves()), 800, y);
-    f.drawString("kills=" + ofToString(gameStats.TotalKills()), 900, y);
+    hudFont.drawString("distance=" + ofToString(distance), 10, y);
+    hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
+    hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
+    hudFont.drawString("fps=" + ofToString(state.fps), 600, y);
+    hudFont.drawString("saves=" + ofToString(gameStats.TotalSaves()), 800, y);
+    hudFont.drawString("kills=" + ofToString(gameStats.TotalKills()), 900, y);
     
     y = 40;
-    f.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
-    f.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
-    f.drawString("kill active=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
-    f.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
-    f.drawString("state=" + state.name, 800, y);
+    hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
+    hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
+    hudFont.drawString("kill active=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
+    hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
+    hudFont.drawString("state=" + state.name, 800, y);
     
     const int kMargin = 50;
     
@@ -342,7 +347,7 @@ void ofApp::draw(){
         } else {
             text = "TOTAL KILLS: " + ofToString(gameStats.TotalKills());
         }
-        f.drawString(text,
+        hudFont.drawString(text,
                      ofGetWindowWidth() / 2 - 100,
                      ofGetWindowHeight() / 2);
     }
@@ -359,5 +364,12 @@ void ofApp::draw(){
         ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        
+        // Draw overlay, for debugging
+        ofSetHexColor(kColorBlack);
+        overlayFont.drawString(ofToString(distance),
+                           100,
+                           ofGetWindowHeight() / 2);
     }
+
 }

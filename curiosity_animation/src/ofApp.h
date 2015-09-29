@@ -49,7 +49,8 @@ private:
     SerialReader serialReader;
     
     // HUD
-    ofTrueTypeFont f;
+    ofTrueTypeFont hudFont;
+    ofTrueTypeFont overlayFont;
     
     ofSoundPlayer heartbeatSound;
     

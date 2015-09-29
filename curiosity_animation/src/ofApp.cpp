@@ -313,7 +313,7 @@ void ofApp::draw(){
     y = 40;
     hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
     hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
-    hudFont.drawString("kill active=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
+    hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
     hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
     hudFont.drawString("state=" + state.name, 800, y);
     

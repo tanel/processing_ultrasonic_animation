@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		7495F6E01BBAB76400B9482B /* serial_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6DE1BBAB76400B9482B /* serial_reader.cpp */; settings = {ASSET_TAGS = (); }; };
 		7495F6E31BBAB82F00B9482B /* game_result.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6E11BBAB82F00B9482B /* game_result.cpp */; settings = {ASSET_TAGS = (); }; };
+		7495F6E61BBAB8AA00B9482B /* game_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6E41BBAB8AA00B9482B /* game_state.cpp */; settings = {ASSET_TAGS = (); }; };
+		7495F6E91BBAB8F000B9482B /* game_stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6E71BBAB8F000B9482B /* game_stats.cpp */; settings = {ASSET_TAGS = (); }; };
+		7495F6EC1BBAB95700B9482B /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7495F6EA1BBAB95700B9482B /* configuration.cpp */; settings = {ASSET_TAGS = (); }; };
 		74ACA36B1B7911E2009EC19A /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3641B7911E2009EC19A /* tinyxml.cpp */; };
 		74ACA36C1B7911E2009EC19A /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3661B7911E2009EC19A /* tinyxmlerror.cpp */; };
 		74ACA36D1B7911E2009EC19A /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3671B7911E2009EC19A /* tinyxmlparser.cpp */; };
@@ -72,6 +75,12 @@
 		7495F6DF1BBAB76400B9482B /* serial_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = serial_reader.hpp; sourceTree = "<group>"; };
 		7495F6E11BBAB82F00B9482B /* game_result.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game_result.cpp; sourceTree = "<group>"; };
 		7495F6E21BBAB82F00B9482B /* game_result.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game_result.hpp; sourceTree = "<group>"; };
+		7495F6E41BBAB8AA00B9482B /* game_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_state.cpp; path = ../game_state.cpp; sourceTree = "<group>"; };
+		7495F6E51BBAB8AA00B9482B /* game_state.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = game_state.hpp; path = ../game_state.hpp; sourceTree = "<group>"; };
+		7495F6E71BBAB8F000B9482B /* game_stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game_stats.cpp; sourceTree = "<group>"; };
+		7495F6E81BBAB8F000B9482B /* game_stats.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = game_stats.hpp; sourceTree = "<group>"; };
+		7495F6EA1BBAB95700B9482B /* configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = configuration.cpp; path = src/configuration.cpp; sourceTree = "<group>"; };
+		7495F6EB1BBAB95700B9482B /* configuration.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = configuration.hpp; path = src/configuration.hpp; sourceTree = "<group>"; };
 		74ACA3641B7911E2009EC19A /* tinyxml.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml.cpp; sourceTree = "<group>"; };
 		74ACA3651B7911E2009EC19A /* tinyxml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml.h; sourceTree = "<group>"; };
 		74ACA3661B7911E2009EC19A /* tinyxmlerror.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlerror.cpp; sourceTree = "<group>"; };
@@ -288,6 +297,8 @@
 		E4B69B4A0A3A1720003C02F2 = {
 			isa = PBXGroup;
 			children = (
+				7495F6EA1BBAB95700B9482B /* configuration.cpp */,
+				7495F6EB1BBAB95700B9482B /* configuration.hpp */,
 				74ACA36F1B7911F2009EC19A /* addons */,
 				74E93E4D1B66744500394CB9 /* data */,
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
@@ -302,6 +313,10 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				7495F6E71BBAB8F000B9482B /* game_stats.cpp */,
+				7495F6E81BBAB8F000B9482B /* game_stats.hpp */,
+				7495F6E41BBAB8AA00B9482B /* game_state.cpp */,
+				7495F6E51BBAB8AA00B9482B /* game_state.hpp */,
 				7495F6DE1BBAB76400B9482B /* serial_reader.cpp */,
 				7495F6DF1BBAB76400B9482B /* serial_reader.hpp */,
 				7495F6E11BBAB82F00B9482B /* game_result.cpp */,
@@ -423,14 +438,17 @@
 			files = (
 				7495F6E31BBAB82F00B9482B /* game_result.cpp in Sources */,
 				7495F6E01BBAB76400B9482B /* serial_reader.cpp in Sources */,
+				7495F6E61BBAB8AA00B9482B /* game_state.cpp in Sources */,
 				74ACA36E1B7911E2009EC19A /* ofxXmlSettings.cpp in Sources */,
 				74ACA36C1B7911E2009EC19A /* tinyxmlerror.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				74ACA36B1B7911E2009EC19A /* tinyxml.cpp in Sources */,
 				74F126611BB81EC800487B14 /* ofxJSONElement.cpp in Sources */,
+				7495F6EC1BBAB95700B9482B /* configuration.cpp in Sources */,
 				74ACA36D1B7911E2009EC19A /* tinyxmlparser.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				74F1265C1BB81EB700487B14 /* jsoncpp.cpp in Sources */,
+				7495F6E91BBAB8F000B9482B /* game_stats.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

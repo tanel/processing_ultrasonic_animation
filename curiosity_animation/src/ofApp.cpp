@@ -27,7 +27,7 @@ void ofApp::setup(){
     
     ofSetFullscreen(configuration.Fullscreen);
     
-    ofSetWindowShape(1000, 200);
+    //ofSetWindowShape(1000, 200);
     ofSetWindowPosition(0, 0);
     
     // Distance reader

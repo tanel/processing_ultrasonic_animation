@@ -4,6 +4,7 @@ $(function () {
     // Configuration
     window.settings = {
         ajaxIntervalMillis: 10000,
+        chartRotateIntervalMillis: 5000,
     };
 
     // we'll keep data here
@@ -24,8 +25,21 @@ $(function () {
     // update data with a given interval
     window.ajaxTimer = window.setInterval(window.ajaxFunc, window.settings.ajaxIntervalMillis);
 
+    // callback func chart rotating
+    window.chartRotateFunc = function () {
+        console.log("rotating charts");
+        window.currentChart = window.currentChart + 1;
+        if (window.currentChart > 3) {
+            window.currentChart = 0;
+        }
+        // Hide visible chart(s)
+        $('.stats').hide();
+        $('#chart' + String(window.currentChart)).show();
+    };
+
     // We'll rotate charts
     window.currentChart = 0;
+    window.chartRotateTimer = window.setInterval(window.chartRotateFunc, window.settings.chartRotateIntervalMillis);
 
     window.updateUI = function () {
         console.log("updating charts");

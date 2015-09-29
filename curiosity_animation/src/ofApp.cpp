@@ -274,17 +274,14 @@ int ofApp::frameForDistance(const int distance) const {
         d = configuration.MinDistance;
     } else if (kStateSaved == state.name) {
         d = configuration.MaxDistance;
-    } else if (kStateWaiting == state.name) {
-        d = configuration.MaxDistance
-        ;
     } else {
         d = distance;
     }
     return ofMap(d,
                  configuration.MinDistance,
                  configuration.MaxDistance,
-                 totalNumOfFrames,
-                 0);
+                 0,
+                 totalNumOfFrames);
 }
 
 const int kColorWhite = 0xFFFFFF;

@@ -104,7 +104,6 @@ $(function () {
     };
 
     window.displayTotals = function () {
-        console.log("updating (sub)totals");
         window.ensureData();
         $(".total_saves").text(window.stats.total.saves);
         $(".total_kills").text(window.stats.total.kills);

@@ -8,22 +8,12 @@
 
 #include "serial_reader.hpp"
 
-int SerialReader::reading() const {
-    if (values.empty()) {
-        return 0;
-    }
-    return std::accumulate(values.begin(), values.end(), 0) / values.size();
+int SerialReader::Reading() const {
+    return reading;
 }
 
-const int kNumOfValues = 5;
-
 void SerialReader::AddReading(const int value) {
-    if (!value) {
-        return;
-    }
-    std::cout << "serial thread input=" << value << std::endl;
-    values.push_front(value);
-    values.resize(std::min(kNumOfValues, int(values.size())));
+    reading = value;
 }
 
 void SerialReader::threadedFunction() {
@@ -32,10 +22,10 @@ void SerialReader::threadedFunction() {
     for (int i = 0; i < deviceList.size(); i++) {
         std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
     }
-    if (activeSerialPort < deviceList.size()) {
-        if (!serialPort.setup(activeSerialPort, 9600)) {
+    if (ActiveSerialPort < deviceList.size()) {
+        if (!serialPort.setup(ActiveSerialPort, 9600)) {
             std::cerr << "Failed to connect to serial device! "
-            << deviceList[activeSerialPort].getDeviceName() << std::endl;
+            << deviceList[ActiveSerialPort].getDeviceName() << std::endl;
         }
     }
     

@@ -31,7 +31,7 @@ void ofApp::setup(){
     ofSetWindowPosition(0, 0);
     
     // Distance reader
-    serialReader.activeSerialPort = configuration.ActiveSerialPort;
+    serialReader.ActiveSerialPort = configuration.ActiveSerialPort;
     serialReader.startThread();
     
     // HUD
@@ -87,7 +87,7 @@ bool ofApp::loadVideo() {
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
     
-    const int distance = serialReader.reading();
+    const int distance = serialReader.Reading();
     
     if (kStateWaiting == state.name) {
         if (distance) {
@@ -207,10 +207,10 @@ void ofApp::keyPressed(int key) {
     
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
-        serialReader.AddReading(serialReader.reading() - kMinStep);
+        serialReader.AddReading(serialReader.Reading() - kMinStep);
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
-        serialReader.AddReading(serialReader.reading() + kMinStep);
+        serialReader.AddReading(serialReader.Reading() + kMinStep);
     }
 }
 
@@ -294,7 +294,7 @@ void ofApp::draw(){
     // Update HUD
     ofSetColor(255);
     
-    const int distance = serialReader.reading();
+    const int distance = serialReader.Reading();
     
     int y = 20;
     hudFont.drawString("distance=" + ofToString(distance), 10, y);

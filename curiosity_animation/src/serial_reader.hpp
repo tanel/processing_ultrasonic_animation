@@ -16,22 +16,23 @@
 class SerialReader : public ofThread {
 public:
     SerialReader()
-    : activeSerialPort(0) {}
+    : ActiveSerialPort(0)
+    , reading(0) {}
     
     void threadedFunction();
     
     void AddReading(const int value);
     
-    int reading() const;
+    int Reading() const;
     
-    int activeSerialPort;
+    int ActiveSerialPort;
     
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
     std::stringstream serialbuf;
     
-    std::deque<int> values;
+    int reading;
 };
 
 #endif /* serial_reader_hpp */

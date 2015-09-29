@@ -20,6 +20,9 @@
 					<Add option="-O2" />
 					<Add directory="../of_v0.8.4_win_cb_release/addons/ofxXmlSettings/libs" />
 					<Add directory="../of_v0.8.4_win_cb_release/addons/ofxXmlSettings/src" />
+					<Add directory="../of_v0.8.4_win_cb_release/addons/ofxJSON/src" />
+					<Add directory="../of_v0.8.4_win_cb_release/addons/ofxJSON/libs" />
+					<Add directory="../of_v0.8.4_win_cb_release/addons/ofxJSON/libs/jsoncpp/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -118,6 +121,12 @@
 			<Add after='cmd /c if not exist &quot;$(PROJECT_DIR)bin/data&quot; mkdir &quot;$(PROJECT_DIR)bin/data&quot;' />
 			<Mode after="always" />
 		</ExtraCommands>
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/libs/jsoncpp/include/json/json-forwards.h" />
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/libs/jsoncpp/include/json/json.h" />
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/libs/jsoncpp/src/jsoncpp.cpp" />
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/src/ofxJSON.h" />
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/src/ofxJSONElement.cpp" />
+		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxJSON/src/ofxJSONElement.h" />
 		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxXmlSettings/libs/tinyxml.cpp" />
 		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxXmlSettings/libs/tinyxml.h" />
 		<Unit filename="../of_v0.8.4_win_cb_release/addons/ofxXmlSettings/libs/tinyxmlerror.cpp" />

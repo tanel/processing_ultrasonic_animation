@@ -1490,12 +1490,17 @@
 	"ofMain.h"
 	"ofApp.h"
 
-1441644695 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
+1443518031 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
 	"ofMain.h"
+	"Poco/String.h"
+	"Poco/LocalDateTime.h"
+	"Poco/DateTimeFormatter.h"
+	"Poco/URI.h"
 
-1441633819 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
+1443518031 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
 	"ofApp.h"
 	"ofxXmlSettings.h"
+	"ofxJSONElement.h"
 
 1439592397 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxxmlsettings\libs\tinyxml.cpp
 	<ctype.h>
@@ -1534,4 +1539,66 @@
 	<string.h>
 	"../libs/tinyxml.h"
 	"tinyxml.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\string.h
+	"Poco/Foundation.h"
+	"Poco/Ascii.h"
+	<cstring>
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\ascii.h
+	"Poco/Foundation.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\localdatetime.h
+	"Poco/Foundation.h"
+	"Poco/DateTime.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\datetime.h
+	"Poco/Foundation.h"
+	"Poco/Timestamp.h"
+	"Poco/Timespan.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\timespan.h
+	"Poco/Foundation.h"
+	"Poco/Timestamp.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\datetimeformatter.h
+	"Poco/Foundation.h"
+	"Poco/DateTime.h"
+	"Poco/LocalDateTime.h"
+
+1410249790 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\libs\poco\include\poco\uri.h
+	"Poco/Foundation.h"
+	<vector>
+
+1443518386 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxjson\src\ofxjsonelement.cpp
+	"ofxJSONElement.h"
+
+1443518386 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxjson\src\ofxjsonelement.h
+	<string>
+	"json/json.h"
+	"ofLog.h"
+	"ofURLFileLoader.h"
+
+1443518386 c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxjson\libs\jsoncpp\include\json\json.h
+	<cpptl/config.h>
+	"config.h"
+	"forwards.h"
+	"forwards.h"
+	<string>
+	<vector>
+	<map>
+	<cpptl/smallmap.h>
+	<cpptl/forwards.h>
+	"features.h"
+	"value.h"
+	<deque>
+	<iosfwd>
+	<stack>
+	<string>
+	"value.h"
+	<vector>
+	<string>
+	<stdlib.h>
+	"config.h"
+	<stdexcept>
 

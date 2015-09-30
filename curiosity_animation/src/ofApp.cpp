@@ -145,9 +145,10 @@ void ofApp::update(){
         }
     }
     
-    updateVideo(distance);
-    
-    updateAudio(distance);
+    if (kStateStarted == state.name || kStateKilled == state.name) {
+        updateVideo(distance);
+        updateAudio(distance);
+    }
 }
 
 void ofApp::updateVideo(const int distance) {
@@ -209,13 +210,11 @@ void ofApp::keyPressed(int key) {
     const int kMinStep = 50;
     
     if (OF_KEY_UP == key) {
-        // distance decreases as viewer approaches
-        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
+        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
                                         configuration.MinDistance,
                                         configuration.MaxDistance));
     } else if (OF_KEY_DOWN == key) {
-        // distance incrases as viewer steps back
-        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
+        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
                                         configuration.MinDistance,
                                         configuration.MaxDistance));
     }

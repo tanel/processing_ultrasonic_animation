@@ -96,8 +96,10 @@ void ofApp::update(){
     const int distance = serialReader.Reading();
     
     if (kStateWaiting == state.name) {
-        if (distance) {
-            startGame();
+        // If user finds itself *in* the save zone, we start the game.
+        if (distance < configuration.MaxDistance
+            && distance >= configuration.MaxDistance - configuration.DeathZone) {
+                startGame();
         }
         
     } else if (kStateStarted == state.name) {
@@ -109,16 +111,15 @@ void ofApp::update(){
         
         // If save zone is active and user finds itself in it,
         // then declare the game saved and finish it.
-        if (state.saveZoneActive && distance > saveZoneStartsAt()) {
+        if (state.saveZoneActive
+                && distance > configuration.MaxDistance - (configuration.DeathZone / 2)) {
             saveGame("user walked into save zone");
         }
         
         // If user has moved out of save zone, and game is not finished
         // yet, activate save zone
-        if (!state.saveZoneActive) {
-            if (distanceMoved(distance) > configuration.DeathZone * 2) {
-                state.saveZoneActive = true;
-            }
+        if (distance < configuration.MaxDistance - configuration.DeathZone) {
+            state.saveZoneActive = true;
         }
         
     } else if (kStateStatsKilled == state.name || kStateStatsSaved == state.name) {
@@ -158,6 +159,14 @@ void ofApp::showStats() {
 }
 
 void ofApp::updateVideo(const int distance) {
+    if (kStateWaiting == state.name
+            || kStateStatsKilled == state.name
+            || kStateStatsSaved == state.name) {
+        if (videoPlayer.isPlaying()) {
+            videoPlayer.stop();
+        }
+        return;
+    }
     int currentFrame = videoPlayer.getCurrentFrame();
     int destinationFrame = frameForDistance(distance);
     if (isPlaying()) {

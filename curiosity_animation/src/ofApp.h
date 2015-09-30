@@ -34,14 +34,6 @@ private:
     void killGame();
     void showStats();
     
-    int saveZoneStartsAt() const {
-        return std::abs(configuration.MaxDistance - configuration.DeathZone);
-    }
-    
-    int distanceMoved(const int distance) const {
-        return std::abs(configuration.MaxDistance - distance);
-    }
-    
     Configuration configuration;
     
     GameState state;

@@ -49,7 +49,7 @@ void SerialReader::threadedFunction() {
         if (!s.empty()) {
             int n = ofToInt(s);
             if (!enabled) {
-                std::cout << "serial reader is disabled, ignoring value" << s << std::endl;
+                std::cout << "serial reader is disabled, ignoring value " << s << std::endl;
             } else if (n > maxReading) {
                 std::cout << "serial reader value is too big, ignoring value " << s << std::endl;
             } else {

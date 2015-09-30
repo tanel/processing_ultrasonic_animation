@@ -31,15 +31,23 @@ void ofApp::setup(){
     ofSetWindowPosition(0, 0);
     
     // Distance reader
-    serialReader.activeSerialPort = configuration.ActiveSerialPort;
+    serialReader.ActiveSerialPort = configuration.ActiveSerialPort;
     serialReader.startThread();
     
     // HUD
-    if (!f.loadFont("verdana.ttf", 12, true, true)) {
-        std::cerr << "Error loading font" << std::endl;
+    if (!hudFont.loadFont("verdana.ttf", 12, true, true)) {
+        std::cerr << "Error loading HUD font" << std::endl;
     }
-    f.setLineHeight(18.0f);
-    f.setLetterSpacing(1.037);
+    hudFont.setLineHeight(18.0f);
+    hudFont.setLetterSpacing(1.037);
+    
+    // Overlay
+    if (!overlayFont.loadFont("verdana.ttf", 300, true, true)) {
+        std::cerr << "Error loading overlay font" << std::endl;
+    }
+    if (!stateFont.loadFont("verdana.ttf", 100, true, true)) {
+        std::cerr << "Error loading status font" << std::endl;
+    }
     
     // Audio
     if (!heartbeatSound.loadSound("2.mp3")) {
@@ -55,9 +63,6 @@ void ofApp::setup(){
     // Intro and outro pics
     if (!intro.loadImage(ofToDataPath(configuration.IntroFileName))) {
         std::cerr << "Error loading intro" << std::endl;
-    }
-    if (!outro.loadImage(ofToDataPath(configuration.OutroFileName))) {
-        std::cerr << "Error loading outro" << std::endl;
     }
 }
 
@@ -82,150 +87,10 @@ bool ofApp::loadVideo() {
     return true;
 }
 
-bool Configuration::Read() {
-    // Read configuration or create default
-    ofxXmlSettings xml;
-    if (!xml.loadFile("configuration.xml")) {
-        xml.setValue("configuration:Fullscreen", Fullscreen);
-        xml.setValue("configuration:MinDistance", MinDistance);
-        xml.setValue("configuration:MaxDistance", MaxDistance);
-        xml.setValue("configuration:DeathZone", DeathZone);
-        xml.setValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
-        xml.setValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        xml.setValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
-        xml.setValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
-        xml.setValue("configuration:StartingVolume", StartingVolume);
-        xml.setValue("configuration:FinishingVolume", FinishingVolume);
-        xml.setValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
-        xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
-        xml.setValue("configuration:FrameRate", FrameRate);
-        xml.setValue("configuration:VideoFileName", VideoFileName);
-        xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
-        xml.setValue("configuration:IntroFileName", IntroFileName);
-        xml.setValue("configuration:OutroFileName", OutroFileName);
-        
-        if (!xml.saveFile("configuration.xml")) {
-            std::cerr << "Error saving configuration file" << std::endl;
-            return false;
-        }
-    } else {
-        Fullscreen = xml.getValue("configuration:Fullscreen", Fullscreen);
-        MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
-        MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
-        DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
-        RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
-        ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        StartingFramesPerSecond = xml.getValue("configuration:StartingFramesPerSecond", StartingFramesPerSecond);
-        FinishingFramesPerSecond = xml.getValue("configuration:FinishingFramesPerSecond", FinishingFramesPerSecond);
-        StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);
-        FinishingVolume = xml.getValue("configuration:FinishingVolume", FinishingVolume);
-        StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
-        FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
-        FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
-        VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
-        AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
-        IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
-        OutroFileName = xml.getValue("configuration:OutroFileName", OutroFileName);
-    }
-    
-    return true;
-}
-
-void GameStats::AddKill() {
-    total.Kills++;
-    
-    std::string date = currentDate();
-    GameResult today = history[date];
-    today.Kills++;
-    history[date] = today;
-    
-    write();
-}
-
-void GameStats::AddSave() {
-    total.Saves++;
-    
-    std::string date = currentDate();
-    GameResult today = history[date];
-    today.Saves++;
-    history[date] = today;
-    
-    write();
-}
-
-void GameStats::Read() {
-    // Load in file contents, if file exists
-    std::string path = ofToDataPath("gamestats.json");
-    ofFile f(path, ofFile::ReadOnly);
-    if (!f.exists()) {
-        return;
-    }
-    
-    ofxJSONElement data;
-    f >> data;
-    
-    ofxJSONElement totalData = data["total"];
-    total.Saves = totalData["saves"].asInt();
-    total.Kills = totalData["kills"].asInt();
-    
-    ofxJSONElement historyData = data["history"];
-    Json::Value::Members members = historyData.getMemberNames();
-    for (int i = 0; i < members.size(); i++) {
-        std::string date = members[i];
-        Json::Value valueData = historyData.get(date, Json::Value());
-        ofxJSONElement resultData(valueData);
-        GameResult dateResult;
-        dateResult.Saves = resultData["saves"].asInt();
-        dateResult.Kills = resultData["kills"].asInt();
-        history[date] = dateResult;
-    }
-    
-    f.close();
-}
-
-std::string GameStats::currentDate() {
-    string timeFormat = "%Y-%m-%d";
-    Poco::LocalDateTime now;
-    return Poco::DateTimeFormatter::format(now, timeFormat);
-}
-
-void GameStats::write() const {
-    // Totals
-    ofxJSONElement totalData;
-    totalData["saves"] = total.Saves;
-    totalData["kills"] = total.Kills;
-    
-    // History
-    ofxJSONElement historyData;
-    for(std::map<std::string, GameResult>::const_iterator it = history.begin();
-        it != history.end();
-        ++it)
-    {
-        std::string date = it->first;
-        GameResult res = it->second;
-        ofxJSONElement dateData;
-        dateData["saves"] = res.Saves;
-        dateData["kills"] = res.Kills;
-        historyData[date] = dateData;
-    }
-    
-    // Put it all together
-    ofxJSONElement data;
-    data["total"] = totalData;
-    data["history"] = historyData;
-    
-    // And write it to a file
-    std::string path = ofToDataPath("gamestats.json");
-    ofFile f(path, ofFile::WriteOnly);
-    f << data;
-    f.flush();
-    f.close();
-}
-
 void ofApp::update(){
     long now = ofGetElapsedTimeMillis();
     
-    const int distance = serialReader.reading();
+    const int distance = serialReader.Reading();
     
     if (kStateWaiting == state.name) {
         if (distance) {
@@ -235,7 +100,7 @@ void ofApp::update(){
     
     // Determine if user is now in the death zone
     if (kStateStarted == state.name) {
-        if (distance && distance < configuration.MinDistance + configuration.DeathZone) {
+        if (distance < configuration.MinDistance + configuration.DeathZone) {
             killGame();
         }
     }
@@ -280,8 +145,6 @@ void ofApp::update(){
         }
     }
     
-    calculateFPS(distance);
-    
     updateVideo(distance);
     
     updateAudio(distance);
@@ -310,15 +173,6 @@ void ofApp::updateVideo(const int distance) {
         }
     }
     videoPlayer.update();
-}
-
-void ofApp::calculateFPS(const int distance) {
-    int millis = ofMap(distance,
-                       configuration.MaxDistance,
-                       configuration.MinDistance,
-                       1000 / configuration.StartingFramesPerSecond,
-                       1000 / configuration.FinishingFramesPerSecond);
-    state.fps = 1000 / millis;
 }
 
 void ofApp::killGame() {
@@ -352,14 +206,18 @@ void ofApp::saveGame(const std::string reason) {
 void ofApp::keyPressed(int key) {
     ofLogNotice() << "keyPressed key=" << key;
     
-    const int kMinStep = 100;
+    const int kMinStep = 50;
     
     if (OF_KEY_UP == key) {
         // distance decreases as viewer approaches
-        serialReader.AddReading(serialReader.reading() - kMinStep);
+        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
+                                        configuration.MinDistance,
+                                        configuration.MaxDistance));
     } else if (OF_KEY_DOWN == key) {
         // distance incrases as viewer steps back
-        serialReader.AddReading(serialReader.reading() + kMinStep);
+        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
+                                        configuration.MinDistance,
+                                        configuration.MaxDistance));
     }
 }
 
@@ -416,17 +274,14 @@ int ofApp::frameForDistance(const int distance) const {
         d = configuration.MinDistance;
     } else if (kStateSaved == state.name) {
         d = configuration.MaxDistance;
-    } else if (kStateWaiting == state.name) {
-        d = configuration.MaxDistance
-        ;
     } else {
         d = distance;
     }
     return ofMap(d,
                  configuration.MinDistance,
                  configuration.MaxDistance,
-                 totalNumOfFrames,
-                 0);
+                 0,
+                 totalNumOfFrames);
 }
 
 const int kColorWhite = 0xFFFFFF;
@@ -443,22 +298,21 @@ void ofApp::draw(){
     // Update HUD
     ofSetColor(255);
     
-    const int distance = serialReader.reading();
+    const int distance = serialReader.Reading();
     
     int y = 20;
-    f.drawString("distance=" + ofToString(distance), 10, y);
-    f.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
-    f.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    f.drawString("fps=" + ofToString(state.fps), 600, y);
-    f.drawString("saves=" + ofToString(gameStats.TotalSaves()), 800, y);
-    f.drawString("kills=" + ofToString(gameStats.TotalKills()), 900, y);
+    hudFont.drawString("distance=" + ofToString(distance), 10, y);
+    hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
+    hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
+    hudFont.drawString("saves=" + ofToString(gameStats.TotalSaves()), 600, y);
+    hudFont.drawString("kills=" + ofToString(gameStats.TotalKills()), 800, y);
     
     y = 40;
-    f.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
-    f.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
-    f.drawString("deathzone=" + ofToString(configuration.DeathZone ? "yes" : "no"), 400, y);
-    f.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
-    f.drawString("state=" + state.name, 800, y);
+    hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
+    hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
+    hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
+    hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
+    hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 800, y);
     
     const int kMargin = 50;
     
@@ -482,9 +336,9 @@ void ofApp::draw(){
         } else {
             text = "TOTAL KILLS: " + ofToString(gameStats.TotalKills());
         }
-        f.drawString(text,
-                     ofGetWindowWidth() / 2 - 100,
-                     ofGetWindowHeight() / 2);
+        hudFont.drawString(text,
+                           ofGetWindowWidth() / 2 - 100,
+                           ofGetWindowHeight() / 2);
     }
     
     // Draw intro image, if game has not started yet
@@ -499,59 +353,19 @@ void ofApp::draw(){
         ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-    }
-}
-
-int SerialReader::reading() const {
-    if (values.empty()) {
-        return 0;
-    }
-    return std::accumulate(values.begin(), values.end(), 0) / values.size();
-}
-
-void SerialReader::AddReading(const int value) {
-    if (!value) {
-        return;
-    }
-    std::cout << "serial thread input=" << value << std::endl;
-    values.push_front(value);
-    values.resize(std::min(kNumOfValues, int(values.size())));
-}
-
-void SerialReader::threadedFunction() {
-    serialPort.listDevices();
-    vector<ofSerialDeviceInfo> deviceList = serialPort.getDeviceList();
-    for (int i = 0; i < deviceList.size(); i++) {
-        std::cout << i << ". serial device: " << deviceList[i].getDeviceName() << std::endl;
-    }
-    if (activeSerialPort < deviceList.size()) {
-        if (!serialPort.setup(activeSerialPort, 9600)) {
-            std::cerr << "Failed to connect to serial device! "
-            << deviceList[activeSerialPort].getDeviceName() << std::endl;
+        
+        // Draw overlay, for debugging
+        if (configuration.DebugOverlay) {
+            ofSetHexColor(kColorBlack);
+            overlayFont.drawString(ofToString(distance),
+                                   100,
+                                   ofGetWindowHeight() / 2);
         }
     }
     
-    while(isThreadRunning()) {
-        if (!serialPort.isInitialized()) {
-            continue;
-        }
-        
-        if (!serialPort.available()) {
-            continue;
-        }
-        char c = serialPort.readByte();
-        if ('\n' != c) {
-            serialbuf << c;
-            continue;
-        }
-        
-        std::string s = serialbuf.str();
-        serialbuf.str("");
-        
-        if (!s.empty()) {
-            AddReading(ofToInt(s));
-        }
-    }
+    ofSetHexColor(kColorBlack);
+    stateFont.drawString(state.name,
+                         100,
+                         ofGetWindowHeight() / 2 + 200);
     
-    // done
 }

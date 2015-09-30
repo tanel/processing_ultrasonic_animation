@@ -1490,14 +1490,19 @@
 	"ofMain.h"
 	"ofApp.h"
 
-1443518031 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.h
 	"ofMain.h"
 	"Poco/String.h"
 	"Poco/LocalDateTime.h"
 	"Poco/DateTimeFormatter.h"
 	"Poco/URI.h"
+	"configuration.hpp"
+	"game_result.hpp"
+	"game_state.hpp"
+	"game_stats.hpp"
+	"serial_reader.hpp"
 
-1443518031 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
+1443519292 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
 	"ofApp.h"
 	"ofxXmlSettings.h"
 	"ofxJSONElement.h"
@@ -1601,4 +1606,75 @@
 	<stdlib.h>
 	"config.h"
 	<stdexcept>
+
+1443518386 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxjson\libs\jsoncpp\src\jsoncpp.cpp
+	"json/json.h"
+	<json/assertions.h>
+	<json/reader.h>
+	<json/value.h>
+	"json_tool.h"
+	<utility>
+	<cstdio>
+	<cassert>
+	<cstring>
+	<istream>
+	<stdlib.h>
+	<assert.h>
+	<json/assertions.h>
+	<json/value.h>
+	<json/writer.h>
+	"json_batchallocator.h"
+	<math.h>
+	<sstream>
+	<utility>
+	<cstring>
+	<cassert>
+	<cpptl/conststring.h>
+	<cstddef>
+	"json_internalarray.inl"
+	"json_internalmap.inl"
+	"json_valueiterator.inl"
+	<json/writer.h>
+	"json_tool.h"
+	<utility>
+	<assert.h>
+	<stdio.h>
+	<string.h>
+	<sstream>
+	<iomanip>
+
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\configuration.hpp
+	<stdio.h>
+	"ofMain.h"
+
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\game_result.hpp
+	<stdio.h>
+
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\game_stats.hpp
+	<stdio.h>
+	"ofMain.h"
+	"game_result.hpp"
+
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\serial_reader.hpp
+	<stdio.h>
+	"ofMain.h"
+
+1443611796 source:c:\processing_ultrasonic_animation\curiosity_animation\src\configuration.cpp
+	"configuration.hpp"
+	"ofxXmlSettings.h"
+
+1443611796 source:c:\processing_ultrasonic_animation\curiosity_animation\src\game_result.cpp
+	"game_result.hpp"
+
+1443611796 source:c:\processing_ultrasonic_animation\curiosity_animation\src\game_stats.cpp
+	"game_stats.hpp"
+	"ofxJSONElement.h"
+	"Poco/String.h"
+	"Poco/LocalDateTime.h"
+	"Poco/DateTimeFormatter.h"
+	"Poco/URI.h"
+
+1443611796 c:\processing_ultrasonic_animation\curiosity_animation\src\game_state.hpp
+	<stdio.h>
+	"ofMain.h"
 

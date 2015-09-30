@@ -27,7 +27,6 @@ bool Configuration::Read() {
         xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
-        xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         xml.setValue("configuration:IntroFileName", IntroFileName);
         xml.setValue("confoguration:DebugOverlay", DebugOverlay);
         
@@ -48,7 +47,6 @@ bool Configuration::Read() {
         FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
         FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
-        AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
         DebugOverlay = xml.getValue("configuration:DebugOverlay", DebugOverlay);
     }

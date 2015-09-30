@@ -32,6 +32,7 @@ private:
     void updateVideo(const int distance);
     void saveGame(const std::string reason);
     void killGame();
+    void showStats();
     
     int saveZoneStartsAt() const {
         return std::abs(configuration.MaxDistance - configuration.DeathZone);

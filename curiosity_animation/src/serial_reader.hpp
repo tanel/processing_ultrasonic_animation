@@ -17,7 +17,8 @@ class SerialReader : public ofThread {
 public:
     SerialReader()
     : ActiveSerialPort(0)
-    , reading(0) {}
+    , reading(0)
+    , enabled(false) {}
     
     void threadedFunction();
     
@@ -27,12 +28,21 @@ public:
     
     int ActiveSerialPort;
     
+    void Enable() {
+        enabled = true;
+    }
+    
+    void Disable() {
+        enabled = false;
+    }
+    
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
     std::stringstream serialbuf;
     
     int reading;
+    bool enabled;
 };
 
 #endif /* serial_reader_hpp */

@@ -28,7 +28,6 @@ public:
     , FrameRate(60)
     , VideoFileName("shoot2_anim_edit.mov")
     , SetFrame(true)
-    , AutoSaveSeconds(10)
     , IntroFileName("intro.jpg")
     , DebugOverlay(true) {}
     
@@ -47,7 +46,6 @@ public:
     int FrameRate;
     std::string VideoFileName;
     bool SetFrame;
-    int AutoSaveSeconds;
     std::string IntroFileName;
     bool DebugOverlay;
 };

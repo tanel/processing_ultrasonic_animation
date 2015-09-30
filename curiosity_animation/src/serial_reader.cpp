@@ -46,7 +46,7 @@ void SerialReader::threadedFunction() {
         std::string s = serialbuf.str();
         serialbuf.str("");
         
-        if (!s.empty()) {
+        if (!s.empty() && enabled) {
             AddReading(ofToInt(s));
         }
     }

@@ -64,6 +64,8 @@ void ofApp::setup(){
     if (!intro.loadImage(ofToDataPath(configuration.IntroFileName))) {
         std::cerr << "Error loading intro" << std::endl;
     }
+    
+    serialReader.Enable();
 }
 
 const int kForward = 1;
@@ -96,57 +98,62 @@ void ofApp::update(){
         if (distance) {
             startGame();
         }
-    }
-    
-    // Determine if user is now in the death zone
-    if (kStateStarted == state.name) {
+        
+    } else if (kStateStarted == state.name) {
+        
+        // Determine if user is now in the death zone
         if (distance < configuration.MinDistance + configuration.DeathZone) {
             killGame();
         }
-    }
-    
-    // If save zone is active and user finds itself in it,
-    // then declare the game saved and finish it.
-    if (kStateStarted == state.name) {
+        
+        // If save zone is active and user finds itself in it,
+        // then declare the game saved and finish it.
         if (state.saveZoneActive && distance > saveZoneStartsAt()) {
             saveGame("user walked into save zone");
         }
-    }
-    
-    // If user has moved out of save zone, and game is not finished
-    // yet, activate save zone
-    if (kStateStarted == state.name) {
+        
+        // If user has moved out of save zone, and game is not finished
+        // yet, activate save zone
         if (!state.saveZoneActive) {
             if (distanceMoved(distance) > configuration.DeathZone * 2) {
                 state.saveZoneActive = true;
             }
         }
-    }
-    
-    // Restart if needed
-    if (kStateStats == state.name) {
+        
+    } else if (kStateStatsKilled == state.name || kStateStatsSaved == state.name) {
         if (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000)) {
             restartGame();
         }
-    }
-    
-    // If nothing has happened for a while, save game automatically
-    if (kStateStarted == state.name) {
-        if (state.lastUserInputAt < now - (configuration.AutoSaveSeconds*1000)) {
-            saveGame("automatically saved because of no user action");
+        
+    } else if (kStateKilled == state.name || kStateSaved == state.name) {
+        int destinationFrame = frameForDistance(distance);
+        if (destinationFrame == videoPlayer.getCurrentFrame()) {
+            showStats();
         }
-    }
-    
-    // if video has stopped playing and game is killed or saved, move into stats state
-    if (kStateKilled == state.name || kStateSaved == state.name) {
-        if (!isPlaying()) {
-            state.name = kStateStats;
-            state.finishedAt = now;
-        }
+        
+    } else {
+        throw("invalid state");
     }
     
     updateVideo(distance);
     updateAudio(distance);
+}
+
+void ofApp::showStats() {
+    long now = ofGetElapsedTimeMillis();
+    
+    serialReader.Disable();
+    
+    std::cout << "Showing stats " << now << std::endl;
+    
+    if (kStateKilled == state.name) {
+        state.name = kStateStatsKilled;
+    } else if (kStateSaved == state.name) {
+        state.name = kStateStatsSaved;
+    } else {
+        throw("invalid state");
+    }
+    state.finishedAt = now;
 }
 
 void ofApp::updateVideo(const int distance) {
@@ -177,12 +184,13 @@ void ofApp::updateVideo(const int distance) {
 void ofApp::killGame() {
     long now = ofGetElapsedTimeMillis();
     
+    serialReader.Disable();
+    
     std::cout << "Game finished with kill at " << now << std::endl;
     
     eventLog << "killed=" << now << std::endl;
     
     state.name = kStateKilled;
-    state.gameWasSaved = false;
     
     gameStats.AddKill();
 }
@@ -197,7 +205,6 @@ void ofApp::saveGame(const std::string reason) {
     eventLog << "saved=" << now << std::endl;
     
     state.name = kStateSaved;
-    state.gameWasSaved = true;
     
     gameStats.AddSave();
 }
@@ -208,11 +215,11 @@ void ofApp::keyPressed(int key) {
     const int kMinStep = 50;
     
     if (OF_KEY_UP == key) {
-        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
+        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
                                         configuration.MinDistance,
                                         configuration.MaxDistance));
     } else if (OF_KEY_DOWN == key) {
-        serialReader.AddReading(ofClamp(serialReader.Reading() - kMinStep,
+        serialReader.AddReading(ofClamp(serialReader.Reading() + kMinStep,
                                         configuration.MinDistance,
                                         configuration.MaxDistance));
     }
@@ -220,18 +227,17 @@ void ofApp::keyPressed(int key) {
 
 void ofApp::updateAudio(const int distance) {
     // Game over, dudes
-    if (kStateStats == state.name) {
+    if (kStateStatsSaved == state.name || kStateStatsKilled == state.name) {
         if (heartbeatSound.getIsPlaying()) {
             heartbeatSound.stop();
         }
-        return;
     } else {
         if (!heartbeatSound.getIsPlaying()) {
             heartbeatSound.play();
         }
-        heartbeatSound.setSpeed(ofMap(distance,
-                                      configuration.MinDistance,
-                                      configuration.MaxDistance,
+        heartbeatSound.setSpeed(ofMap(videoPlayer.getCurrentFrame(),
+                                      0,
+                                      totalNumOfFrames,
                                       configuration.StartingHeartBeatSpeed,
                                       configuration.FinishingHeartBeatSpeed));
     }
@@ -243,6 +249,8 @@ void ofApp::restartGame() {
     
     state = GameState();
     
+    serialReader.Enable();
+    
     if (!loadVideo()) {
         std::cerr << "Error loading video after kill" << std::endl;
     }
@@ -253,6 +261,8 @@ void ofApp::restartGame() {
 
 void ofApp::startGame() {
     long now = ofGetElapsedTimeMillis();
+    
+    serialReader.Enable();
     
     std::cout << "Game started at " << now << std::endl;
     
@@ -267,12 +277,14 @@ void ofApp::startGame() {
 int ofApp::frameForDistance(const int distance) const {
     int d(0);
     // Override dest. frame on certain conditions, like kill, save, waiting etc
-    if (kStateKilled == state.name) {
-        d = configuration.MinDistance;
-    } else if (kStateSaved == state.name) {
+    if (kStateKilled == state.name || kStateStatsKilled == state.name) {
         d = configuration.MaxDistance;
-    } else {
+    } else if (kStateSaved == state.name || kStateStatsSaved == state.name) {
+        d = configuration.MinDistance;
+    } else if (kStateWaiting == state.name || kStateStarted == state.name) {
         d = distance;
+    } else {
+        throw("invalid state!");
     }
     return ofMap(d,
                  configuration.MinDistance,
@@ -286,7 +298,7 @@ const int kColorBlack = 0x000000;
 
 void ofApp::draw(){
     int restartCountdownSeconds = 0;
-    if (kStateStats == state.name) {
+    if (kStateStatsSaved == state.name || kStateStatsKilled == state.name) {
         long now = ofGetElapsedTimeMillis();
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
@@ -313,40 +325,30 @@ void ofApp::draw(){
     
     const int kMargin = 50;
     
-    // Draw finished state stats if game is over
-    if (kStateStats == state.name) {
-        if (state.gameWasSaved) {
-            ofSetHexColor(kColorWhite);
-        } else {
-            ofSetHexColor(kColorBlack);
-        }
+    if (kStateStatsSaved == state.name) {
+        ofSetHexColor(kColorWhite);
         ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
         ofFill();
-        if (state.gameWasSaved) {
-            ofSetHexColor(kColorBlack);
-        } else {
-            ofSetHexColor(kColorWhite);
-        }
-        std::string text("");
-        if (state.gameWasSaved) {
-            text = "LIFES SAVED: " + ofToString(gameStats.TotalSaves());
-        } else {
-            text = "TOTAL KILLS: " + ofToString(gameStats.TotalKills());
-        }
-        hudFont.drawString(text,
+        ofSetHexColor(kColorBlack);
+        hudFont.drawString("LIFES SAVED: " + ofToString(gameStats.TotalSaves()),
                            ofGetWindowWidth() / 2 - 100,
                            ofGetWindowHeight() / 2);
-    }
-    
-    // Draw intro image, if game has not started yet
-    if (kStateWaiting == state.name) {
+        
+    } else if (kStateStatsKilled == state.name) {
+        ofSetHexColor(kColorBlack);
+        ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        ofFill();
+        ofSetHexColor(kColorWhite);
+        hudFont.drawString("TOTAL KILLS: " + ofToString(gameStats.TotalKills()),
+                           ofGetWindowWidth() / 2 - 100,
+                           ofGetWindowHeight() / 2);
+        
+    } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-    }
-    
-    // Draw video, if its running
-    if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
+        
+    } else if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();
         videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -358,11 +360,15 @@ void ofApp::draw(){
                                    100,
                                    ofGetWindowHeight() / 2);
         }
+        
+    } else {
+        throw("invalid state");
     }
     
-    ofSetHexColor(kColorBlack);
-    stateFont.drawString(state.name,
-                         100,
-                         ofGetWindowHeight() / 2 + 200);
-    
+    if (configuration.DebugOverlay) {
+        ofSetHexColor(kColorBlack);
+        stateFont.drawString(state.name,
+                             100,
+                             ofGetWindowHeight() / 2 + 200);
+    }
 }

@@ -17,7 +17,8 @@ const std::string kStateWaiting = "waiting";
 const std::string kStateStarted = "started";
 const std::string kStateSaved = "saved";
 const std::string kStateKilled = "killed";
-const std::string kStateStats = "stats";
+const std::string kStateStatsSaved = "stats_saved";
+const std::string kStateStatsKilled = "stats_killed";
 
 class GameState {
 public:
@@ -25,16 +26,12 @@ public:
     : name(kStateWaiting)
     , saveZoneActive(false)
     , finishedAt(0)
-    , gameWasSaved(false)
-    , lastUserInputAt(0)
     , fps(0) {}
     
     // Current game state
     std::string name;
     bool saveZoneActive;
     long finishedAt;
-    bool gameWasSaved;
-    long lastUserInputAt;
     
     // App state, you should not touch these;
     int fps;

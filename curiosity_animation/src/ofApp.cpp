@@ -145,10 +145,8 @@ void ofApp::update(){
         }
     }
     
-    if (kStateStarted == state.name || kStateKilled == state.name) {
-        updateVideo(distance);
-        updateAudio(distance);
-    }
+    updateVideo(distance);
+    updateAudio(distance);
 }
 
 void ofApp::updateVideo(const int distance) {
@@ -232,8 +230,8 @@ void ofApp::updateAudio(const int distance) {
             heartbeatSound.play();
         }
         heartbeatSound.setSpeed(ofMap(distance,
-                                      configuration.MaxDistance,
                                       configuration.MinDistance,
+                                      configuration.MaxDistance,
                                       configuration.StartingHeartBeatSpeed,
                                       configuration.FinishingHeartBeatSpeed));
     }
@@ -276,7 +274,7 @@ int ofApp::frameForDistance(const int distance) const {
     } else {
         d = distance;
     }
-    return ofMap(configuration.MaxDistance - d,
+    return ofMap(d,
                  configuration.MinDistance,
                  configuration.MaxDistance,
                  0,

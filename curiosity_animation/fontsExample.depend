@@ -1497,7 +1497,7 @@
 	"Poco/DateTimeFormatter.h"
 	"Poco/URI.h"
 
-1443518031 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
+1443519292 source:c:\processing_ultrasonic_animation\curiosity_animation\src\ofapp.cpp
 	"ofApp.h"
 	"ofxXmlSettings.h"
 	"ofxJSONElement.h"
@@ -1601,4 +1601,40 @@
 	<stdlib.h>
 	"config.h"
 	<stdexcept>
+
+1443518386 source:c:\processing_ultrasonic_animation\of_v0.8.4_win_cb_release\addons\ofxjson\libs\jsoncpp\src\jsoncpp.cpp
+	"json/json.h"
+	<json/assertions.h>
+	<json/reader.h>
+	<json/value.h>
+	"json_tool.h"
+	<utility>
+	<cstdio>
+	<cassert>
+	<cstring>
+	<istream>
+	<stdlib.h>
+	<assert.h>
+	<json/assertions.h>
+	<json/value.h>
+	<json/writer.h>
+	"json_batchallocator.h"
+	<math.h>
+	<sstream>
+	<utility>
+	<cstring>
+	<cassert>
+	<cpptl/conststring.h>
+	<cstddef>
+	"json_internalarray.inl"
+	"json_internalmap.inl"
+	"json_valueiterator.inl"
+	<json/writer.h>
+	"json_tool.h"
+	<utility>
+	<assert.h>
+	<stdio.h>
+	<string.h>
+	<sstream>
+	<iomanip>
 

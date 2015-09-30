@@ -18,7 +18,8 @@ public:
     SerialReader()
     : ActiveSerialPort(0)
     , reading(0)
-    , enabled(false) {}
+    , enabled(false)
+    , maxReading(0) {}
     
     void threadedFunction();
     
@@ -36,12 +37,17 @@ public:
         enabled = false;
     }
     
+    void SetMaxReading(const int value) {
+        maxReading = value;
+    }
+
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
     std::stringstream serialbuf;
     
     int reading;
+    int maxReading;
     bool enabled;
 };
 

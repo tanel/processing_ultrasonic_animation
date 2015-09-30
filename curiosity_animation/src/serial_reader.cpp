@@ -46,8 +46,15 @@ void SerialReader::threadedFunction() {
         std::string s = serialbuf.str();
         serialbuf.str("");
         
-        if (!s.empty() && enabled) {
-            AddReading(ofToInt(s));
+        if (!s.empty()) {
+            int n = ofToInt(s);
+            if (!enabled) {
+                std::cout << "serial reader is disabled, ignoring value" << s << std::endl;
+            } else if (n > maxReading) {
+                std::cout << "serial reader value is too big, ignoring value " << s << std::endl;
+            } else {
+                AddReading(n);
+            }
         }
     }
     

@@ -65,6 +65,7 @@ void ofApp::setup(){
         std::cerr << "Error loading intro" << std::endl;
     }
     
+    serialReader.SetMaxReading(configuration.MaxDistance);
     serialReader.Enable();
 }
 

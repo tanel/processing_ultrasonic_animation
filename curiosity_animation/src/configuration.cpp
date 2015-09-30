@@ -11,9 +11,10 @@
 #include "ofxXmlSettings.h"
 
 bool Configuration::Read() {
+    std::string path = ofToDataPath("configuration.xml");
     // Read configuration or create default
     ofxXmlSettings xml;
-    if (!xml.loadFile("configuration.xml")) {
+    if (!xml.loadFile(path)) {
         xml.setValue("configuration:Fullscreen", Fullscreen);
         xml.setValue("configuration:MinDistance", MinDistance);
         xml.setValue("configuration:MaxDistance", MaxDistance);
@@ -30,7 +31,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:IntroFileName", IntroFileName);
         xml.setValue("confoguration:DebugOverlay", DebugOverlay);
         
-        if (!xml.saveFile("configuration.xml")) {
+        if (!xml.saveFile(path)) {
             std::cerr << "Error saving configuration file" << std::endl;
             return false;
         }

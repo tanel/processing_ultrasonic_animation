@@ -5,6 +5,10 @@
 void ofApp::setup(){
     ofBackground(54, 54, 54, 255);
     
+#ifdef TARGET_OSX
+    ofSetDataPathRoot("../Resources/data/");
+#endif
+    
     // start logging
     ofLogToFile("app.log");
     
@@ -16,10 +20,6 @@ void ofApp::setup(){
     if (!configuration.Read()) {
         std::cerr << "Error reading configuration" << std::endl;
     }
-    
-#ifdef TARGET_OSX
-    ofSetDataPathRoot("../Resources/data/");
-#endif
     
     gameStats.Read();
     
@@ -277,7 +277,7 @@ int ofApp::frameForDistance(const int distance) const {
     } else {
         d = distance;
     }
-    return ofMap(d,
+    return ofMap(configuration.MaxDistance - d,
                  configuration.MinDistance,
                  configuration.MaxDistance,
                  0,

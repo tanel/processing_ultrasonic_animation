@@ -18,7 +18,7 @@ public:
     : Fullscreen(false)
     , MinDistance(0)
     , MaxDistance(1000)
-    , DeathZone(100)
+    , DeathZone(40)
     , RestartIntervalSeconds(30)
     , ActiveSerialPort(0)
     , StartingVolume(0.2)

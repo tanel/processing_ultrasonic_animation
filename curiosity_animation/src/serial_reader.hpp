@@ -32,7 +32,11 @@ public:
     void Enable() {
         enabled = true;
     }
-    
+
+    void Clear() {
+        reading = 0;
+    }
+
     void Disable() {
         enabled = false;
     }

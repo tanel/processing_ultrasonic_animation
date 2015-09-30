@@ -258,7 +258,9 @@ void ofApp::restartGame() {
     std::cout << "Game restarted" << std::endl;
     
     state = GameState();
-    
+
+    serialReader.Disable();
+    serialReader.Clear();
     serialReader.Enable();
     
     if (!loadVideo()) {

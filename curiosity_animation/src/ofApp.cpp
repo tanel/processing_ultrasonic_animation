@@ -278,17 +278,17 @@ int ofApp::frameForDistance(const int distance) const {
     int d(0);
     // Override dest. frame on certain conditions, like kill, save, waiting etc
     if (kStateKilled == state.name || kStateStatsKilled == state.name) {
-        d = configuration.MaxDistance;
-    } else if (kStateSaved == state.name || kStateStatsSaved == state.name) {
         d = configuration.MinDistance;
+    } else if (kStateSaved == state.name || kStateStatsSaved == state.name) {
+        d = configuration.MaxDistance;
     } else if (kStateWaiting == state.name || kStateStarted == state.name) {
         d = distance;
     } else {
         throw("invalid state!");
     }
     return ofMap(d,
-                 configuration.MinDistance,
                  configuration.MaxDistance,
+                 configuration.MinDistance,
                  0,
                  totalNumOfFrames);
 }

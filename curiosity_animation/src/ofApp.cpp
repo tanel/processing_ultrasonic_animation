@@ -98,8 +98,8 @@ void ofApp::update(){
     if (kStateWaiting == state.name) {
         // If user finds itself *in* the save zone, we start the game.
         if (distance < configuration.MaxDistance
-            && distance >= configuration.MaxDistance - configuration.DeathZone) {
-                startGame();
+            && distance >= configuration.MaxDistance - configuration.SaveZone) {
+            startGame();
         }
         
     } else if (kStateStarted == state.name) {
@@ -112,13 +112,13 @@ void ofApp::update(){
         // If save zone is active and user finds itself in it,
         // then declare the game saved and finish it.
         if (state.saveZoneActive
-                && distance > configuration.MaxDistance - (configuration.DeathZone / 3)) {
+            && distance > configuration.MaxDistance - configuration.SaveZone) {
             saveGame("user walked into save zone");
         }
         
         // If user has moved out of save zone, and game is not finished
         // yet, activate save zone
-        if (distance < configuration.MaxDistance - configuration.DeathZone) {
+        if (distance < configuration.MaxDistance - configuration.SaveZone) {
             state.saveZoneActive = true;
         }
         
@@ -160,8 +160,8 @@ void ofApp::showStats() {
 
 void ofApp::updateVideo(const int distance) {
     if (kStateWaiting == state.name
-            || kStateStatsKilled == state.name
-            || kStateStatsSaved == state.name) {
+        || kStateStatsKilled == state.name
+        || kStateStatsSaved == state.name) {
         if (videoPlayer.isPlaying()) {
             videoPlayer.stop();
         }
@@ -258,7 +258,7 @@ void ofApp::restartGame() {
     std::cout << "Game restarted" << std::endl;
     
     state = GameState();
-
+    
     serialReader.Disable();
     serialReader.Clear();
     serialReader.Enable();
@@ -325,12 +325,12 @@ void ofApp::draw(){
     hudFont.drawString("distance=" + ofToString(distance), 10, y);
     hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
     hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    hudFont.drawString("saves=" + ofToString(gameStats.TotalSaves()), 600, y);
-    hudFont.drawString("kills=" + ofToString(gameStats.TotalKills()), 800, y);
+    hudFont.drawString("s/k=" + ofToString(gameStats.TotalSaves()), 600, y);
+    hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 800, y);
     
     y = 40;
     hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
-    hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 200, y);
+    hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
     hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
     hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
     hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 800, y);

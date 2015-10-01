@@ -19,6 +19,7 @@ bool Configuration::Read() {
         xml.setValue("configuration:MinDistance", MinDistance);
         xml.setValue("configuration:MaxDistance", MaxDistance);
         xml.setValue("configuration:DeathZone", DeathZone);
+        xml.setValue("configuration:SaveZone", SaveZone);
         xml.setValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
         xml.setValue("configuration:ActiveSerialPort", ActiveSerialPort);
         xml.setValue("configuration:StartingVolume", StartingVolume);
@@ -39,6 +40,7 @@ bool Configuration::Read() {
         MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
         MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
         DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
+        SaveZone = xml.getValue("configuration:SaveZone", SaveZone);
         RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
         ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
         StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);

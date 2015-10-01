@@ -19,6 +19,7 @@ public:
     , MinDistance(0)
     , MaxDistance(1000)
     , DeathZone(40)
+    , SaveZone(40)
     , RestartIntervalSeconds(30)
     , ActiveSerialPort(0)
     , StartingVolume(0.2)
@@ -37,6 +38,7 @@ public:
     int MinDistance;
     int MaxDistance;
     int DeathZone;
+    int SaveZone;
     int RestartIntervalSeconds;
     int ActiveSerialPort;
     float StartingVolume;

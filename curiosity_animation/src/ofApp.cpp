@@ -104,21 +104,20 @@ void ofApp::update(){
         
     } else if (kStateStarted == state.name) {
         
-        // Determine if user is now in the death zone
         if (distance < configuration.MinDistance + configuration.DeathZone) {
+            // Determine if user is now in the death zone
             killGame();
-        }
-        
-        // If save zone is active and user finds itself in it,
-        // then declare the game saved and finish it.
-        if (state.saveZoneActive
-            && distance > configuration.MaxDistance - configuration.SaveZone) {
+
+        } else if (state.saveZoneActive
+                   && distance > configuration.MaxDistance - configuration.SaveZone) {
+            // If save zone is active and user finds itself in it,
+            // then declare the game saved and finish it.
             saveGame("user walked into save zone");
-        }
-        
-        // If user has moved out of save zone, and game is not finished
-        // yet, activate save zone
-        if (distance < configuration.MaxDistance - configuration.SaveZone) {
+
+        } else if (!state.saveZoneActive
+                   && distance < configuration.MaxDistance - configuration.SaveZone) {
+            // If user has moved out of save zone, and game is not finished
+            // yet, activate save zone
             state.saveZoneActive = true;
         }
         

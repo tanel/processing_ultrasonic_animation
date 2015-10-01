@@ -32,11 +32,11 @@ public:
     void Enable() {
         enabled = true;
     }
-
+    
     void Clear() {
         reading = 0;
     }
-
+    
     void Disable() {
         enabled = false;
     }
@@ -44,7 +44,11 @@ public:
     void SetMaxReading(const int value) {
         maxReading = value;
     }
-
+    
+    int LastUserInputAt() const {
+        return lastUserInputAt;
+    }
+    
 private:
     // Serial port, for reading distance from ultrasonic sensor.
     ofSerial serialPort;
@@ -53,6 +57,7 @@ private:
     int reading;
     int maxReading;
     bool enabled;
+    int lastUserInputAt;
 };
 
 #endif /* serial_reader_hpp */

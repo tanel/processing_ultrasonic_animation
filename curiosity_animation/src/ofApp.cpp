@@ -107,20 +107,26 @@ void ofApp::update(){
         if (distance < configuration.MinDistance + configuration.DeathZone) {
             // Determine if user is now in the death zone
             killGame();
-
+            
         } else if (state.saveZoneActive
                    && distance > configuration.MaxDistance - configuration.SaveZone) {
             // If save zone is active and user finds itself in it,
             // then declare the game saved and finish it.
             saveGame("user walked into save zone");
-
+            
         } else if (!state.saveZoneActive
                    && distance < configuration.MaxDistance - configuration.SaveZone) {
             // If user has moved out of save zone, and game is not finished
             // yet, activate save zone
             state.saveZoneActive = true;
+            
+        } else if (serialReader.LastUserInputAt() < now - (configuration.AutoSaveSeconds*1000)) {
+
+            // If we have no new input for N seconds, consider the game
+            // as saved, as it seems that the user has left the building
+            saveGame("user has left the game");
         }
-        
+
     } else if (kStateStatsKilled == state.name || kStateStatsSaved == state.name) {
         if (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000)) {
             restartGame();
@@ -308,11 +314,18 @@ const int kColorWhite = 0xFFFFFF;
 const int kColorBlack = 0x000000;
 
 void ofApp::draw(){
+    long now = ofGetElapsedTimeMillis();
+    
     int restartCountdownSeconds = 0;
     if (kStateStatsSaved == state.name || kStateStatsKilled == state.name) {
-        long now = ofGetElapsedTimeMillis();
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
+    }
+    
+    int autosaveCountdownSeconds = 0;
+    if (kStateStarted == state.name) {
+        int inactiveSeconds = (now - serialReader.LastUserInputAt()) / 1000;
+        autosaveCountdownSeconds = configuration.AutoSaveSeconds - inactiveSeconds;
     }
     
     // Update HUD
@@ -324,7 +337,7 @@ void ofApp::draw(){
     hudFont.drawString("distance=" + ofToString(distance), 10, y);
     hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
     hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    hudFont.drawString("s/k=" + ofToString(gameStats.TotalSaves()), 600, y);
+    hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 600, y);
     hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 800, y);
     
     y = 40;
@@ -332,10 +345,11 @@ void ofApp::draw(){
     hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
     hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
     hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
-    hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 800, y);
+    hudFont.drawString("autosave=" + ofToString(autosaveCountdownSeconds), 800, y);
+    
     
     const int kMargin = 50;
-    
+
     if (kStateStatsSaved == state.name) {
         ofSetHexColor(kColorWhite);
         ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -344,7 +358,7 @@ void ofApp::draw(){
         hudFont.drawString("LIFES SAVED: " + ofToString(gameStats.TotalSaves()),
                            ofGetWindowWidth() / 2 - 100,
                            ofGetWindowHeight() / 2);
-        
+
     } else if (kStateStatsKilled == state.name) {
         ofSetHexColor(kColorBlack);
         ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
@@ -353,12 +367,12 @@ void ofApp::draw(){
         hudFont.drawString("TOTAL KILLS: " + ofToString(gameStats.TotalKills()),
                            ofGetWindowWidth() / 2 - 100,
                            ofGetWindowHeight() / 2);
-        
+
     } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();
         intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-        
+
     } else if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();

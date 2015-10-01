@@ -29,8 +29,8 @@ bool Configuration::Read() {
         xml.setValue("configuration:FrameRate", FrameRate);
         xml.setValue("configuration:VideoFileName", VideoFileName);
         xml.setValue("configuration:IntroFileName", IntroFileName);
-        xml.setValue("confoguration:DebugOverlay", DebugOverlay);
-        xml.setValue("confoguration:AutoSaveSeconds", AutoSaveSeconds);
+        xml.setValue("configuration:DebugOverlay", DebugOverlay);
+        xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         
         if (!xml.saveFile(path)) {
             std::cerr << "Error saving configuration file" << std::endl;
@@ -52,7 +52,7 @@ bool Configuration::Read() {
         VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
         IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
         DebugOverlay = xml.getValue("configuration:DebugOverlay", DebugOverlay);
-        AutoSaveSeconds = xml.getValue("confoguration:AutoSaveSeconds", AutoSaveSeconds);
+        AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
     }
     
     return true;

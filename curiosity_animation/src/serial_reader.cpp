@@ -13,6 +13,9 @@ int SerialReader::Reading() const {
 }
 
 void SerialReader::AddReading(const int value) {
+    if (reading != value) {
+        lastUserInputAt = ofGetElapsedTimeMillis();
+    }
     reading = value;
 }
 

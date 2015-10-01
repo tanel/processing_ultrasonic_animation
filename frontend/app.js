@@ -7,6 +7,8 @@ $(function () {
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
+        killColor: "#F7464A",
+        saveColor: "#46BFBD",
     };
 
     // we'll keep data here
@@ -76,21 +78,15 @@ $(function () {
             datasets: [
                 {
                     label: "Saves",
-                    fillColor: "rgba(220,220,220,0.5)",
-                    strokeColor: "rgba(220,220,220,0.8)",
-                    highlightFill: "rgba(220,220,220,0.75)",
-                    highlightStroke: "rgba(220,220,220,1)",
-                    data: []
+                    data: [],
+                    backgroundColor: window.settings.saveColor,
                 },
                 {
                     label: "Kills",
-                    fillColor: "rgba(151,187,205,0.5)",
-                    strokeColor: "rgba(151,187,205,0.8)",
-                    highlightFill: "rgba(151,187,205,0.75)",
-                    highlightStroke: "rgba(151,187,205,1)",
-                    data: []
+                    data: [],
+                    backgroundColor: window.settings.killColor,
                 }
-            ]
+            ],
         },
             barctx = document.getElementById("barchart").getContext("2d");
         $.each(window.stats.history, function (key, val) {
@@ -158,8 +154,8 @@ $(function () {
                         window.stats.total.saves,
                     ],
                     backgroundColor: [
-                        "#F7464A",
-                        "#46BFBD",
+                        window.settings.killColor,
+                        window.settings.saveColor,
                     ],
                 }],
             },

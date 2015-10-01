@@ -136,6 +136,14 @@
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/configuration.cpp" />
+		<Unit filename="src/configuration.hpp" />
+		<Unit filename="src/game_result.cpp" />
+		<Unit filename="src/game_result.hpp" />
+		<Unit filename="src/game_state.cpp" />
+		<Unit filename="src/game_state.hpp" />
+		<Unit filename="src/game_stats.cpp" />
+		<Unit filename="src/game_stats.hpp" />
 		<Unit filename="src/main.cpp">
 			<Option virtualFolder="src" />
 		</Unit>
@@ -145,6 +153,8 @@
 		<Unit filename="src/ofApp.h">
 			<Option virtualFolder="src" />
 		</Unit>
+		<Unit filename="src/serial_reader.cpp" />
+		<Unit filename="src/serial_reader.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

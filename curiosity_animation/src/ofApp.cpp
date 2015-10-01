@@ -112,7 +112,7 @@ void ofApp::update(){
         // If save zone is active and user finds itself in it,
         // then declare the game saved and finish it.
         if (state.saveZoneActive
-                && distance > configuration.MaxDistance - (configuration.DeathZone / 2)) {
+                && distance > configuration.MaxDistance - (configuration.DeathZone / 3)) {
             saveGame("user walked into save zone");
         }
         

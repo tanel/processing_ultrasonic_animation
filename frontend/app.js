@@ -6,6 +6,7 @@ $(function () {
         ajaxIntervalMillis: 10000,
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
+        jsonDateFormat: "YYYY-MM-DD",
     };
 
     // we'll keep data here
@@ -111,6 +112,14 @@ $(function () {
         window.ensureData();
         $(".total_saves").text(window.stats.total.saves);
         $(".total_kills").text(window.stats.total.kills);
+
+        // find todays stats
+        var today = moment().format(window.settings.jsonDateFormat),
+            todaysResults = window.stats.history[today];
+        if (todaysResults) {
+            $(".today_saves").text(todaysResults.saves);
+            $(".today_kills").text(todaysResults.kills);
+        }
     };
 
     // Until we have real data from backend, use today's date

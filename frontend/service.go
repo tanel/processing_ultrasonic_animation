@@ -4,10 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
-	"os/signal"
 	"sync"
-	"time"
 
 	"github.com/oleksandr/bonjour"
 )
@@ -98,19 +97,9 @@ func (s *service) register() error {
 	if err != nil {
 		return err
 	}
-
-	// Ctrl+C handling
-	handler := make(chan os.Signal, 1)
-	signal.Notify(handler, os.Interrupt)
-	for sig := range handler {
-		if sig == os.Interrupt {
-			bonjourService.Shutdown()
-			time.Sleep(1e9)
-			break
-		}
-	}
-
-	return nil
+	defer bonjourService.Shutdown()
+	h := http.FileServer(http.Dir(*folder))
+	return http.ListenAndServe(fmt.Sprintf(":%d", s.Port), h)
 }
 
 func (s *service) browseUpdates() error {

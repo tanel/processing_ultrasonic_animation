@@ -27,7 +27,7 @@ func main() {
 	}
 	s := &service{}
 	if *server {
-		log.Println("running server")
+		log.Println("running server on port", *port)
 		if len(*folder) == 0 {
 			log.Println("must specify folder")
 			os.Exit(1)
@@ -47,7 +47,7 @@ func main() {
 		}
 	}
 	if *client {
-		log.Println("running client")
+		log.Println("running client on port", *port)
 		go func() {
 			if err := s.browseUpdates(); err != nil {
 				log.Println(err)

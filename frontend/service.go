@@ -18,6 +18,19 @@ func main() {
 		os.Exit(1)
 	}
 	if *server {
+		if len(*folder) == 0 {
+			log.Println("must specify folder")
+			os.Exit(1)
+		}
+		isThere, err := exists(*folder)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		if !isThere {
+			log.Println("folder", *folder, "does not exist")
+			os.Exit(1)
+		}
 		if err := registerService(); err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -30,6 +43,18 @@ func main() {
 		}
 	}
 	os.Exit(0)
+}
+
+// exists returns whether the given file or directory exists or not
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
 
 var (

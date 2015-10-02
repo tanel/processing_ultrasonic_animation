@@ -17,6 +17,18 @@ func main() {
 		log.Println("must run either in server or client mode")
 		os.Exit(1)
 	}
+	if *server {
+		if err := registerService(); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+	}
+	if *client {
+		if err := browseServices(); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+	}
 	os.Exit(0)
 }
 
@@ -65,7 +77,7 @@ func registerService() error {
 	return nil
 }
 
-func browserServices() error {
+func browseServices() error {
 	log.Println("browsing services..")
 
 	resolver, err := bonjour.NewResolver(nil)

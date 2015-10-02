@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -17,7 +18,16 @@ func main() {
 		log.Println("must run either in server or client mode")
 		os.Exit(1)
 	}
+	if *server && *client {
+		log.Println("cannot run both in server and client mode")
+		os.Exit(1)
+	}
+	s := &service{
+		Name: "animation_server",
+		Port: 8000,
+	}
 	if *server {
+		log.Println("running server")
 		if len(*folder) == 0 {
 			log.Println("must specify folder")
 			os.Exit(1)
@@ -31,13 +41,14 @@ func main() {
 			log.Println("folder", *folder, "does not exist")
 			os.Exit(1)
 		}
-		if err := registerService(); err != nil {
+		if err := s.register(); err != nil {
 			log.Println(err)
 			os.Exit(1)
 		}
 	}
 	if *client {
-		if err := browseServices(); err != nil {
+		log.Println("running client")
+		if err := s.browseUpdates(); err != nil {
 			log.Println(err)
 			os.Exit(1)
 		}
@@ -64,26 +75,26 @@ var (
 )
 
 type service struct {
-	hostName string
-	port     int
+	Name     string
+	HostName string
+	Port     int
 	m        sync.Mutex
 }
 
-func (s *service) update(entry bonjour.ServiceEntry) {
+func (s *service) update(entry *bonjour.ServiceEntry) {
 	s.m.Lock()
 	defer s.m.Unlock()
-	s.hostName = entry.HostName
-	s.port = entry.Port
+	s.HostName = entry.HostName
+	s.Port = entry.Port
 }
 
-var currentService service
+func (s *service) String() string {
+	return fmt.Sprintf("%s %s:%d", s.Name, s.HostName, s.Port)
+}
 
-const animationServiceName = "animation_server"
-const port = 8000
-
-func registerService() error {
+func (s *service) register() error {
 	// Run registration (blocking call)
-	s, err := bonjour.Register("animation_server", "_foobar._tcp", "", 9999, []string{"txtv=1", "app=test"}, nil)
+	bonjourService, err := bonjour.Register(s.Name, "_foobar._tcp", "", s.Port, []string{"txtv=1", "app=test"}, nil)
 	if err != nil {
 		return err
 	}
@@ -93,7 +104,7 @@ func registerService() error {
 	signal.Notify(handler, os.Interrupt)
 	for sig := range handler {
 		if sig == os.Interrupt {
-			s.Shutdown()
+			bonjourService.Shutdown()
 			time.Sleep(1e9)
 			break
 		}
@@ -102,7 +113,7 @@ func registerService() error {
 	return nil
 }
 
-func browseServices() error {
+func (s *service) browseUpdates() error {
 	log.Println("browsing services..")
 
 	resolver, err := bonjour.NewResolver(nil)
@@ -116,6 +127,10 @@ func browseServices() error {
 	go func(results chan *bonjour.ServiceEntry, exitCh chan<- bool) {
 		for e := range results {
 			log.Printf("found service %s", e.Instance)
+			if s.Name == e.Instance {
+				s.update(e)
+				log.Println("updated", s)
+			}
 		}
 	}(results, resolver.Exit)
 

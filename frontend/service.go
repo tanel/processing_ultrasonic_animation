@@ -3,13 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"sync"
+	"time"
 
-	"github.com/elazarl/goproxy"
+	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
 	"github.com/oleksandr/bonjour"
 )
 
@@ -62,15 +64,30 @@ func main() {
 	os.Exit(0)
 }
 
+func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer resp.Body.Close()
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (s *service) proxyRequests() error {
-	proxy := goproxy.NewProxyHttpServer()
-	proxy.Verbose = true
-	proxy.OnRequest(goproxy.ReqHostMatches(regexp.MustCompile(fmt.Sprintf("^.*:%d/gamestats.json$", *port)))).DoFunc(
-		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			r.Header.Set("Location", fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
-			return r, goproxy.NewResponse(r, goproxy.ContentTypeText, http.StatusFound, "")
-		})
-	return http.ListenAndServe(fmt.Sprintf(":%d", *port), proxy)
+	router := mux.NewRouter()
+	router.HandleFunc("/gamestats.json", s.handlerFunc).Methods("GET", "OPTIONS")
+	return http.ListenAndServe(fmt.Sprintf(":%d", *port), context.ClearHandler(router))
 }
 
 // exists returns whether the given file or directory exists or not
@@ -121,7 +138,7 @@ func (s *service) register() error {
 }
 
 func (s *service) browseUpdates() error {
-	log.Println("browsing services..")
+	log.Println("resolving")
 
 	resolver, err := bonjour.NewResolver(nil)
 	if err != nil {
@@ -141,10 +158,15 @@ func (s *service) browseUpdates() error {
 		}
 	}(results, resolver.Exit)
 
-	err = resolver.Browse("_foobar._tcp", "local.", results)
-	if err != nil {
-		log.Println("Failed to browse:", err.Error())
-	}
+	go func() {
+		for {
+			err := resolver.Browse("_foobar._tcp", "local.", results)
+			if err != nil {
+				log.Println("Failed to browse:", err.Error())
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}()
 
 	select {}
 }

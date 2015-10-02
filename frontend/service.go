@@ -6,10 +6,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"sync"
 
+	"github.com/elazarl/goproxy"
 	"github.com/oleksandr/bonjour"
 )
+
+const serviceName = "animation_server"
 
 func main() {
 	flag.Parse()
@@ -21,10 +25,7 @@ func main() {
 		log.Println("cannot run both in server and client mode")
 		os.Exit(1)
 	}
-	s := &service{
-		Name: "animation_server",
-		Port: 8000,
-	}
+	s := &service{}
 	if *server {
 		log.Println("running server")
 		if len(*folder) == 0 {
@@ -47,12 +48,29 @@ func main() {
 	}
 	if *client {
 		log.Println("running client")
-		if err := s.browseUpdates(); err != nil {
+		go func() {
+			if err := s.browseUpdates(); err != nil {
+				log.Println(err)
+				os.Exit(1)
+			}
+		}()
+		if err := s.proxyRequests(); err != nil {
 			log.Println(err)
 			os.Exit(1)
 		}
 	}
 	os.Exit(0)
+}
+
+func (s *service) proxyRequests() error {
+	proxy := goproxy.NewProxyHttpServer()
+	proxy.Verbose = true
+	proxy.OnRequest(goproxy.ReqHostMatches(regexp.MustCompile(fmt.Sprintf("^.*:%d/gamestats.json$", *port)))).DoFunc(
+		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			r.Header.Set("Location", fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
+			return r, goproxy.NewResponse(r, goproxy.ContentTypeText, http.StatusFound, "")
+		})
+	return http.ListenAndServe(fmt.Sprintf(":%d", *port), proxy)
 }
 
 // exists returns whether the given file or directory exists or not
@@ -71,10 +89,10 @@ var (
 	server = flag.Bool("server", false, "serve data file over HTTP and advertise the service")
 	folder = flag.String("folder", ".", "folder that includes gamestats.json")
 	client = flag.Bool("client", false, "find where HTTP data is served and proxy it to localhost")
+	port   = flag.Int("port", 8000, "port to listen on")
 )
 
 type service struct {
-	Name     string
 	HostName string
 	Port     int
 	m        sync.Mutex
@@ -88,18 +106,18 @@ func (s *service) update(entry *bonjour.ServiceEntry) {
 }
 
 func (s *service) String() string {
-	return fmt.Sprintf("%s %s:%d", s.Name, s.HostName, s.Port)
+	return fmt.Sprintf("%s:%d", s.HostName, s.Port)
 }
 
 func (s *service) register() error {
 	// Run registration (blocking call)
-	bonjourService, err := bonjour.Register(s.Name, "_foobar._tcp", "", s.Port, []string{"txtv=1", "app=test"}, nil)
+	bonjourService, err := bonjour.Register(serviceName, "_foobar._tcp", "", *port, []string{"txtv=1", "app=test"}, nil)
 	if err != nil {
 		return err
 	}
 	defer bonjourService.Shutdown()
 	h := http.FileServer(http.Dir(*folder))
-	return http.ListenAndServe(fmt.Sprintf(":%d", s.Port), h)
+	return http.ListenAndServe(fmt.Sprintf(":%d", *port), h)
 }
 
 func (s *service) browseUpdates() error {
@@ -116,7 +134,7 @@ func (s *service) browseUpdates() error {
 	go func(results chan *bonjour.ServiceEntry, exitCh chan<- bool) {
 		for e := range results {
 			log.Printf("found service %s", e.Instance)
-			if s.Name == e.Instance {
+			if serviceName == e.Instance {
 				s.update(e)
 				log.Println("updated", s)
 			}

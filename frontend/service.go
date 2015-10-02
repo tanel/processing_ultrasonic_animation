@@ -77,6 +77,11 @@ func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
+	w.Header().Add("Access-Control-Allow-Methods", "GET, OPTIONS, PUT, POST, DELETE")
+	w.Header().Add("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Content-Type", "application/json")
 	defer resp.Body.Close()
 	_, err = w.Write(b)
 	if err != nil {

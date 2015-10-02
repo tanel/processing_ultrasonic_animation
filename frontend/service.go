@@ -59,7 +59,7 @@ func exists(path string) (bool, error) {
 
 var (
 	server = flag.Bool("server", false, "serve data file over HTTP and advertise the service")
-	folder = flag.String("folder", "", "folder that includes gamestats.json")
+	folder = flag.String("folder", ".", "folder that includes gamestats.json")
 	client = flag.Bool("client", false, "find where HTTP data is served and proxy it to localhost")
 )
 

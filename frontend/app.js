@@ -3,7 +3,7 @@
 $(function () {
     // Configuration
     window.settings = {
-        ajaxIntervalMillis: 10000,
+        ajaxIntervalMillis: 5000,
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",

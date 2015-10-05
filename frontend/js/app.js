@@ -3,7 +3,7 @@
 $(function () {
     // Configuration
     window.settings = {
-        ajaxIntervalMillis: 5000,
+        ajaxIntervalMillis: 2000,
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
@@ -20,15 +20,13 @@ $(function () {
         $.get("http://localhost:8000/gamestats.json", function (data) {
             console.log(data);
             window.stats = data;
+            window.setTimeout(window.ajaxFunc, window.settings.ajaxIntervalMillis);
         });
     };
 
-    // update data with a given interval
-    window.ajaxTimer = window.setInterval(window.ajaxFunc, window.settings.ajaxIntervalMillis);
-
     // the chart currently being displayed,
     // since we start with empty page, the value is -1.
-    window.currentChart = -1;
+    window.currentChart = 0;
 
     // callback func chart rotating
     window.chartRotateFunc = function () {
@@ -40,10 +38,12 @@ $(function () {
 
         window.displayTotals();
 
+/*
         window.currentChart = window.currentChart + 1;
         if (window.currentChart > 3) {
             window.currentChart = 0;
         }
+*/
 
         // Hide visible chart(s)
         $('.stats').hide();

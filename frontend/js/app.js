@@ -7,7 +7,7 @@ $(function () {
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
-        killColor: "#F7464A",
+        killColor: "#000000",
         saveColor: "#FFFFFF",
         chartOptions: {
             responsive: false,
@@ -146,17 +146,21 @@ $(function () {
         window.ensureData();
         var piedata = {
                 labels: [
-                    "UUDISHIMU / CURIOSITY",
                     "HUMAANSUS / HUMANITY",
+                    "UUDISHIMU / CURIOSITY",
                 ],
                 datasets: [{
                     data: [
-                        window.stats.total.kills,
                         window.stats.total.saves,
+                        window.stats.total.kills,
                     ],
                     backgroundColor: [
-                        window.settings.killColor,
                         window.settings.saveColor,
+                        window.settings.killColor,
+                    ],
+                    backgroundColor: [
+                        window.settings.saveColor,
+                        window.settings.killColor,
                     ],
                 }],
             },

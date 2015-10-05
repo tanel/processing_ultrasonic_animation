@@ -27,9 +27,13 @@ $(function () {
         });
     };
 
+    Highcharts.setOptions({
+        colors: [window.settings.saveColor, window.settings.killColor]
+    });
+
     // the chart currently being displayed,
     // since we start with empty page, the value is -1.
-    window.currentChart = 2;
+    window.currentChart = -1;
 
     // callback func chart rotating
     window.chartRotateFunc = function () {
@@ -41,12 +45,10 @@ $(function () {
 
         window.displayTotals();
 
-/*
         window.currentChart = window.currentChart + 1;
         if (window.currentChart > 3) {
             window.currentChart = 0;
         }
-*/
 
         // Hide visible chart(s)
         $('.stats').hide();
@@ -55,8 +57,8 @@ $(function () {
         $('#chart' + String(window.currentChart)).show();
 
         // draw its internal contents.
-        // (the indices 1 and 2 respond to chart ID's in HTML)
-        if (1 === window.currentChart) {
+        // (the indices respond to chart ID's in HTML)
+        if (3 === window.currentChart) {
             window.displayBarChart();
         } else if (2 === window.currentChart) {
             window.displayPieChart();
@@ -76,31 +78,52 @@ $(function () {
     };
 
     window.displayBarChart = function () {
-        var bardata = {
-            labels: [],
-            datasets: [
-                {
-                    label: "Saves",
-                    data: [],
-                    backgroundColor: window.settings.saveColor,
-                },
-                {
-                    label: "Kills",
-                    data: [],
-                    backgroundColor: window.settings.killColor,
-                }
-            ],
-        },
-            barctx = document.getElementById("barchart").getContext("2d");
+        var categories = [], saves = [], kills = [];
         $.each(window.stats.history, function (key, val) {
-            bardata.labels.push(key);
-            bardata.datasets[0].data.push(val.saves);
-            bardata.datasets[1].data.push(val.kills);
+            categories.push(key);
+            saves.push(val.saves);
+            kills.push(val.kills);
         });
-        window.barChart = new Chart(barctx, {
-            type: 'bar',
-            data: bardata,
-            options: window.settings.chartOptions,
+
+        $('#barchart').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: categories,
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                name: 'Saves',
+                data: saves,
+            }, {
+                name: 'Kills',
+                data: kills
+
+            }]
         });
     };
 
@@ -144,10 +167,6 @@ $(function () {
 
     window.displayPieChart = function () {
         window.ensureData();
-
-        Highcharts.setOptions({
-            colors: [window.settings.saveColor, window.settings.killColor]
-        });
 
         $('#piechart').highcharts({
             credits: false,

@@ -1,4 +1,4 @@
-/*global $:false, window:false, Chart:false, document:false, moment:false */
+/*global $:false, window:false, Highcharts:false, document:false, moment:false, Chart:false */
 "use strict";
 $(function () {
     // Configuration
@@ -8,7 +8,7 @@ $(function () {
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
         killColor: "#000000",
-        saveColor: "#FFFFFF",
+        saveColor: "#FAFAFA",
         chartOptions: {
             responsive: false,
         },
@@ -144,31 +144,46 @@ $(function () {
 
     window.displayPieChart = function () {
         window.ensureData();
-        var piedata = {
-                labels: [
-                    "HUMAANSUS / HUMANITY",
-                    "UUDISHIMU / CURIOSITY",
-                ],
-                datasets: [{
-                    data: [
-                        window.stats.total.saves,
-                        window.stats.total.kills,
-                    ],
-                    backgroundColor: [
-                        window.settings.saveColor,
-                        window.settings.killColor,
-                    ],
-                    backgroundColor: [
-                        window.settings.saveColor,
-                        window.settings.killColor,
-                    ],
-                }],
+
+        Highcharts.setOptions({
+            colors: [window.settings.saveColor, window.settings.killColor]
+        });
+
+        $('#piechart').highcharts({
+            credits: false,
+            chart: {
+                type: 'pie',
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
             },
-            piectx = document.getElementById("piechart").getContext("2d");
-        window.pieChart = new Chart(piectx, {
-            type: 'pie',
-            data: piedata,
-            options: window.settings.chartOptions,
+            title: {
+                text: ''
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}'
+                    },
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'HUMANITY vs CURIOSITY',
+                data: [
+                    ["HUMAANSUS / HUMANITY", window.stats.total.saves],
+                    ["UUDISHIMU / CURIOSITY", window.stats.total.kills]
+                ],
+            }]
         });
     };
 

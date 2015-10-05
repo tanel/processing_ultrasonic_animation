@@ -22,46 +22,75 @@
     <div class="row" id="emptyness">
     </div>
 
-    <div class="row">
+    <div class="stats text-center" id="chart0" style="display:none;">
+      <div class="row">
+        <h2>HUMAANSUS vs. UUDISHIMU</h2>
+        <h1>
+          <span class="total_saves">0</span>
+          <span class="separator"> | </span>
+          <span class="total_kills">0</span>
+        </h1>
+        <h2>HUMANITY vs. CURIOSITY</h2>
+        <h4>Vahekokkuvõte / Subtotal</h4>
+        <h4>(<span class="start_date">01.10.2015</span> - <span class="end_date">10.10.2015</span>)</h4>
+      </div>
+    </div>
 
-        <div class="stats text-center" id="chart0" style="display:none;">
-          <h2>HUMAANSUS vs. UUDISHIMU</h2>
-          <h1>
-            <span class="total_saves">0</span>
-            <span class="separator"> | </span>
+    <div class="stats text-center" id="chart1" style="display:none;">
+      <div class="row">
+        <h2>HUMAANSUS vs. UUDISHIMU</h2>
+        <h1>
+          <span class="today_saves">0</span>
+          <span class="separator"> | </span>
+          <span class="today_kills">0</span>
+        </h1>
+        <h2>HUMANITY vs. CURIOSITY</h2>
+        <h4>Täna / Today</h4>
+        <h4>(<span class="today">01.10.2015</span>)</h4>
+      </div>
+    </div>
+
+    <div class="stats text-center" id="chart2" style="display:none;">
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <h3>UUDISHIMU / CURIOSITY</h3>
+        </div>
+        <div class="col-md-6 text-left">
+          <h2>
             <span class="total_kills">0</span>
-          </h1>
-          <h2>HUMANITY vs. CURIOSITY</h2>
+          </h2>
+        </div>
+      </div>
+      <div class="row">
+        <canvas id="piechart" width=480 height=480></canvas>
+      </div>
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <h2>
+            <span class="total_saves">0</span>
+          </h2>
+        </div>
+        <div class="col-md-6 text-left">
+          <h3>HUMAANSUS / HUMANITY</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 text-left">
           <h4>Vahekokkuvõte / Subtotal</h4>
           <h4>(<span class="start_date">01.10.2015</span> - <span class="end_date">10.10.2015</span>)</h4>
         </div>
+      </div>
+    </div>
 
-        <div class="stats text-center" id="chart1" style="display:none;">
-          <h2>HUMAANSUS vs. UUDISHIMU</h2>
-          <h1>
-            <span class="today_saves">0</span>
-            <span class="separator"> | </span>
-            <span class="today_kills">0</span>
-          </h1>
-          <h2>HUMANITY vs. CURIOSITY</h2>
-          <h4>Täna / Today</h4>
-          <h4>(<span class="today">01.10.2015</span>)</h4>
-        </div>
-
-        <div class="stats text-center" id="chart2" style="display:none;">
-          <h1><span class="total_saves">0</span> | <span class="total_kills">0</span></h1>
-          <canvas id="piechart"></canvas>
-          <p>Vahekokkuvõte / Subtotal</p>
-        </div>
-
-        <div class="stats text-center" id="chart3" style="display:none;">
-          <h2>HUMAANSUS vs. UUDISHIMU</h2>
-          <h2>HUMANITY vs. CURIOSITY</h2>
-          <h1><span class="total_saves">0</span> | <span class="total_kills">0</span></h1>
-          <canvas id="barchart"></canvas>
-          <p>Vahekokkuvõte / Subtotal</p>
-          <p>(<span class="start_date">01.10.2015</span> - <span class="end_date">10.10.2015</span>)</p>
-        </div>
+    <div class="stats text-center" id="chart3" style="display:none;">
+      <div class="row">
+        <h3>UUDISHIMU / CURIOSITY<span class="total_kills">0</span></h3>
+        <canvas id="barchart"></canvas>
+        <h3>HUMAANSUS / HUMANITY<span class="total_saves">0</span></h3>
+        <h4>Vahekokkuvõte / Subtotal</h4>
+        <h4>(<span class="start_date">01.10.2015</span> - <span class="end_date">10.10.2015</span>)</h4>
+      </div>
+    </div>
 
     </div>
   </body>

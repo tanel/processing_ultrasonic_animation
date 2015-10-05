@@ -8,7 +8,10 @@ $(function () {
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
         killColor: "#F7464A",
-        saveColor: "#46BFBD",
+        saveColor: "#FFFFFF",
+        chartOptions: {
+            responsive: false,
+        },
     };
 
     // we'll keep data here
@@ -26,7 +29,7 @@ $(function () {
 
     // the chart currently being displayed,
     // since we start with empty page, the value is -1.
-    window.currentChart = 0;
+    window.currentChart = 1;
 
     // callback func chart rotating
     window.chartRotateFunc = function () {
@@ -97,9 +100,7 @@ $(function () {
         window.barChart = new Chart(barctx, {
             type: 'bar',
             data: bardata,
-            options: {
-                responsive: false,
-            }
+            options: window.settings.chartOptions,
         });
     };
 
@@ -163,9 +164,7 @@ $(function () {
         window.pieChart = new Chart(piectx, {
             type: 'pie',
             data: piedata,
-            options: {
-                responsive: false,
-            }
+            options: window.settings.chartOptions,
         });
     };
 

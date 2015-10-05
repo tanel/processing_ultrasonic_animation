@@ -29,7 +29,7 @@ $(function () {
 
     // the chart currently being displayed,
     // since we start with empty page, the value is -1.
-    window.currentChart = 1;
+    window.currentChart = 3;
 
     // callback func chart rotating
     window.chartRotateFunc = function () {

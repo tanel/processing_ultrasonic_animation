@@ -9,7 +9,7 @@ $(function () {
         chartDateFormat: "DD.MM",
         lastUpdateDateFormat: "DD.MM.YYYY HH:mm:ss",
         killColor: "#000000",
-        saveColor: "#FAFAFA",
+        saveColor: "#F2F2F2",
         chartOptions: {
             responsive: false,
         },

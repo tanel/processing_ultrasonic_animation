@@ -64,25 +64,29 @@ func main() {
 	os.Exit(0)
 }
 
-func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
+func (s *service) fetchData() ([]byte, error) {
 	resp, err := http.Get(fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
 	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), 500)
-		return
+		return nil, err
 	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return b, nil
+}
+
+func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
+	b, err := s.fetchData()
+	if err != nil {
 		log.Println(err)
-		http.Error(w, err.Error(), 500)
-		return
 	}
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
 	w.Header().Add("Access-Control-Allow-Methods", "GET, OPTIONS, PUT, POST, DELETE")
 	w.Header().Add("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Content-Type", "application/json")
-	defer resp.Body.Close()
 	_, err = w.Write(b)
 	if err != nil {
 		log.Println(err)

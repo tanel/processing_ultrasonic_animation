@@ -10,6 +10,7 @@ $(function () {
         lastUpdateDateFormat: "DD.MM.YYYY HH:mm:ss",
         killColor: "#000000",
         saveColor: "#FAFAFA",
+        borderColor: "#F9F9F9",
     };
 
     $('#toggle_last_update_panel').click(function () {
@@ -129,7 +130,7 @@ $(function () {
             plotOptions: {
                 column: {
                     pointPadding: 0.2,
-                    borderColor: "#000000",
+                    borderColor: window.settings.borderColor,
                     borderRadius: 1,
                     borderWidth: 1,
                 },

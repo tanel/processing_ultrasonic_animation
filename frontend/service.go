@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -36,7 +37,7 @@ func main() {
 		}
 		isThere, err := exists(*folder)
 		if err != nil {
-			log.Println(err)
+			log.Println("error checking folder", err)
 			os.Exit(1)
 		}
 		if !isThere {
@@ -44,7 +45,7 @@ func main() {
 			os.Exit(1)
 		}
 		if err := s.register(); err != nil {
-			log.Println(err)
+			log.Println("error registering service", err)
 			os.Exit(1)
 		}
 	}
@@ -52,35 +53,46 @@ func main() {
 		log.Println("running client on port", *port)
 		go func() {
 			if err := s.browseUpdates(); err != nil {
-				log.Println(err)
+				log.Println("error browsing updates", err)
 				os.Exit(1)
 			}
 		}()
 		if err := s.proxyRequests(); err != nil {
-			log.Println(err)
+			log.Println("error proxying requests", err)
 			os.Exit(1)
 		}
 	}
 	os.Exit(0)
 }
 
+var cacheFilename = filepath.Join("/", "tmp", "cached_gamestats.json")
+
 func (s *service) fetchData() ([]byte, error) {
 	resp, err := http.Get(fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	if err := ioutil.WriteFile(cacheFilename, b, 0644); err != nil {
+		return nil, err
+	}
 	return b, nil
 }
 
 func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
+	log.Println("serving request")
 	b, err := s.fetchData()
 	if err != nil {
-		log.Println(err)
+		log.Println("error fetching data", err)
+		b, err = ioutil.ReadFile(cacheFilename)
+		if err != nil {
+			log.Println("error reading cached file", err)
+		}
+		log.Println("backend is unreachable, serving cache")
 	}
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
@@ -89,7 +101,7 @@ func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(b)
 	if err != nil {
-		log.Println(err)
+		log.Println("error writing data to client", err)
 	}
 }
 

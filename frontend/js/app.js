@@ -23,6 +23,7 @@ $(function () {
         $.get("http://localhost:8000/gamestats.json", function (data) {
             console.log(data);
             window.stats = data;
+        }).always(function () {
             window.setTimeout(window.ajaxFunc, window.settings.ajaxIntervalMillis);
         });
     };

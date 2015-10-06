@@ -10,9 +10,6 @@ $(function () {
         lastUpdateDateFormat: "DD.MM.YYYY HH:mm:ss",
         killColor: "#000000",
         saveColor: "#FAFAFA",
-        chartOptions: {
-            responsive: false,
-        },
     };
 
     $('#toggle_last_update_panel').click(function () {
@@ -66,7 +63,8 @@ $(function () {
         $('.stats').hide();
 
         // show the current chart
-        var chart = $('#chart' + String(window.currentChart));
+        var chart = $('#chart' + String(window.currentChart)),
+            rotateIntervalSeconds = parseInt(chart.attr('data-interval-seconds'), 10);
         chart.show();
 
         // draw its internal contents.
@@ -78,7 +76,6 @@ $(function () {
         }
 
         // Rotate charts with N millis interval (see HTML)
-        var rotateIntervalSeconds = parseInt(chart.attr('data-interval-seconds'), 10);
         console.log("rotate interval seconds", rotateIntervalSeconds);
         if (rotateIntervalSeconds) {
             window.setTimeout(window.chartRotateFunc, rotateIntervalSeconds * 1000);
@@ -132,8 +129,10 @@ $(function () {
             plotOptions: {
                 column: {
                     pointPadding: 0.2,
-                    borderWidth: 0
-                }
+                    borderColor: "#000000",
+                    borderRadius: 1,
+                    borderWidth: 1,
+                },
             },
             series: [{
                 name: 'Saves',
@@ -212,7 +211,7 @@ $(function () {
                         enabled: true,
                         format: '{point.name}'
                     },
-                }
+                },
             },
             series: [{
                 type: 'pie',

@@ -4,7 +4,6 @@ $(function () {
     // Configuration
     window.settings = {
         ajaxIntervalMillis: 2000,
-        chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
         chartDateFormat: "DD.MM",
@@ -67,7 +66,8 @@ $(function () {
         $('.stats').hide();
 
         // show the current chart
-        $('#chart' + String(window.currentChart)).show();
+        var chart = $('#chart' + String(window.currentChart));
+        chart.show();
 
         // draw its internal contents.
         // (the indices respond to chart ID's in HTML)
@@ -76,10 +76,16 @@ $(function () {
         } else if (2 === window.currentChart) {
             window.displayPieChart();
         }
-    };
 
-    // Rotate charts with N millis interval (see settings)
-    window.chartRotateTimer = window.setInterval(window.chartRotateFunc, window.settings.chartRotateIntervalMillis);
+        // Rotate charts with N millis interval (see HTML)
+        var rotateIntervalSeconds = parseInt(chart.attr('data-interval-seconds'), 10);
+        console.log("rotate interval seconds", rotateIntervalSeconds);
+        if (rotateIntervalSeconds) {
+            window.setTimeout(window.chartRotateFunc, rotateIntervalSeconds * 1000);
+        } else {
+            console.log("missing data-interval on chart! ");
+        }
+    };
 
     window.ensureData = function () {
         if (!window.stats.total) {

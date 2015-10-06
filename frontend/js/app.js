@@ -135,10 +135,10 @@ $(function () {
                 },
             },
             series: [{
-                name: 'Saves',
+                name: 'Säästetud elud / Saves',
                 data: saves,
             }, {
-                name: 'Kills',
+                name: 'Hukkamised / Kills',
                 data: kills
 
             }]

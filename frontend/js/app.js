@@ -7,12 +7,19 @@ $(function () {
         chartRotateIntervalMillis: 5000,
         dateFormat: "DD.MM.YYYY",
         jsonDateFormat: "YYYY-MM-DD",
+        chartDateFormat: "DD.MM",
+        lastUpdateDateFormat: "DD.MM.YYYY HH:mm:ss",
         killColor: "#000000",
         saveColor: "#FAFAFA",
         chartOptions: {
             responsive: false,
         },
     };
+
+    $('#toggle_last_update_panel').click(function () {
+        $('#last_update_panel').toggle();
+        return false;
+    });
 
     // we'll keep data here
     window.stats = {};
@@ -23,7 +30,12 @@ $(function () {
         $.get("http://localhost:8000/gamestats.json", function (data) {
             console.log(data);
             window.stats = data;
+        }).fail(function (xhr, err) {
+            $('#last_error').text(String(err) + " (" + String(xhr.status) + ")");
+        }).success(function () {
+            $('#last_error').text("ok");
         }).always(function () {
+            $('#last_update').text(moment().format(window.settings.lastUpdateDateFormat));
             window.setTimeout(window.ajaxFunc, window.settings.ajaxIntervalMillis);
         });
     };
@@ -81,7 +93,7 @@ $(function () {
     window.displayBarChart = function () {
         var categories = [], saves = [], kills = [];
         $.each(window.stats.history, function (key, val) {
-            categories.push(key);
+            categories.push(moment(key).format(window.settings.chartDateFormat));
             saves.push(val.saves);
             kills.push(val.kills);
         });

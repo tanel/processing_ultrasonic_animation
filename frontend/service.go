@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -107,7 +108,7 @@ func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
 
 func (s *service) proxyRequests() error {
 	router := mux.NewRouter()
-	router.HandleFunc("/gamestats.json", s.handlerFunc).Methods("GET", "OPTIONS")
+	router.Handle("/gamestats.json", RecoverWrap(http.HandlerFunc(s.handlerFunc))).Methods("GET", "OPTIONS")
 	return http.ListenAndServe(fmt.Sprintf(":%d", *port), context.ClearHandler(router))
 }
 
@@ -190,4 +191,26 @@ func (s *service) browseUpdates() error {
 	}()
 
 	select {}
+}
+
+func RecoverWrap(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		defer func() {
+			r := recover()
+			if r != nil {
+				switch t := r.(type) {
+				case string:
+					err = errors.New(t)
+				case error:
+					err = t
+				default:
+					err = errors.New("Unknown error")
+				}
+				log.Println("panic", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+		}()
+		h.ServeHTTP(w, r)
+	})
 }

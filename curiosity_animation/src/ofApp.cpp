@@ -41,17 +41,17 @@ void ofApp::setup(){
     hudFont.setLineHeight(18.0f);
     hudFont.setLetterSpacing(1.037);
 
-    // Overlay
-    if (!overlayFont.loadFont("verdana.ttf", 300, true, true)) {
-        std::cerr << "Error loading overlay font" << std::endl;
-    }
+    // state
     if (!stateFont.loadFont("verdana.ttf", 100, true, true)) {
         std::cerr << "Error loading status font" << std::endl;
     }
 
     // Hint
-    if (!hintFont.loadFont("verdana.ttf", 40, true, true)) {
-        std::cerr << "Error loading HUD font" << std::endl;
+    if (!hintFont.loadFont("verdana.ttf", 100, true, true)) {
+        std::cerr << "Error loading hint font" << std::endl;
+    }
+    if (!numberFont.loadFont("verdana.ttf", 200, true, true)) {
+        std::cerr << "Error loading number font" << std::endl;
     }
 
     // Audio
@@ -392,24 +392,24 @@ void ofApp::draw(){
         ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         ofSetHexColor(kColorBlack);
-        hintFont.drawString("Säästetud elusid kokku: " + ofToString(gameStats.TotalSaves()),
+        numberFont.drawString(ofToString(gameStats.TotalSaves()),
+                              50,
+                              300);
+        hintFont.drawString("Säästetud / Saved",
                             50,
-                            ofGetWindowHeight() - 150);
-        hintFont.drawString("Saved lifes total: " + ofToString(gameStats.TotalSaves()),
-                            50,
-                            ofGetWindowHeight() - 50);
+                            ofGetWindowHeight() - 100);
 
     } else if (kStateStatsKilled == state.name) {
-        ofSetHexColor(kColorBlack);
+        ofSetHexColor(kColorWhite);
         ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
-        ofSetHexColor(kColorWhite);
-        hintFont.drawString("Hukkamisi kokku: " + ofToString(gameStats.TotalKills()),
+        ofSetHexColor(kColorBlack);
+        numberFont.drawString(ofToString(gameStats.TotalKills()),
+                              50,
+                              300);
+        hintFont.drawString("Hukkamisi / Kills",
                             50,
-                            ofGetWindowHeight() - 150);
-        hintFont.drawString("Total kills: " + ofToString(gameStats.TotalKills()),
-                            50,
-                            ofGetWindowHeight() - 50);
+                            ofGetWindowHeight() - 100);
 
     } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
@@ -424,9 +424,9 @@ void ofApp::draw(){
         // Draw overlay, for debugging
         if (configuration.DebugOverlay) {
             ofSetHexColor(kColorBlack);
-            overlayFont.drawString(ofToString(distance),
-                                   100,
-                                   ofGetWindowHeight() / 2);
+            numberFont.drawString(ofToString(distance),
+                                  100,
+                                  ofGetWindowHeight() / 2);
         }
 
     } else if (kStateKilled == state.name) {
@@ -437,9 +437,9 @@ void ofApp::draw(){
         // Draw overlay, for debugging
         if (configuration.DebugOverlay) {
             ofSetHexColor(kColorBlack);
-            overlayFont.drawString(ofToString(distance),
-                                   100,
-                                   ofGetWindowHeight() / 2);
+            numberFont.drawString(ofToString(distance),
+                                  100,
+                                  ofGetWindowHeight() / 2);
         }
         
     } else {

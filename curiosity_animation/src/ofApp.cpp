@@ -121,12 +121,12 @@ void ofApp::update(){
             state.saveZoneActive = true;
             
         } else if (serialReader.LastUserInputAt() < now - (configuration.AutoSaveSeconds*1000)) {
-
+            
             // If we have no new input for N seconds, consider the game
             // as saved, as it seems that the user has left the building
             saveGame("user has left the game");
         }
-
+        
     } else if (kStateStatsKilled == state.name || kStateStatsSaved == state.name) {
         if (state.finishedAt < now - (configuration.RestartIntervalSeconds*1000)) {
             restartGame();
@@ -329,54 +329,60 @@ void ofApp::draw(){
     }
     
     // Update HUD
-    ofSetColor(255);
+    
     
     const int distance = serialReader.Reading();
     
-    int y = 20;
-    hudFont.drawString("distance=" + ofToString(distance), 10, y);
-    hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
-    hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-    hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 600, y);
-    hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 800, y);
+    ofSetColor(255);
     
-    y = 40;
-    hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
-    hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
-    hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
-    hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
-    hudFont.drawString("autosave=" + ofToString(autosaveCountdownSeconds), 800, y);
+    if (configuration.DebugOverlay) {
+        int y = 20;
+        hudFont.drawString("distance=" + ofToString(distance), 10, y);
+        hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
+        hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
+        hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 600, y);
+        hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 800, y);
+        
+        y = 40;
+        hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
+        hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
+        hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
+        hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
+        hudFont.drawString("autosave=" + ofToString(autosaveCountdownSeconds), 800, y);
+    }
     
+    int margin(0);
+    if (configuration.DebugOverlay) {
+        margin = 50;
+    }
     
-    const int kMargin = 50;
-
     if (kStateStatsSaved == state.name) {
         ofSetHexColor(kColorWhite);
-        ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         ofSetHexColor(kColorBlack);
         hudFont.drawString("LIFES SAVED: " + ofToString(gameStats.TotalSaves()),
                            ofGetWindowWidth() / 2 - 100,
                            ofGetWindowHeight() / 2);
-
+        
     } else if (kStateStatsKilled == state.name) {
         ofSetHexColor(kColorBlack);
-        ofRect(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         ofSetHexColor(kColorWhite);
         hudFont.drawString("TOTAL KILLS: " + ofToString(gameStats.TotalKills()),
                            ofGetWindowWidth() / 2 - 100,
                            ofGetWindowHeight() / 2);
-
+        
     } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();
-        intro.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
-
+        intro.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+        
     } else if (kStateStarted == state.name || kStateKilled == state.name || kStateSaved == state.name) {
         ofSetHexColor(kColorWhite);
         ofFill();
-        videoPlayer.draw(0, kMargin, ofGetWindowWidth(), ofGetWindowHeight() - kMargin);
+        videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         
         // Draw overlay, for debugging
         if (configuration.DebugOverlay) {

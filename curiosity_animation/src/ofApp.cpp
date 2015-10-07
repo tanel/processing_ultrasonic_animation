@@ -6,7 +6,7 @@ void ofApp::setup(){
     ofBackground(54, 54, 54, 255);
     
 #ifdef TARGET_OSX
-    ofSetDataPathRoot("../Resources/data/");
+    ofSetDataPathRoot("~/curiosity_data/");
 #endif
     
     // start logging

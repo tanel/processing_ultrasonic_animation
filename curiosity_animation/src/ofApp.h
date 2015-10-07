@@ -42,6 +42,7 @@ private:
     ofTrueTypeFont hudFont;
     ofTrueTypeFont overlayFont;
     ofTrueTypeFont stateFont;
+    ofTrueTypeFont hintFont;
     
     ofSoundPlayer heartbeatSound;
     

@@ -49,6 +49,11 @@ void ofApp::setup(){
         std::cerr << "Error loading status font" << std::endl;
     }
 
+    // Hint
+    if (!hintFont.loadFont("verdana.ttf", 50, true, true)) {
+        std::cerr << "Error loading HUD font" << std::endl;
+    }
+
     // Audio
     if (!heartbeatSound.loadSound("2.mp3")) {
         std::cerr << "Error loading heartbeat sound" << std::endl;
@@ -387,23 +392,37 @@ void ofApp::draw(){
         ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         ofSetHexColor(kColorBlack);
-        hudFont.drawString("LIFES SAVED: " + ofToString(gameStats.TotalSaves()),
-                           ofGetWindowWidth() / 2 - 100,
-                           ofGetWindowHeight() / 2);
+        hintFont.drawString("Säästetud elusid kokku: " + ofToString(gameStats.TotalSaves()),
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 150);
+        hintFont.drawString("Saved lifes total: " + ofToString(gameStats.TotalSaves()),
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 50);
 
     } else if (kStateStatsKilled == state.name) {
         ofSetHexColor(kColorBlack);
         ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         ofSetHexColor(kColorWhite);
-        hudFont.drawString("TOTAL KILLS: " + ofToString(gameStats.TotalKills()),
-                           ofGetWindowWidth() / 2 - 100,
-                           ofGetWindowHeight() / 2);
+        hintFont.drawString("Hukkamisi kokku: " + ofToString(gameStats.TotalKills()),
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 150);
+        hintFont.drawString("Total kills: " + ofToString(gameStats.TotalKills()),
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 50);
 
     } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
+        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         intro.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
+        ofSetHexColor(kColorBlack);
+        hintFont.drawString("Astuge ringi.",
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 150);
+        hintFont.drawString("Step into the circle.",
+                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            ofGetWindowHeight() - 50);
 
     } else if (kStateStarted == state.name || kStateSaved == state.name) {
         ofSetHexColor(kColorWhite);
@@ -430,11 +449,11 @@ void ofApp::draw(){
                                    100,
                                    ofGetWindowHeight() / 2);
         }
-
+        
     } else {
         throw("invalid state");
     }
-
+    
     if (configuration.DebugOverlay) {
         ofSetHexColor(kColorBlack);
         stateFont.drawString(state.name,

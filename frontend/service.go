@@ -21,6 +21,27 @@ const serviceName = "animation_server"
 
 func main() {
 	flag.Parse()
+	if len(*folder) == 0 {
+		log.Println("must specify folder")
+		os.Exit(1)
+	}
+	isThere, err := exists(*folder)
+	if err != nil {
+		log.Println("error checking folder", err)
+		os.Exit(1)
+	}
+	if !isThere {
+		log.Println("folder", *folder, "does not exist")
+		os.Exit(1)
+	}
+	logfilePath := filepath.Join(*folder, "service.log")
+	f, err := os.OpenFile(logfilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Println("error opening log file", logfilePath, err)
+		os.Exit(1)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	if !*server && !*client {
 		log.Println("must run either in server or client mode")
 		os.Exit(1)
@@ -32,19 +53,6 @@ func main() {
 	s := &service{}
 	if *server {
 		log.Println("running server on port", *port)
-		if len(*folder) == 0 {
-			log.Println("must specify folder")
-			os.Exit(1)
-		}
-		isThere, err := exists(*folder)
-		if err != nil {
-			log.Println("error checking folder", err)
-			os.Exit(1)
-		}
-		if !isThere {
-			log.Println("folder", *folder, "does not exist")
-			os.Exit(1)
-		}
 		if err := s.register(); err != nil {
 			log.Println("error registering service", err)
 			os.Exit(1)
@@ -126,7 +134,7 @@ func exists(path string) (bool, error) {
 
 var (
 	server = flag.Bool("server", false, "serve data file over HTTP and advertise the service")
-	folder = flag.String("folder", ".", "folder that includes gamestats.json")
+	folder = flag.String("folder", "", "folder that includes gamestats.json")
 	client = flag.Bool("client", false, "find where HTTP data is served and proxy it to localhost")
 	port   = flag.Int("port", 8000, "port to listen on")
 )

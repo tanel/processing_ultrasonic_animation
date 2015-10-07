@@ -31,7 +31,8 @@ public:
     , SetFrame(true)
     , IntroFileName("intro.jpg")
     , DebugOverlay(true)
-    , AutoSaveSeconds(60) {}
+    , AutoSaveSeconds(60)
+    , KillVideoFileName("kill.mov") {}
     
     bool Read();
     
@@ -52,6 +53,7 @@ public:
     std::string IntroFileName;
     bool DebugOverlay;
     int AutoSaveSeconds;
+    std::string KillVideoFileName;
 };
 
 

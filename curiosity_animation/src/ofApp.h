@@ -48,6 +48,7 @@ private:
     ofSoundPlayer heartbeatSound;
     
     ofVideoPlayer videoPlayer;
+    ofVideoPlayer killVideoPlayer;
     
     // cached from videoplayer
     int totalNumOfFrames;

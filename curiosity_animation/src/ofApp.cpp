@@ -57,7 +57,7 @@ void ofApp::setup(){
     
     // Video
     if (!loadVideo()) {
-        std::cerr << "Error loading video" << std::endl;
+        std::cerr << "Error loading video(s)" << std::endl;
     }
     
     // Intro and outro pics
@@ -83,10 +83,18 @@ bool ofApp::isPlaying() {
 bool ofApp::loadVideo() {
     videoPlayer = ofVideoPlayer();
     if (!videoPlayer.loadMovie(ofToDataPath(configuration.VideoFileName))) {
+        std::cerr << "error loading movie" << std::endl;
         return false;
     }
     videoPlayer.setLoopState(OF_LOOP_NONE);
     totalNumOfFrames = videoPlayer.getTotalNumFrames();
+    
+    killVideoPlayer = ofVideoPlayer();
+    if (!killVideoPlayer.loadMovie(ofToDataPath(configuration.KillVideoFileName))) {
+        std::cerr << "error loading kill movie" << std::endl;
+        return false;
+    }
+    
     return true;
 }
 

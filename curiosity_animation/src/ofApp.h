@@ -24,8 +24,6 @@ public:
 private:
     int frameForDistance(const int distance) const;
     bool loadVideo();
-    void animateVideo(const int direction);
-    bool isPlaying();
     void restartGame();
     void startGame();
     void updateAudio(const int distance);

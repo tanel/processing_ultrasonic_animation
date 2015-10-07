@@ -76,10 +76,6 @@ void ofApp::exit() {
     serialReader.stopThread();
 }
 
-bool ofApp::isPlaying() {
-    return videoPlayer.isPlaying() && !videoPlayer.isPaused();
-}
-
 bool ofApp::loadVideo() {
     videoPlayer = ofVideoPlayer();
     if (!videoPlayer.loadMovie(ofToDataPath(configuration.VideoFileName))) {
@@ -182,7 +178,7 @@ void ofApp::updateVideo(const int distance) {
     }
     int currentFrame = videoPlayer.getCurrentFrame();
     int destinationFrame = frameForDistance(distance);
-    if (isPlaying()) {
+    if (videoPlayer.isPlaying() && !videoPlayer.isPaused()) {
         if (videoPlayer.getSpeed() == kForward) {
             if (currentFrame >= destinationFrame) {
                 videoPlayer.setPaused(true);
@@ -345,11 +341,12 @@ void ofApp::draw(){
     
     if (configuration.DebugOverlay) {
         int y = 20;
+        bool isPlaying = videoPlayer.isPlaying() && !videoPlayer.isPaused();
         hudFont.drawString("distance=" + ofToString(distance), 10, y);
         hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
         hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
         hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 600, y);
-        hudFont.drawString("video=" + ofToString(isPlaying() ? "yes" : "no"), 800, y);
+        hudFont.drawString("video=" + ofToString(isPlaying ? "yes" : "no"), 800, y);
         
         y = 40;
         hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);

@@ -50,7 +50,7 @@ void ofApp::setup(){
     }
 
     // Hint
-    if (!hintFont.loadFont("verdana.ttf", 50, true, true)) {
+    if (!hintFont.loadFont("verdana.ttf", 40, true, true)) {
         std::cerr << "Error loading HUD font" << std::endl;
     }
 
@@ -393,10 +393,10 @@ void ofApp::draw(){
         ofFill();
         ofSetHexColor(kColorBlack);
         hintFont.drawString("Säästetud elusid kokku: " + ofToString(gameStats.TotalSaves()),
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            50,
                             ofGetWindowHeight() - 150);
         hintFont.drawString("Saved lifes total: " + ofToString(gameStats.TotalSaves()),
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            50,
                             ofGetWindowHeight() - 50);
 
     } else if (kStateStatsKilled == state.name) {
@@ -405,24 +405,16 @@ void ofApp::draw(){
         ofFill();
         ofSetHexColor(kColorWhite);
         hintFont.drawString("Hukkamisi kokku: " + ofToString(gameStats.TotalKills()),
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            50,
                             ofGetWindowHeight() - 150);
         hintFont.drawString("Total kills: " + ofToString(gameStats.TotalKills()),
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
+                            50,
                             ofGetWindowHeight() - 50);
 
     } else if (kStateWaiting == state.name) {
         ofSetHexColor(kColorWhite);
-        ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
         ofFill();
         intro.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-        ofSetHexColor(kColorBlack);
-        hintFont.drawString("Astuge ringi.",
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
-                            ofGetWindowHeight() - 150);
-        hintFont.drawString("Step into the circle.",
-                            ofGetWindowWidth() / 2 - ofGetWindowWidth() / 4,
-                            ofGetWindowHeight() - 50);
 
     } else if (kStateStarted == state.name || kStateSaved == state.name) {
         ofSetHexColor(kColorWhite);

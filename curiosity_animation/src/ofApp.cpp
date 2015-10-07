@@ -47,10 +47,10 @@ void ofApp::setup(){
     }
 
     // Hint
-    if (!hintFont.loadFont("verdana.ttf", 100, true, true)) {
+    if (!hintFont.loadFont("HelveticaNeue-Regular.ttf", 50, true, true)) {
         std::cerr << "Error loading hint font" << std::endl;
     }
-    if (!numberFont.loadFont("verdana.ttf", 200, true, true)) {
+    if (!numberFont.loadFont("HelveticaNeue-Regular.ttf", 200, true, true)) {
         std::cerr << "Error loading number font" << std::endl;
     }
 

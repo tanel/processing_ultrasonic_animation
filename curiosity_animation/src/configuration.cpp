@@ -15,51 +15,26 @@ bool Configuration::Read() {
     // Read configuration or create default
     ofxXmlSettings xml;
     if (!xml.loadFile(path)) {
-        xml.setValue("configuration:Fullscreen", Fullscreen);
-        xml.setValue("configuration:MinDistance", MinDistance);
-        xml.setValue("configuration:MaxDistance", MaxDistance);
-        xml.setValue("configuration:DeathZone", DeathZone);
-        xml.setValue("configuration:SaveZone", SaveZone);
-        xml.setValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
-        xml.setValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        xml.setValue("configuration:StartingVolume", StartingVolume);
-        xml.setValue("configuration:FinishingVolume", FinishingVolume);
-        xml.setValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
-        xml.setValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
-        xml.setValue("configuration:FrameRate", FrameRate);
-        xml.setValue("configuration:VideoFileName", VideoFileName);
-        xml.setValue("configuration:IntroFileName", IntroFileName);
-        xml.setValue("configuration:DebugOverlay", DebugOverlay);
-        xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
-        xml.setValue("configuration:KillVideoFileName", KillVideoFileName);
-        xml.setValue("configuration:WaitingVolume", WaitingVolume);
-        xml.setValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
-        
-        if (!xml.saveFile(path)) {
-            std::cerr << "Error saving configuration file" << std::endl;
-            return false;
-        }
-    } else {
-        Fullscreen = xml.getValue("configuration:Fullscreen", Fullscreen);
-        MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
-        MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
-        DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
-        SaveZone = xml.getValue("configuration:SaveZone", SaveZone);
-        RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
-        ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
-        StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);
-        FinishingVolume = xml.getValue("configuration:FinishingVolume", FinishingVolume);
-        StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
-        FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
-        FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
-        VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
-        IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
-        DebugOverlay = xml.getValue("configuration:DebugOverlay", DebugOverlay);
-        AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
-        KillVideoFileName = xml.getValue("configuration:KillVideoFileName", KillVideoFileName);
-        WaitingVolume = xml.getValue("configuration:WaitingVolume", WaitingVolume);
-        SaveActivateSeconds = xml.setValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
+        return false;
     }
-    
+    Fullscreen = xml.getValue("configuration:Fullscreen", Fullscreen);
+    MinDistance = xml.getValue("configuration:MinDistance", MinDistance);
+    MaxDistance = xml.getValue("configuration:MaxDistance", MaxDistance);
+    DeathZone = xml.getValue("configuration:DeathZone", DeathZone);
+    SaveZone = xml.getValue("configuration:SaveZone", SaveZone);
+    RestartIntervalSeconds = xml.getValue("configuration:RestartIntervalSeconds", RestartIntervalSeconds);
+    ActiveSerialPort = xml.getValue("configuration:ActiveSerialPort", ActiveSerialPort);
+    StartingVolume = xml.getValue("configuration:StartingVolume", StartingVolume);
+    FinishingVolume = xml.getValue("configuration:FinishingVolume", FinishingVolume);
+    StartingHeartBeatSpeed = xml.getValue("configuration:StartingHeartBeatSpeed", StartingHeartBeatSpeed);
+    FinishingHeartBeatSpeed = xml.getValue("configuration:FinishingHeartBeatSpeed", FinishingHeartBeatSpeed);
+    FrameRate = xml.getValue("configuration:FrameRate", FrameRate);
+    VideoFileName = xml.getValue("configuration:VideoFileName", VideoFileName);
+    IntroFileName = xml.getValue("configuration:IntroFileName", IntroFileName);
+    DebugOverlay = xml.getValue("configuration:DebugOverlay", DebugOverlay);
+    AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
+    KillVideoFileName = xml.getValue("configuration:KillVideoFileName", KillVideoFileName);
+    WaitingVolume = xml.getValue("configuration:WaitingVolume", WaitingVolume);
+    SaveActivateSeconds = xml.setValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
     return true;
 }

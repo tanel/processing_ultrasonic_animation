@@ -24,13 +24,13 @@ class GameState {
 public:
     GameState()
     : name(kStateWaiting)
-    , saveZoneActive(false)
+    , saveActivatedAt(0)
     , finishedAt(0)
     , fps(0) {}
     
     // Current game state
     std::string name;
-    bool saveZoneActive;
+    long saveActivatedAt;
     long finishedAt;
     
     // App state, you should not touch these;

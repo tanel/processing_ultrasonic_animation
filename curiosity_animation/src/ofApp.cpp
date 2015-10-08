@@ -118,17 +118,18 @@ void ofApp::update(){
             // Determine if user is now in the death zone
             killGame();
 
-        } else if (state.saveZoneActive
-                   && distance > configuration.MaxDistance - configuration.SaveZone) {
+        } else if (state.saveActivatedAt
+                   && (distance > configuration.MaxDistance - configuration.SaveZone)
+                   && ((state.saveActivatedAt + (configuration.SaveActivateSeconds*1000)) < now)) {
             // If save zone is active and user finds itself in it,
             // then declare the game saved and finish it.
             saveGame("user walked into save zone");
 
-        } else if (!state.saveZoneActive
+        } else if (!state.saveActivatedAt
                    && distance < configuration.MaxDistance - configuration.SaveZone) {
             // If user has moved out of save zone, and game is not finished
             // yet, activate save zone
-            state.saveZoneActive = true;
+            state.saveActivatedAt = now;
 
         } else if (serialReader.LastUserInputAt() < now - (configuration.AutoSaveSeconds*1000)) {
 
@@ -355,16 +356,22 @@ const int kColorBlack = 0x000000;
 void ofApp::draw(){
     long now = ofGetElapsedTimeMillis();
 
-    int restartCountdownSeconds = 0;
+    int restartCountdownSeconds(0);
     if (kStateStatsSaved == state.name || kStateStatsKilled == state.name) {
         int beenDeadSeconds = (now - state.finishedAt) / 1000;
         restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
     }
 
-    int autosaveCountdownSeconds = 0;
+    int autosaveCountdownSeconds(0);
     if (kStateStarted == state.name) {
         int inactiveSeconds = (now - serialReader.LastUserInputAt()) / 1000;
         autosaveCountdownSeconds = configuration.AutoSaveSeconds - inactiveSeconds;
+    }
+
+    int saveAllowedCountdownSeconds(0);
+    if (kStateStarted == state.name && state.saveActivatedAt) {
+        int saveActivedSeconds = (now - state.saveActivatedAt) / 1000;
+        saveAllowedCountdownSeconds = configuration.SaveActivateSeconds - saveActivedSeconds;
     }
 
     // Update HUD
@@ -386,7 +393,7 @@ void ofApp::draw(){
         hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
         hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
         hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
-        hudFont.drawString("save active=" + ofToString(state.saveZoneActive ? "yes" : "no"), 600, y);
+        hudFont.drawString("may save in=" + ofToString(saveAllowedCountdownSeconds), 600, y);
         hudFont.drawString("autosave=" + ofToString(autosaveCountdownSeconds), 800, y);
     }
 

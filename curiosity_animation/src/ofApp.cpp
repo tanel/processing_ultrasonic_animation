@@ -369,7 +369,6 @@ void ofApp::draw(){
 
     // Update HUD
 
-
     const int distance = serialReader.Reading();
 
     ofSetColor(255);

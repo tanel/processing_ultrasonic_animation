@@ -22,7 +22,7 @@ public:
     , SaveZone(40)
     , RestartIntervalSeconds(30)
     , ActiveSerialPort(0)
-    , StartingVolume(0.2)
+    , StartingVolume(0.5)
     , FinishingVolume(1.0)
     , StartingHeartBeatSpeed(1.0)
     , FinishingHeartBeatSpeed(2.0)
@@ -32,10 +32,12 @@ public:
     , IntroFileName("intro.jpg")
     , DebugOverlay(true)
     , AutoSaveSeconds(60)
-    , KillVideoFileName("kill.mov") {}
-    
+    , KillVideoFileName("kill.mov")
+    , WaitingVolume(0.1)
+    , SaveActivateSeconds(10) {}
+
     bool Read();
-    
+
     bool Fullscreen;
     int MinDistance;
     int MaxDistance;
@@ -54,6 +56,8 @@ public:
     bool DebugOverlay;
     int AutoSaveSeconds;
     std::string KillVideoFileName;
+    float WaitingVolume;
+    int SaveActivateSeconds;
 };
 
 

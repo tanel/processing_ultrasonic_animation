@@ -32,6 +32,8 @@ bool Configuration::Read() {
         xml.setValue("configuration:DebugOverlay", DebugOverlay);
         xml.setValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         xml.setValue("configuration:KillVideoFileName", KillVideoFileName);
+        xml.setValue("configuration:WaitingVolume", WaitingVolume);
+        xml.setValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
         
         if (!xml.saveFile(path)) {
             std::cerr << "Error saving configuration file" << std::endl;
@@ -55,6 +57,8 @@ bool Configuration::Read() {
         DebugOverlay = xml.getValue("configuration:DebugOverlay", DebugOverlay);
         AutoSaveSeconds = xml.getValue("configuration:AutoSaveSeconds", AutoSaveSeconds);
         KillVideoFileName = xml.getValue("configuration:KillVideoFileName", KillVideoFileName);
+        WaitingVolume = xml.getValue("configuration:WaitingVolume", WaitingVolume);
+        SaveActivateSeconds = xml.setValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
     }
     
     return true;

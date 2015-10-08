@@ -285,6 +285,15 @@ void ofApp::updateAudio(const int distance) {
                                       totalNumOfFrames,
                                       configuration.StartingHeartBeatSpeed,
                                       configuration.FinishingHeartBeatSpeed));
+        if (kStateWaiting == state.name) {
+            heartbeatSound.setVolume(configuration.WaitingVolume);
+        } else {
+            heartbeatSound.setVolume(ofMap(videoPlayer.getCurrentFrame(),
+                                           0,
+                                           totalNumOfFrames,
+                                           configuration.StartingVolume,
+                                           configuration.FinishingVolume));
+        }
     }
     ofSoundUpdate();
 }

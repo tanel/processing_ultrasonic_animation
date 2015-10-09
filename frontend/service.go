@@ -10,15 +10,10 @@ import (
 	"net/http/pprof"
 	"os"
 	"path/filepath"
-	"sync"
-	"time"
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/oleksandr/bonjour"
 )
-
-const serviceName = "animation_server"
 
 func main() {
 	flag.Parse()
@@ -51,23 +46,30 @@ func main() {
 		log.Println("cannot run both in server and client mode")
 		os.Exit(1)
 	}
-	s := &service{}
 	if *server {
 		log.Println("running server on port", *port)
-		if err := s.register(); err != nil {
-			log.Println("error registering service", err)
+		h := http.FileServer(http.Dir(*folder))
+		err := http.ListenAndServe(fmt.Sprintf(":%d", *port), h)
+		if err != nil {
+			log.Println("error serving", err)
 			os.Exit(1)
 		}
 	}
 	if *client {
+		if len(*backendHost) == 0 {
+			log.Println("missing backend host")
+			os.Exit(1)
+		}
+		if *backendPort == 0 {
+			log.Println("missing backend port")
+			os.Exit(1)
+		}
 		log.Println("running client on port", *port)
-		go func() {
-			if err := s.browseUpdates(); err != nil {
-				log.Println("error browsing updates", err)
-				os.Exit(1)
-			}
-		}()
-		if err := s.proxyRequests(); err != nil {
+		router := mux.NewRouter()
+		attachProfiler(router)
+		router.Handle("/gamestats.json", recoverWrap(http.HandlerFunc(handlerFunc))).Methods("GET", "OPTIONS")
+		err := http.ListenAndServe(fmt.Sprintf(":%d", *port), context.ClearHandler(router))
+		if err != nil {
 			log.Println("error proxying requests", err)
 			os.Exit(1)
 		}
@@ -77,8 +79,8 @@ func main() {
 
 var cacheFilename = filepath.Join("/", "tmp", "cached_gamestats.json")
 
-func (s *service) fetchData() ([]byte, error) {
-	resp, err := http.Get(fmt.Sprintf("http://%s:%d/gamestats.json", s.HostName, s.Port))
+func fetchData() ([]byte, error) {
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/gamestats.json", *backendHost, *backendPort))
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +95,9 @@ func (s *service) fetchData() ([]byte, error) {
 	return b, nil
 }
 
-func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
+func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	log.Println("serving request")
-	b, err := s.fetchData()
+	b, err := fetchData()
 	if err != nil {
 		log.Println("error fetching data", err)
 		b, err = ioutil.ReadFile(cacheFilename)
@@ -113,13 +115,6 @@ func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error writing data to client", err)
 	}
-}
-
-func (s *service) proxyRequests() error {
-	router := mux.NewRouter()
-	attachProfiler(router)
-	router.Handle("/gamestats.json", recoverWrap(http.HandlerFunc(s.handlerFunc))).Methods("GET", "OPTIONS")
-	return http.ListenAndServe(fmt.Sprintf(":%d", *port), context.ClearHandler(router))
 }
 
 func attachProfiler(router *mux.Router) {
@@ -142,73 +137,13 @@ func exists(path string) (bool, error) {
 }
 
 var (
-	server = flag.Bool("server", false, "serve data file over HTTP and advertise the service")
-	folder = flag.String("folder", "", "folder that includes gamestats.json")
-	client = flag.Bool("client", false, "find where HTTP data is served and proxy it to localhost")
-	port   = flag.Int("port", 8000, "port to listen on")
+	server      = flag.Bool("server", false, "serve data file over HTTP and advertise the service")
+	folder      = flag.String("folder", "", "folder that includes gamestats.json")
+	client      = flag.Bool("client", false, "find where HTTP data is served and proxy it to localhost")
+	port        = flag.Int("port", 8000, "port to listen on")
+	backendPort = flag.Int("backend_port", 9000, "backend service is assumed to run on this port")
+	backendHost = flag.String("backend_host", "", "backend service is assumed to run on this host")
 )
-
-type service struct {
-	HostName string
-	Port     int
-	m        sync.Mutex
-}
-
-func (s *service) update(entry *bonjour.ServiceEntry) {
-	s.m.Lock()
-	defer s.m.Unlock()
-	s.HostName = entry.HostName
-	s.Port = entry.Port
-}
-
-func (s *service) String() string {
-	return fmt.Sprintf("%s:%d", s.HostName, s.Port)
-}
-
-func (s *service) register() error {
-	// Run registration (blocking call)
-	bonjourService, err := bonjour.Register(serviceName, "_foobar._tcp", "", *port, []string{"txtv=1", "app=test"}, nil)
-	if err != nil {
-		return err
-	}
-	defer bonjourService.Shutdown()
-	h := http.FileServer(http.Dir(*folder))
-	return http.ListenAndServe(fmt.Sprintf(":%d", *port), h)
-}
-
-func (s *service) browseUpdates() error {
-	log.Println("resolving")
-
-	resolver, err := bonjour.NewResolver(nil)
-	if err != nil {
-		log.Println("Failed to initialize resolver:", err.Error())
-		return err
-	}
-
-	results := make(chan *bonjour.ServiceEntry)
-
-	go func(results chan *bonjour.ServiceEntry, exitCh chan<- bool) {
-		for e := range results {
-			log.Printf("found service %s", e.Instance)
-			if serviceName == e.Instance {
-				s.update(e)
-				log.Println("updated", s)
-			}
-		}
-	}(results, resolver.Exit)
-
-	go func() {
-		for {
-			err := resolver.Browse("_foobar._tcp", "local.", results)
-			if err != nil {
-				log.Println("Failed to browse:", err.Error())
-			}
-			time.Sleep(1 * time.Second)
-		}
-	}()
-
-	select {}
-}
 
 func recoverWrap(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"sync"
@@ -116,8 +117,16 @@ func (s *service) handlerFunc(w http.ResponseWriter, r *http.Request) {
 
 func (s *service) proxyRequests() error {
 	router := mux.NewRouter()
-	router.Handle("/gamestats.json", RecoverWrap(http.HandlerFunc(s.handlerFunc))).Methods("GET", "OPTIONS")
+	attachProfiler(router)
+	router.Handle("/gamestats.json", recoverWrap(http.HandlerFunc(s.handlerFunc))).Methods("GET", "OPTIONS")
 	return http.ListenAndServe(fmt.Sprintf(":%d", *port), context.ClearHandler(router))
+}
+
+func attachProfiler(router *mux.Router) {
+	router.HandleFunc("/debug/pprof/", pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 }
 
 // exists returns whether the given file or directory exists or not
@@ -201,7 +210,7 @@ func (s *service) browseUpdates() error {
 	select {}
 }
 
-func RecoverWrap(h http.Handler) http.Handler {
+func recoverWrap(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		defer func() {

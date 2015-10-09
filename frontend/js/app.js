@@ -24,7 +24,11 @@ $(function () {
     // callback func for ajax timer
     window.ajaxFunc = function () {
         console.log("updating data using AJAX");
-        $.get("http://localhost:8000/gamestats.json", function (data) {
+        var url = "http://localhost:8000/gamestats.json";
+        if ("ox.linnagalerii.ee" === window.location.host) {
+            url = "http://ox.linnagalerii.ee/gamestats.json";
+        }
+        $.get(url, function (data) {
             console.log(data);
             window.stats = data;
         }).fail(function (xhr, err) {

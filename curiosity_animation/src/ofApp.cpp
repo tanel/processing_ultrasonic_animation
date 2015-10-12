@@ -263,7 +263,12 @@ void ofApp::uploadStats() {
     if (configuration.UploadCommand.empty()) {
         return;
     }
+    long start = ofGetElapsedTimeMillis();
+    std::cout << "Uploading stats" << std::endl;
     std::cout << ofSystem(configuration.UploadCommand) << std::endl;
+    int millis = ofGetElapsedTimeMillis() - start;
+    std::cout << "Upload of stats done in "
+    << millis << " ms" << std::endl;
 }
 
 void ofApp::keyPressed(int key) {

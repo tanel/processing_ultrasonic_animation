@@ -159,10 +159,14 @@ $(function () {
         // find todays stats
         var today = moment().format(window.settings.jsonDateFormat),
             todaysResults = window.stats.history[today];
-        if (todaysResults) {
-            $(".today_saves").text(todaysResults.saves);
-            $(".today_kills").text(todaysResults.kills);
+        if (!todaysResults) {
+            todaysResults = {
+                saves: 0,
+                kills: 0,
+            };
         }
+        $(".today_saves").text(todaysResults.saves);
+        $(".today_kills").text(todaysResults.kills);
     };
 
     // Until we have real data from backend, use today's date

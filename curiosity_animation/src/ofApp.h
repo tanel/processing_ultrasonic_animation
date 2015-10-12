@@ -31,6 +31,7 @@ private:
     void saveGame(const std::string reason);
     void killGame();
     void showStats();
+    void uploadStats();
     
     Configuration configuration;
     

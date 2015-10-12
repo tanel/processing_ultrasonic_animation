@@ -34,7 +34,8 @@ public:
     , AutoSaveSeconds(60)
     , KillVideoFileName("kill.mov")
     , WaitingVolume(0.1)
-    , SaveActivateSeconds(10) {}
+    , SaveActivateSeconds(10)
+    , UploadCommand("") {}
 
     bool Read();
 
@@ -58,6 +59,7 @@ public:
     std::string KillVideoFileName;
     float WaitingVolume;
     int SaveActivateSeconds;
+    std::string UploadCommand;
 };
 
 

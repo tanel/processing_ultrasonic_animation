@@ -239,6 +239,8 @@ void ofApp::killGame() {
     state.name = kStateKilled;
 
     gameStats.AddKill();
+
+    uploadStats();
 }
 
 void ofApp::saveGame(const std::string reason) {
@@ -253,6 +255,15 @@ void ofApp::saveGame(const std::string reason) {
     state.name = kStateSaved;
 
     gameStats.AddSave();
+
+    uploadStats();
+}
+
+void ofApp::uploadStats() {
+    if (configuration.UploadCommand.empty()) {
+        return;
+    }
+    std::cout << ofSystem(configuration.UploadCommand) << std::endl;
 }
 
 void ofApp::keyPressed(int key) {

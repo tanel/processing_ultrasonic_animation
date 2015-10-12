@@ -36,5 +36,6 @@ bool Configuration::Read() {
     KillVideoFileName = xml.getValue("configuration:KillVideoFileName", KillVideoFileName);
     WaitingVolume = xml.getValue("configuration:WaitingVolume", WaitingVolume);
     SaveActivateSeconds = xml.getValue("configuration:SaveActivateSeconds", SaveActivateSeconds);
+    UploadCommand = xml.getValue("configuration:UploadCommand", UploadCommand);
     return true;
 }

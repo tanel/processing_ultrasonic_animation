@@ -17,6 +17,7 @@
 		74ACA36D1B7911E2009EC19A /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3671B7911E2009EC19A /* tinyxmlparser.cpp */; };
 		74ACA36E1B7911E2009EC19A /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74ACA3691B7911E2009EC19A /* ofxXmlSettings.cpp */; };
 		74E93E511B66752C00394CB9 /* data in Resources */ = {isa = PBXBuildFile; fileRef = 74E93E4D1B66744500394CB9 /* data */; };
+		74EF5EF41BCC1E940059A29E /* stats_uploader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74EF5EF21BCC1E940059A29E /* stats_uploader.cpp */; settings = {ASSET_TAGS = (); }; };
 		74F1265C1BB81EB700487B14 /* jsoncpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74F1265B1BB81EB700487B14 /* jsoncpp.cpp */; settings = {ASSET_TAGS = (); }; };
 		74F126611BB81EC800487B14 /* ofxJSONElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 74F1265F1BB81EC800487B14 /* ofxJSONElement.cpp */; settings = {ASSET_TAGS = (); }; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -88,6 +89,8 @@
 		74ACA3691B7911E2009EC19A /* ofxXmlSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxXmlSettings.cpp; sourceTree = "<group>"; };
 		74ACA36A1B7911E2009EC19A /* ofxXmlSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxXmlSettings.h; sourceTree = "<group>"; };
 		74E93E4D1B66744500394CB9 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../data; sourceTree = "<group>"; };
+		74EF5EF21BCC1E940059A29E /* stats_uploader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats_uploader.cpp; sourceTree = "<group>"; };
+		74EF5EF31BCC1E940059A29E /* stats_uploader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = stats_uploader.hpp; sourceTree = "<group>"; };
 		74F126581BB81EB700487B14 /* json-forwards.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "json-forwards.h"; sourceTree = "<group>"; };
 		74F126591BB81EB700487B14 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json.h; sourceTree = "<group>"; };
 		74F1265B1BB81EB700487B14 /* jsoncpp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsoncpp.cpp; sourceTree = "<group>"; };
@@ -313,6 +316,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				74EF5EF21BCC1E940059A29E /* stats_uploader.cpp */,
+				74EF5EF31BCC1E940059A29E /* stats_uploader.hpp */,
 				742CE8561BBC161E001F64D6 /* game_state.cpp */,
 				742CE8571BBC161E001F64D6 /* game_state.hpp */,
 				7495F6E71BBAB8F000B9482B /* game_stats.cpp */,
@@ -443,6 +448,7 @@
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				74ACA36B1B7911E2009EC19A /* tinyxml.cpp in Sources */,
 				742CE8581BBC161E001F64D6 /* game_state.cpp in Sources */,
+				74EF5EF41BCC1E940059A29E /* stats_uploader.cpp in Sources */,
 				74F126611BB81EC800487B14 /* ofxJSONElement.cpp in Sources */,
 				7495F6EC1BBAB95700B9482B /* configuration.cpp in Sources */,
 				74ACA36D1B7911E2009EC19A /* tinyxmlparser.cpp in Sources */,

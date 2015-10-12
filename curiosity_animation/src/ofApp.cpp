@@ -34,6 +34,10 @@ void ofApp::setup(){
     serialReader.ActiveSerialPort = configuration.ActiveSerialPort;
     serialReader.startThread();
 
+    // stats uploader
+    statsUploader.SetUploadCommand(configuration.UploadCommand);
+    statsUploader.startThread();
+
     // HUD
     if (!hudFont.loadFont("verdana.ttf", 12, true, true)) {
         std::cerr << "Error loading HUD font" << std::endl;
@@ -79,6 +83,7 @@ const int kBack = -1;
 
 void ofApp::exit() {
     serialReader.stopThread();
+    statsUploader.stopThread();
 }
 
 bool ofApp::loadVideo() {
@@ -260,15 +265,7 @@ void ofApp::saveGame(const std::string reason) {
 }
 
 void ofApp::uploadStats() {
-    if (configuration.UploadCommand.empty()) {
-        return;
-    }
-    long start = ofGetElapsedTimeMillis();
-    std::cout << "Uploading stats" << std::endl;
-    std::cout << ofSystem(configuration.UploadCommand) << std::endl;
-    int millis = ofGetElapsedTimeMillis() - start;
-    std::cout << "Upload of stats done in "
-    << millis << " ms" << std::endl;
+    statsUploader.SetDirty();
 }
 
 void ofApp::keyPressed(int key) {

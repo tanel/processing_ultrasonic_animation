@@ -12,6 +12,7 @@
 #include "game_state.hpp"
 #include "game_stats.hpp"
 #include "serial_reader.hpp"
+#include "stats_uploader.hpp"
 
 class ofApp : public ofBaseApp {
 public:
@@ -38,6 +39,8 @@ private:
     GameState state;
     
     SerialReader serialReader;
+
+    StatsUploader statsUploader;
     
     // HUD
     ofTrueTypeFont hudFont;

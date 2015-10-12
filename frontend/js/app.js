@@ -247,7 +247,7 @@ $(function () {
 
     console.log("initialized");
 
-    window.displayCharts();
+    window.chartRotateFunc();
 
     // Start by updating data
     window.ajaxFunc();

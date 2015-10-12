@@ -21,6 +21,9 @@ $(function () {
     // we'll keep data here
     window.stats = {};
 
+    // need to update charts faster on initial load
+    window.firstLoadDone = false;
+
     // callback func for ajax timer
     window.ajaxFunc = function () {
         console.log("updating data using AJAX");
@@ -31,6 +34,10 @@ $(function () {
         $.get(url, function (data) {
             console.log(data);
             window.stats = data;
+            if (!window.firstLoadDone) {
+                window.displayCharts();
+                window.firstLoadDone = true;
+            }
         }).fail(function (xhr, err) {
             $('#last_error').text(String(err) + " (" + String(xhr.status) + ")");
         }).success(function () {
@@ -53,16 +60,21 @@ $(function () {
     window.chartRotateFunc = function () {
         console.log("rotating charts");
 
+        window.currentChart = window.currentChart + 1;
+        if (window.currentChart > 3) {
+            window.currentChart = 0;
+        }
+
+        window.displayCharts();
+    };
+
+    window.displayCharts = function () {
         window.ensureData();
 
         window.displayDates();
 
         window.displayTotals();
 
-        window.currentChart = window.currentChart + 1;
-        if (window.currentChart > 3) {
-            window.currentChart = 0;
-        }
 
         // Hide visible chart(s)
         $('.stats').hide();
@@ -235,7 +247,7 @@ $(function () {
 
     console.log("initialized");
 
-    window.chartRotateFunc();
+    window.displayCharts();
 
     // Start by updating data
     window.ajaxFunc();

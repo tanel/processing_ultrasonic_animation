@@ -264,5 +264,10 @@ $(function () {
 
     // Start by updating data
     window.ajaxFunc();
+
+    // In final state, replace Subtotal -> Total
+    if (window.settings.finalState) {
+        $('.subtotal-label').text('Kokkuvõte / Total');
+    }
 });
 

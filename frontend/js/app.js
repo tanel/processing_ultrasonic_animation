@@ -11,6 +11,7 @@ $(function () {
         killColor: "#000000",
         saveColor: "#F2F2F2",
         borderColor: "#F9F9F9",
+        finalState: true,
     };
 
     $('#toggle_last_update_panel').click(function () {
@@ -29,7 +30,11 @@ $(function () {
         console.log("updating data using AJAX");
         var url = "http://localhost:8000/gamestats.json";
         if ("ox.linnagalerii.ee" === window.location.host) {
-            url = "http://ox.linnagalerii.ee/gamestats.json";
+            if (window.settings.finalState) {
+                url = "http://ox.linnagalerii.ee/gamestats_final.json";
+            } else {
+                url = "http://ox.linnagalerii.ee/gamestats.json";
+            }
         }
         $.get(url, function (data) {
             console.log(data);
@@ -61,6 +66,14 @@ $(function () {
         console.log("rotating charts");
 
         window.currentChart = window.currentChart + 1;
+
+        // Dont show todays stats in final state
+        if (window.settings.finalState) {
+            if (1 === window.currentChart) {
+                window.currentChart = 2;
+            }
+        }
+
         if (window.currentChart > 3) {
             window.currentChart = 0;
         }

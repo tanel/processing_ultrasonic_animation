@@ -1,5 +1,6 @@
 #include "ofxJSONElement.h"
 
+using namespace std;
 
 ofxJSONElement::ofxJSONElement()
 {
